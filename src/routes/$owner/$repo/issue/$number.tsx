@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
 
 import { RepoHeader } from "@/components/repo/repo-header";
@@ -7,7 +7,9 @@ import { PageSpinner } from "@/components/ui/spinner";
 import { IssueDetailHeader } from "@/components/issue-detail/issue-detail-header";
 import { IssueDetailOverview } from "@/components/issue-detail/issue-detail-overview";
 import { IssueDetailSidebar } from "@/components/issue-detail/issue-detail-sidebar";
-import { fetchIssue, fetchIssueComments } from "@/lib/api/github";
+import { CommentForm } from "@/components/ui/comment-form";
+import { fetchIssue, fetchIssueComments, createIssueComment } from "@/lib/api/github";
+import type { PRComment } from "@/lib/types/github";
 
 export const Route = createFileRoute("/$owner/$repo/issue/$number")({
   component: IssueDetailPage,
@@ -16,6 +18,7 @@ export const Route = createFileRoute("/$owner/$repo/issue/$number")({
 function IssueDetailPage() {
   const { owner, repo, number } = Route.useParams();
   const issueNumber = parseInt(number, 10);
+  const queryClient = useQueryClient();
 
   // Fetch issue and comments in parallel
   const { data: issue, isLoading: issueLoading } = useQuery({
@@ -27,6 +30,58 @@ function IssueDetailPage() {
     queryKey: ["issue-comments", owner, repo, issueNumber],
     queryFn: () => fetchIssueComments(owner, repo, issueNumber),
   });
+
+  // Mutation for creating comments
+  const createCommentMutation = useMutation({
+    mutationFn: (body: string) => createIssueComment(owner, repo, issueNumber, body),
+    onMutate: async (body) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ["issue-comments", owner, repo, issueNumber] });
+
+      // Snapshot previous value
+      const previousComments = queryClient.getQueryData<PRComment[]>([
+        "issue-comments",
+        owner,
+        repo,
+        issueNumber,
+      ]);
+
+      // Optimistically update with a temporary comment
+      const optimisticComment: PRComment = {
+        id: Date.now(), // Temporary ID
+        body,
+        user: {
+          login: "You", // Placeholder
+          avatarUrl: "", // Placeholder
+        },
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      queryClient.setQueryData<PRComment[]>(["issue-comments", owner, repo, issueNumber], (old) =>
+        old ? [...old, optimisticComment] : [optimisticComment],
+      );
+
+      return { previousComments, optimisticComment };
+    },
+    onError: (_err, _body, context) => {
+      // Revert optimistic update on error
+      if (context?.previousComments) {
+        queryClient.setQueryData(
+          ["issue-comments", owner, repo, issueNumber],
+          context.previousComments,
+        );
+      }
+    },
+    onSettled: () => {
+      // Always refetch after error or success
+      queryClient.invalidateQueries({ queryKey: ["issue-comments", owner, repo, issueNumber] });
+    },
+  });
+
+  const handleCommentSubmit = async (body: string) => {
+    await createCommentMutation.mutateAsync(body);
+  };
 
   const isLoading = issueLoading || commentsLoading;
 
@@ -54,6 +109,10 @@ function IssueDetailPage() {
               {/* Main content */}
               <div className="flex-1 min-w-0">
                 <IssueDetailOverview body={issue.body} comments={comments} />
+                <CommentForm
+                  onSubmit={handleCommentSubmit}
+                  disabled={createCommentMutation.isPending}
+                />
               </div>
 
               {/* Sidebar */}
