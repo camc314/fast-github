@@ -52,6 +52,7 @@ export interface Issue {
   state: IssueState;
   user: User;
   labels: Label[];
+  assignees: User[];
   createdAt: string;
   updatedAt: string;
   closedAt: string | null;
@@ -129,6 +130,20 @@ export interface PRComment {
   user: User;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface PRReviewComment {
+  id: number;
+  body: string;
+  user: User;
+  path: string;
+  line: number | null;
+  originalLine: number | null;
+  side: "LEFT" | "RIGHT";
+  createdAt: string;
+  updatedAt: string;
+  inReplyToId: number | null;
+  replies: PRReviewComment[];
 }
 
 // Review types
