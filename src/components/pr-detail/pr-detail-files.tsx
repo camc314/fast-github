@@ -8,9 +8,12 @@ import {
   Copy,
   ChevronRight,
   ChevronDown,
+  Columns,
+  Rows,
 } from "lucide-react";
 import type { PRFile, PRFileStatus } from "@/lib/types/github";
-import { DiffViewer } from "@/components/diff/diff-viewer";
+import { DiffViewer, type DiffViewMode } from "@/components/diff/diff-viewer";
+import { usePreferences } from "@/lib/hooks/use-preferences";
 
 interface PRDetailFilesProps {
   files: PRFile[];
@@ -56,13 +59,14 @@ interface FileAccordionItemProps {
   file: PRFile;
   isExpanded: boolean;
   onToggle: () => void;
+  viewMode: DiffViewMode;
 }
 
 /**
  * Single file accordion item - memoized to prevent re-renders when other files change
  */
 const FileAccordionItem = memo(
-  function FileAccordionItem({ file, isExpanded, onToggle }: FileAccordionItemProps) {
+  function FileAccordionItem({ file, isExpanded, onToggle, viewMode }: FileAccordionItemProps) {
     return (
       <div className="border-b border-neutral-200 last:border-b-0">
         {/* File header - clickable */}
@@ -97,7 +101,9 @@ const FileAccordionItem = memo(
         </button>
 
         {/* Diff viewer - only rendered when expanded */}
-        {isExpanded && <DiffViewer patch={file.patch} filename={file.filename} />}
+        {isExpanded && (
+          <DiffViewer patch={file.patch} filename={file.filename} viewMode={viewMode} />
+        )}
       </div>
     );
   },
@@ -105,6 +111,7 @@ const FileAccordionItem = memo(
   (prevProps, nextProps) => {
     return (
       prevProps.isExpanded === nextProps.isExpanded &&
+      prevProps.viewMode === nextProps.viewMode &&
       prevProps.file.filename === nextProps.file.filename &&
       prevProps.file.patch === nextProps.file.patch &&
       prevProps.file.additions === nextProps.file.additions &&
@@ -114,9 +121,50 @@ const FileAccordionItem = memo(
   },
 );
 
+interface ViewModeToggleProps {
+  viewMode: DiffViewMode;
+  onChange: (mode: DiffViewMode) => void;
+}
+
+function ViewModeToggle({ viewMode, onChange }: ViewModeToggleProps) {
+  return (
+    <div className="flex items-center gap-1 p-0.5 bg-neutral-100 rounded-md">
+      <button
+        type="button"
+        onClick={() => onChange("unified")}
+        className={`flex items-center gap-1.5 px-2 py-1 text-xs font-medium rounded transition-colors ${
+          viewMode === "unified"
+            ? "bg-white text-neutral-900 shadow-sm"
+            : "text-neutral-500 hover:text-neutral-700"
+        }`}
+        title="Unified view"
+      >
+        <Rows size={14} />
+        <span>Unified</span>
+      </button>
+      <button
+        type="button"
+        onClick={() => onChange("split")}
+        className={`flex items-center gap-1.5 px-2 py-1 text-xs font-medium rounded transition-colors ${
+          viewMode === "split"
+            ? "bg-white text-neutral-900 shadow-sm"
+            : "text-neutral-500 hover:text-neutral-700"
+        }`}
+        title="Split view"
+      >
+        <Columns size={14} />
+        <span>Split</span>
+      </button>
+    </div>
+  );
+}
+
 export function PRDetailFiles({ files }: PRDetailFilesProps) {
   // Track which files are collapsed (default: all expanded)
   const [collapsedFiles, setCollapsedFiles] = useState<Set<string>>(new Set());
+  // Get view mode from persisted preferences
+  const { preferences, setDiffViewMode } = usePreferences();
+  const viewMode = preferences.diffViewMode;
 
   // Toggle handler - memoized to avoid creating new functions on each render
   const createToggleHandler = useCallback(
@@ -149,14 +197,17 @@ export function PRDetailFiles({ files }: PRDetailFilesProps) {
 
   return (
     <div className="bg-white rounded-xl border border-neutral-200 overflow-hidden">
-      {/* Header with stats */}
+      {/* Header with stats and view toggle */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-200 bg-neutral-50">
         <span className="text-sm font-medium text-neutral-700">
           {files.length} {files.length === 1 ? "file" : "files"} changed
         </span>
-        <div className="flex items-center gap-2 text-xs">
-          <span className="font-medium text-emerald-600">+{totalAdditions.toLocaleString()}</span>
-          <span className="font-medium text-red-500">-{totalDeletions.toLocaleString()}</span>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 text-xs">
+            <span className="font-medium text-emerald-600">+{totalAdditions.toLocaleString()}</span>
+            <span className="font-medium text-red-500">-{totalDeletions.toLocaleString()}</span>
+          </div>
+          <ViewModeToggle viewMode={viewMode} onChange={setDiffViewMode} />
         </div>
       </div>
 
@@ -168,6 +219,7 @@ export function PRDetailFiles({ files }: PRDetailFilesProps) {
             file={file}
             isExpanded={!collapsedFiles.has(file.filename)}
             onToggle={createToggleHandler(file.filename)}
+            viewMode={viewMode}
           />
         ))}
       </div>

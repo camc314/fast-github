@@ -199,3 +199,19 @@ export interface ParsedDiff {
   totalAdditions: number;
   totalDeletions: number;
 }
+
+// Split diff types (side-by-side view)
+export type SplitLineType = "addition" | "deletion" | "context" | "empty";
+
+export interface SplitDiffSide {
+  type: SplitLineType;
+  content: string;
+  lineNumber: number | null;
+}
+
+export interface SplitDiffRow {
+  left: SplitDiffSide;
+  right: SplitDiffSide;
+  isHeader?: boolean;
+  headerContent?: string;
+}

@@ -1,4 +1,4 @@
-import type { DiffHunk, DiffLine, ParsedDiff } from "./types/github";
+import type { DiffHunk, DiffLine, ParsedDiff, SplitDiffRow } from "./types/github";
 
 const HUNK_HEADER_REGEX = /^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@/;
 
@@ -131,6 +131,80 @@ export function flattenHunksToLines(hunks: DiffHunk[]): DiffLine[] {
     // Add all lines from the hunk
     for (const line of hunk.lines) {
       result.push(line);
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Convert hunks to split (side-by-side) view rows.
+ * Pairs deletions with additions where possible for easier comparison.
+ */
+export function hunksToSplitRows(hunks: DiffHunk[]): SplitDiffRow[] {
+  const result: SplitDiffRow[] = [];
+
+  for (const hunk of hunks) {
+    // Add hunk header row
+    result.push({
+      isHeader: true,
+      headerContent: hunk.header,
+      left: { type: "empty", content: "", lineNumber: null },
+      right: { type: "empty", content: "", lineNumber: null },
+    });
+
+    // Process lines - pair deletions with additions
+    let i = 0;
+    while (i < hunk.lines.length) {
+      const line = hunk.lines[i];
+
+      if (line.type === "context") {
+        // Context lines appear on both sides
+        result.push({
+          left: { type: "context", content: line.content, lineNumber: line.oldLineNumber },
+          right: { type: "context", content: line.content, lineNumber: line.newLineNumber },
+        });
+        i++;
+      } else if (line.type === "deletion") {
+        // Collect consecutive deletions
+        const deletions: DiffLine[] = [];
+        while (i < hunk.lines.length && hunk.lines[i].type === "deletion") {
+          deletions.push(hunk.lines[i]);
+          i++;
+        }
+
+        // Collect consecutive additions
+        const additions: DiffLine[] = [];
+        while (i < hunk.lines.length && hunk.lines[i].type === "addition") {
+          additions.push(hunk.lines[i]);
+          i++;
+        }
+
+        // Pair them up
+        const maxLen = Math.max(deletions.length, additions.length);
+        for (let j = 0; j < maxLen; j++) {
+          const del = deletions[j];
+          const add = additions[j];
+
+          result.push({
+            left: del
+              ? { type: "deletion", content: del.content, lineNumber: del.oldLineNumber }
+              : { type: "empty", content: "", lineNumber: null },
+            right: add
+              ? { type: "addition", content: add.content, lineNumber: add.newLineNumber }
+              : { type: "empty", content: "", lineNumber: null },
+          });
+        }
+      } else if (line.type === "addition") {
+        // Pure addition (no preceding deletion)
+        result.push({
+          left: { type: "empty", content: "", lineNumber: null },
+          right: { type: "addition", content: line.content, lineNumber: line.newLineNumber },
+        });
+        i++;
+      } else {
+        i++;
+      }
     }
   }
 
