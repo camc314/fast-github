@@ -1,7 +1,16 @@
-import { memo, useCallback, useRef } from "react";
-import { useVirtualizer } from "@tanstack/react-virtual";
-import { File, FilePlus, FileMinus, FileEdit, FileSymlink, Copy } from "lucide-react";
+import { memo, useState, useCallback } from "react";
+import {
+  File,
+  FilePlus,
+  FileMinus,
+  FileEdit,
+  FileSymlink,
+  Copy,
+  ChevronRight,
+  ChevronDown,
+} from "lucide-react";
 import type { PRFile, PRFileStatus } from "@/lib/types/github";
+import { DiffViewer } from "@/components/diff/diff-viewer";
 
 interface PRDetailFilesProps {
   files: PRFile[];
@@ -43,46 +52,87 @@ function getStatusBadge(status: PRFileStatus) {
   );
 }
 
-const FileRow = memo(function FileRow({
-  file,
-  style,
-}: {
+interface FileAccordionItemProps {
   file: PRFile;
-  style: React.CSSProperties;
-}) {
-  return (
-    <div
-      style={style}
-      className="flex items-center gap-3 px-4 h-[52px] hover:bg-neutral-50 border-b border-neutral-100 transition-colors cursor-pointer"
-    >
-      {getFileIcon(file.status)}
+  isExpanded: boolean;
+  onToggle: () => void;
+}
 
-      <div className="flex-1 min-w-0">
-        <span className="text-sm font-mono text-neutral-900 truncate block">{file.filename}</span>
-      </div>
+/**
+ * Single file accordion item - memoized to prevent re-renders when other files change
+ */
+const FileAccordionItem = memo(
+  function FileAccordionItem({ file, isExpanded, onToggle }: FileAccordionItemProps) {
+    return (
+      <div className="border-b border-neutral-200 last:border-b-0">
+        {/* File header - clickable */}
+        <button
+          type="button"
+          onClick={onToggle}
+          className="flex items-center gap-3 w-full px-4 py-3 hover:bg-neutral-50 transition-colors text-left"
+        >
+          {/* Expand/collapse chevron */}
+          <span className="text-neutral-400">
+            {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+          </span>
 
-      <div className="flex items-center gap-3 shrink-0">
-        {file.additions > 0 && (
-          <span className="text-xs font-medium text-emerald-600">+{file.additions}</span>
-        )}
-        {file.deletions > 0 && (
-          <span className="text-xs font-medium text-red-500">-{file.deletions}</span>
-        )}
-        {getStatusBadge(file.status)}
+          {/* File icon */}
+          {getFileIcon(file.status)}
+
+          {/* Filename */}
+          <span className="flex-1 min-w-0 text-sm font-mono text-neutral-900 truncate">
+            {file.filename}
+          </span>
+
+          {/* Stats */}
+          <div className="flex items-center gap-3 shrink-0">
+            {file.additions > 0 && (
+              <span className="text-xs font-medium text-emerald-600">+{file.additions}</span>
+            )}
+            {file.deletions > 0 && (
+              <span className="text-xs font-medium text-red-500">-{file.deletions}</span>
+            )}
+            {getStatusBadge(file.status)}
+          </div>
+        </button>
+
+        {/* Diff viewer - only rendered when expanded */}
+        {isExpanded && <DiffViewer patch={file.patch} filename={file.filename} />}
       </div>
-    </div>
-  );
-});
+    );
+  },
+  // Custom comparison - only re-render if relevant props change
+  (prevProps, nextProps) => {
+    return (
+      prevProps.isExpanded === nextProps.isExpanded &&
+      prevProps.file.filename === nextProps.file.filename &&
+      prevProps.file.patch === nextProps.file.patch &&
+      prevProps.file.additions === nextProps.file.additions &&
+      prevProps.file.deletions === nextProps.file.deletions &&
+      prevProps.file.status === nextProps.file.status
+    );
+  },
+);
 
 export function PRDetailFiles({ files }: PRDetailFilesProps) {
-  const parentRef = useRef<HTMLDivElement>(null);
+  // Track which files are collapsed (default: all expanded)
+  const [collapsedFiles, setCollapsedFiles] = useState<Set<string>>(new Set());
 
-  const virtualizer = useVirtualizer({
-    count: files.length,
-    getScrollElement: () => parentRef.current,
-    estimateSize: useCallback(() => 52, []),
-    overscan: 10,
-  });
+  // Toggle handler - memoized to avoid creating new functions on each render
+  const createToggleHandler = useCallback(
+    (filename: string) => () => {
+      setCollapsedFiles((current) => {
+        const next = new Set(current);
+        if (next.has(filename)) {
+          next.delete(filename);
+        } else {
+          next.add(filename);
+        }
+        return next;
+      });
+    },
+    [],
+  );
 
   if (files.length === 0) {
     return (
@@ -93,49 +143,33 @@ export function PRDetailFiles({ files }: PRDetailFilesProps) {
     );
   }
 
+  // Calculate total stats
+  const totalAdditions = files.reduce((sum, f) => sum + f.additions, 0);
+  const totalDeletions = files.reduce((sum, f) => sum + f.deletions, 0);
+
   return (
     <div className="bg-white rounded-xl border border-neutral-200 overflow-hidden">
-      {/* Header */}
-      <div className="px-4 py-3 border-b border-neutral-200 bg-neutral-50">
+      {/* Header with stats */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-200 bg-neutral-50">
         <span className="text-sm font-medium text-neutral-700">
           {files.length} {files.length === 1 ? "file" : "files"} changed
         </span>
-      </div>
-
-      {/* Virtualized file list */}
-      <div ref={parentRef} className="h-[calc(100vh-400px)] overflow-auto">
-        <div
-          style={{
-            height: `${virtualizer.getTotalSize()}px`,
-            width: "100%",
-            position: "relative",
-          }}
-        >
-          {virtualizer.getVirtualItems().map((virtualItem) => {
-            const file = files[virtualItem.index];
-            return (
-              <FileRow
-                key={file.sha || file.filename}
-                file={file}
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  width: "100%",
-                  height: `${virtualItem.size}px`,
-                  transform: `translateY(${virtualItem.start}px)`,
-                }}
-              />
-            );
-          })}
+        <div className="flex items-center gap-2 text-xs">
+          <span className="font-medium text-emerald-600">+{totalAdditions.toLocaleString()}</span>
+          <span className="font-medium text-red-500">-{totalDeletions.toLocaleString()}</span>
         </div>
       </div>
 
-      {/* Diff placeholder */}
-      <div className="px-4 py-6 border-t border-neutral-200 bg-neutral-50 text-center">
-        <p className="text-sm text-neutral-500">
-          Click a file to view diff <span className="text-neutral-400">(coming soon)</span>
-        </p>
+      {/* File list with accordion */}
+      <div>
+        {files.map((file) => (
+          <FileAccordionItem
+            key={file.sha || file.filename}
+            file={file}
+            isExpanded={!collapsedFiles.has(file.filename)}
+            onToggle={createToggleHandler(file.filename)}
+          />
+        ))}
       </div>
     </div>
   );

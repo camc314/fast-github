@@ -174,3 +174,28 @@ export interface ChecksSummary {
   pending: number;
   checks: CheckRun[];
 }
+
+// Diff types
+export type DiffLineType = "addition" | "deletion" | "context" | "header";
+
+export interface DiffLine {
+  type: DiffLineType;
+  content: string;
+  oldLineNumber: number | null;
+  newLineNumber: number | null;
+}
+
+export interface DiffHunk {
+  header: string;
+  oldStart: number;
+  oldCount: number;
+  newStart: number;
+  newCount: number;
+  lines: DiffLine[];
+}
+
+export interface ParsedDiff {
+  hunks: DiffHunk[];
+  totalAdditions: number;
+  totalDeletions: number;
+}
