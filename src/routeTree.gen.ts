@@ -12,7 +12,9 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DemoTanstackQueryRouteImport } from './routes/demo/tanstack-query'
 import { Route as OwnerRepoPullsRouteImport } from './routes/$owner/$repo/pulls'
+import { Route as OwnerRepoIssuesRouteImport } from './routes/$owner/$repo/issues'
 import { Route as OwnerRepoPullNumberRouteImport } from './routes/$owner/$repo/pull/$number'
+import { Route as OwnerRepoIssueNumberRouteImport } from './routes/$owner/$repo/issue/$number'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -29,29 +31,45 @@ const OwnerRepoPullsRoute = OwnerRepoPullsRouteImport.update({
   path: '/$owner/$repo/pulls',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OwnerRepoIssuesRoute = OwnerRepoIssuesRouteImport.update({
+  id: '/$owner/$repo/issues',
+  path: '/$owner/$repo/issues',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OwnerRepoPullNumberRoute = OwnerRepoPullNumberRouteImport.update({
   id: '/$owner/$repo/pull/$number',
   path: '/$owner/$repo/pull/$number',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OwnerRepoIssueNumberRoute = OwnerRepoIssueNumberRouteImport.update({
+  id: '/$owner/$repo/issue/$number',
+  path: '/$owner/$repo/issue/$number',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
+  '/$owner/$repo/issues': typeof OwnerRepoIssuesRoute
   '/$owner/$repo/pulls': typeof OwnerRepoPullsRoute
+  '/$owner/$repo/issue/$number': typeof OwnerRepoIssueNumberRoute
   '/$owner/$repo/pull/$number': typeof OwnerRepoPullNumberRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
+  '/$owner/$repo/issues': typeof OwnerRepoIssuesRoute
   '/$owner/$repo/pulls': typeof OwnerRepoPullsRoute
+  '/$owner/$repo/issue/$number': typeof OwnerRepoIssueNumberRoute
   '/$owner/$repo/pull/$number': typeof OwnerRepoPullNumberRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
+  '/$owner/$repo/issues': typeof OwnerRepoIssuesRoute
   '/$owner/$repo/pulls': typeof OwnerRepoPullsRoute
+  '/$owner/$repo/issue/$number': typeof OwnerRepoIssueNumberRoute
   '/$owner/$repo/pull/$number': typeof OwnerRepoPullNumberRoute
 }
 export interface FileRouteTypes {
@@ -59,26 +77,34 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/demo/tanstack-query'
+    | '/$owner/$repo/issues'
     | '/$owner/$repo/pulls'
+    | '/$owner/$repo/issue/$number'
     | '/$owner/$repo/pull/$number'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/demo/tanstack-query'
+    | '/$owner/$repo/issues'
     | '/$owner/$repo/pulls'
+    | '/$owner/$repo/issue/$number'
     | '/$owner/$repo/pull/$number'
   id:
     | '__root__'
     | '/'
     | '/demo/tanstack-query'
+    | '/$owner/$repo/issues'
     | '/$owner/$repo/pulls'
+    | '/$owner/$repo/issue/$number'
     | '/$owner/$repo/pull/$number'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DemoTanstackQueryRoute: typeof DemoTanstackQueryRoute
+  OwnerRepoIssuesRoute: typeof OwnerRepoIssuesRoute
   OwnerRepoPullsRoute: typeof OwnerRepoPullsRoute
+  OwnerRepoIssueNumberRoute: typeof OwnerRepoIssueNumberRoute
   OwnerRepoPullNumberRoute: typeof OwnerRepoPullNumberRoute
 }
 
@@ -105,11 +131,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OwnerRepoPullsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/$owner/$repo/issues': {
+      id: '/$owner/$repo/issues'
+      path: '/$owner/$repo/issues'
+      fullPath: '/$owner/$repo/issues'
+      preLoaderRoute: typeof OwnerRepoIssuesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/$owner/$repo/pull/$number': {
       id: '/$owner/$repo/pull/$number'
       path: '/$owner/$repo/pull/$number'
       fullPath: '/$owner/$repo/pull/$number'
       preLoaderRoute: typeof OwnerRepoPullNumberRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/$owner/$repo/issue/$number': {
+      id: '/$owner/$repo/issue/$number'
+      path: '/$owner/$repo/issue/$number'
+      fullPath: '/$owner/$repo/issue/$number'
+      preLoaderRoute: typeof OwnerRepoIssueNumberRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -118,7 +158,9 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DemoTanstackQueryRoute: DemoTanstackQueryRoute,
+  OwnerRepoIssuesRoute: OwnerRepoIssuesRoute,
   OwnerRepoPullsRoute: OwnerRepoPullsRoute,
+  OwnerRepoIssueNumberRoute: OwnerRepoIssueNumberRoute,
   OwnerRepoPullNumberRoute: OwnerRepoPullNumberRoute,
 }
 export const routeTree = rootRouteImport
