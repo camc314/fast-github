@@ -63,6 +63,18 @@ export function RepoHeader() {
       {/* Tabs */}
       <div className="max-w-6xl mx-auto px-6">
         <nav className="flex gap-1 -mb-px">
+          <a
+            href={`https://github.com/${owner}/${repo}`}
+            className="px-4 py-2.5 text-sm font-medium text-neutral-500 hover:text-neutral-700 border-b-2 border-transparent hover:border-neutral-300 transition-colors"
+          >
+            Code
+          </a>
+          <a
+            href={`https://github.com/${owner}/${repo}/issues`}
+            className="px-4 py-2.5 text-sm font-medium text-neutral-500 hover:text-neutral-700 border-b-2 border-transparent hover:border-neutral-300 transition-colors"
+          >
+            Issues
+          </a>
           <Link
             to="/$owner/$repo/pulls"
             params={{ owner, repo }}
@@ -70,18 +82,6 @@ export function RepoHeader() {
           >
             Pull Requests
           </Link>
-          <a
-            href={`https://github.com/${owner}/${repo}/issues`}
-            className="px-4 py-2.5 text-sm font-medium text-neutral-500 hover:text-neutral-700 border-b-2 border-transparent hover:border-neutral-300 transition-colors"
-          >
-            Issues
-          </a>
-          <a
-            href={`https://github.com/${owner}/${repo}`}
-            className="px-4 py-2.5 text-sm font-medium text-neutral-500 hover:text-neutral-700 border-b-2 border-transparent hover:border-neutral-300 transition-colors"
-          >
-            Code
-          </a>
         </nav>
       </div>
     </header>
