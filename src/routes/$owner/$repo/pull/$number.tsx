@@ -1,9 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
 
 import { RepoHeader } from "@/components/repo/repo-header";
 import { PageSpinner } from "@/components/ui/spinner";
+import { ErrorMessage } from "@/components/ui/error-message";
 import { PRDetailHeader } from "@/components/pr-detail/pr-detail-header";
 import { PRDetailTabs, type PRTab } from "@/components/pr-detail/pr-detail-tabs";
 import { PRDetailOverview } from "@/components/pr-detail/pr-detail-overview";
@@ -17,6 +18,7 @@ import {
   fetchPRComments,
   fetchPRReviews,
   fetchPRChecks,
+  fetchPRReviewComments,
 } from "@/lib/api/github";
 
 type SearchParams = {
@@ -38,9 +40,14 @@ function PullRequestDetailPage() {
   const { owner, repo, number } = Route.useParams();
   const { tab = "overview" } = Route.useSearch();
   const prNumber = parseInt(number, 10);
+  const queryClient = useQueryClient();
 
   // Fetch all data in parallel
-  const { data: pr, isLoading: prLoading } = useQuery({
+  const {
+    data: pr,
+    isLoading: prLoading,
+    error: prError,
+  } = useQuery({
     queryKey: ["pull-request", owner, repo, prNumber],
     queryFn: () => fetchPullRequest(owner, repo, prNumber),
   });
@@ -71,13 +78,19 @@ function PullRequestDetailPage() {
     enabled: !!pr?.headSha,
   });
 
+  const { data: reviewComments = [], isLoading: reviewCommentsLoading } = useQuery({
+    queryKey: ["pull-request-review-comments", owner, repo, prNumber],
+    queryFn: () => fetchPRReviewComments(owner, repo, prNumber),
+  });
+
   const isLoading =
     prLoading ||
     filesLoading ||
     commitsLoading ||
     commentsLoading ||
     reviewsLoading ||
-    checksLoading;
+    checksLoading ||
+    reviewCommentsLoading;
 
   function renderTabContent(activeTab: PRTab) {
     if (!pr) return null;
@@ -86,7 +99,7 @@ function PullRequestDetailPage() {
       case "overview":
         return <PRDetailOverview pr={pr} comments={comments} />;
       case "files":
-        return <PRDetailFiles files={files} />;
+        return <PRDetailFiles files={files} reviewComments={reviewComments} />;
       case "commits":
         return <PRDetailCommits commits={commits} />;
       default:
@@ -108,7 +121,14 @@ function PullRequestDetailPage() {
           Back to pull requests
         </Link>
 
-        {isLoading ? (
+        {prError ? (
+          <ErrorMessage
+            error={prError}
+            onRetry={() => {
+              queryClient.invalidateQueries({ queryKey: ["pull-request", owner, repo, prNumber] });
+            }}
+          />
+        ) : isLoading ? (
           <PageSpinner />
         ) : pr ? (
           <>
@@ -139,11 +159,7 @@ function PullRequestDetailPage() {
               )}
             </div>
           </>
-        ) : (
-          <div className="bg-white rounded-xl border border-neutral-200 p-12 text-center">
-            <p className="text-neutral-500">Pull request not found</p>
-          </div>
-        )}
+        ) : null}
       </main>
     </div>
   );

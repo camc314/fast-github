@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery, keepPreviousData } from "@tanstack/react-query";
+import { useQuery, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import { useRef, useState, useCallback } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 
@@ -8,6 +8,7 @@ import { IssueListHeader } from "@/components/issue-list/issue-list-header";
 import { IssueListFilters } from "@/components/issue-list/issue-list-filters";
 import { IssueListItem } from "@/components/issue-list/issue-list-item";
 import { PageSpinner } from "@/components/ui/spinner";
+import { ErrorMessage } from "@/components/ui/error-message";
 import { fetchIssues } from "@/lib/api/github";
 import type { IssueListParams } from "@/lib/types/github";
 
@@ -18,6 +19,7 @@ export const Route = createFileRoute("/$owner/$repo/issues")({
 function IssuesPage() {
   const { owner, repo } = Route.useParams();
   const [state, setState] = useState<"open" | "closed" | "all">("open");
+  const queryClient = useQueryClient();
 
   const params: IssueListParams = {
     state,
@@ -27,7 +29,7 @@ function IssuesPage() {
     perPage: 100,
   };
 
-  const { data, isLoading, isFetching } = useQuery({
+  const { data, isLoading, isFetching, error } = useQuery({
     queryKey: ["issues", owner, repo, params],
     queryFn: () => fetchIssues(owner, repo, params),
     placeholderData: keepPreviousData,
@@ -62,7 +64,14 @@ function IssuesPage() {
           onStateChange={handleStateChange}
         />
 
-        {showInitialLoading ? (
+        {error ? (
+          <ErrorMessage
+            error={error}
+            onRetry={() => {
+              queryClient.invalidateQueries({ queryKey: ["issues", owner, repo, params] });
+            }}
+          />
+        ) : showInitialLoading ? (
           <PageSpinner />
         ) : data ? (
           <div className="bg-white rounded-xl border border-neutral-200 shadow-sm overflow-hidden">

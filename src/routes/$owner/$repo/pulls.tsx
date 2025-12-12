@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery, keepPreviousData } from "@tanstack/react-query";
+import { useQuery, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import { useRef, useState, useCallback } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 
@@ -8,6 +8,7 @@ import { PRListHeader } from "@/components/pr-list/pr-list-header";
 import { PRListFilters } from "@/components/pr-list/pr-list-filters";
 import { PRListItem } from "@/components/pr-list/pr-list-item";
 import { PageSpinner } from "@/components/ui/spinner";
+import { ErrorMessage } from "@/components/ui/error-message";
 import { fetchPullRequests } from "@/lib/api/github";
 import type { PRListParams } from "@/lib/types/github";
 
@@ -18,6 +19,7 @@ export const Route = createFileRoute("/$owner/$repo/pulls")({
 function PullRequestsPage() {
   const { owner, repo } = Route.useParams();
   const [state, setState] = useState<"open" | "closed" | "all">("open");
+  const queryClient = useQueryClient();
 
   const params: PRListParams = {
     state,
@@ -27,7 +29,7 @@ function PullRequestsPage() {
     perPage: 200,
   };
 
-  const { data, isLoading, isFetching } = useQuery({
+  const { data, isLoading, isFetching, error } = useQuery({
     queryKey: ["pull-requests", owner, repo, params],
     queryFn: () => fetchPullRequests(owner, repo, params),
     placeholderData: keepPreviousData,
@@ -63,7 +65,14 @@ function PullRequestsPage() {
           onStateChange={handleStateChange}
         />
 
-        {showInitialLoading ? (
+        {error ? (
+          <ErrorMessage
+            error={error}
+            onRetry={() => {
+              queryClient.invalidateQueries({ queryKey: ["pull-requests", owner, repo, params] });
+            }}
+          />
+        ) : showInitialLoading ? (
           <PageSpinner />
         ) : data ? (
           <div className="bg-white rounded-xl border border-neutral-200 shadow-sm overflow-hidden">

@@ -24,9 +24,43 @@ import type {
   CheckRun,
   ChecksSummary,
   User,
+  PRReviewComment,
 } from "../types/github";
 
 const GITHUB_API = "https://api.github.com";
+
+// Custom error class for GitHub API errors
+export class GitHubError extends Error {
+  status: number;
+  statusText: string;
+  isRateLimit: boolean;
+  rateLimitReset: Date | null;
+  isNotFound: boolean;
+
+  constructor(status: number, statusText: string, rateLimitReset: string | null = null) {
+    let message = `GitHub API error: ${status} ${statusText}`;
+    const isRateLimit = status === 403 || status === 429;
+    const isNotFound = status === 404;
+
+    if (isRateLimit) {
+      message = "GitHub API rate limit exceeded";
+      if (rateLimitReset) {
+        const resetDate = new Date(parseInt(rateLimitReset) * 1000);
+        message += `. Resets at ${resetDate.toLocaleTimeString()}`;
+      }
+    } else if (isNotFound) {
+      message = "Resource not found";
+    }
+
+    super(message);
+    this.name = "GitHubError";
+    this.status = status;
+    this.statusText = statusText;
+    this.isRateLimit = isRateLimit;
+    this.isNotFound = isNotFound;
+    this.rateLimitReset = rateLimitReset ? new Date(parseInt(rateLimitReset) * 1000) : null;
+  }
+}
 
 // Helper to transform labels (handles both string and object labels)
 function transformLabels(
@@ -128,6 +162,7 @@ function transformIssue(issue: GitHubIssue): Issue {
       avatarUrl: issue.user?.avatar_url ?? "",
     },
     labels: transformLabels(issue.labels as Parameters<typeof transformLabels>[0]),
+    assignees: transformUsers(issue.assignees),
     createdAt: issue.created_at,
     updatedAt: issue.updated_at,
     closedAt: issue.closed_at,
@@ -145,7 +180,8 @@ async function githubFetch<T>(url: string): Promise<T> {
   });
 
   if (!response.ok) {
-    throw new Error(`GitHub API error: ${response.status} ${response.statusText}`);
+    const rateLimitReset = response.headers.get("x-ratelimit-reset");
+    throw new GitHubError(response.status, response.statusText, rateLimitReset);
   }
 
   return response.json();
@@ -237,14 +273,10 @@ export async function fetchPullRequest(
   owner: string,
   repo: string,
   number: number,
-): Promise<PullRequest | null> {
-  try {
-    const url = `${GITHUB_API}/repos/${owner}/${repo}/pulls/${number}`;
-    const data = await githubFetch<GitHubPullRequestFull>(url);
-    return transformFullPullRequest(data);
-  } catch {
-    return null;
-  }
+): Promise<PullRequest> {
+  const url = `${GITHUB_API}/repos/${owner}/${repo}/pulls/${number}`;
+  const data = await githubFetch<GitHubPullRequestFull>(url);
+  return transformFullPullRequest(data);
 }
 
 // Issues API
@@ -274,18 +306,30 @@ export async function fetchIssues(
   };
 }
 
-export async function fetchIssue(
+export async function fetchIssue(owner: string, repo: string, number: number): Promise<Issue> {
+  const url = `${GITHUB_API}/repos/${owner}/${repo}/issues/${number}`;
+  const data = await githubFetch<GitHubIssue>(url);
+  return transformIssue(data);
+}
+
+export async function fetchIssueComments(
   owner: string,
   repo: string,
   number: number,
-): Promise<Issue | null> {
-  try {
-    const url = `${GITHUB_API}/repos/${owner}/${repo}/issues/${number}`;
-    const data = await githubFetch<GitHubIssue>(url);
-    return transformIssue(data);
-  } catch {
-    return null;
-  }
+): Promise<PRComment[]> {
+  const url = `${GITHUB_API}/repos/${owner}/${repo}/issues/${number}/comments?per_page=100`;
+  const data = await githubFetch<GitHubIssueComment[]>(url);
+
+  return data.map((comment) => ({
+    id: comment.id,
+    body: comment.body ?? "",
+    user: {
+      login: comment.user?.login ?? "unknown",
+      avatarUrl: comment.user?.avatar_url ?? "",
+    },
+    createdAt: comment.created_at,
+    updatedAt: comment.updated_at,
+  }));
 }
 
 // PR Detail API
@@ -441,4 +485,79 @@ export async function fetchPRChecks(
   } catch {
     return { total: 0, success: 0, failure: 0, pending: 0, checks: [] };
   }
+}
+
+// PR Review Comments API (inline/diff comments)
+interface GitHubPRReviewComment {
+  id: number;
+  body: string;
+  user: { login: string; avatar_url: string } | null;
+  path: string;
+  line: number | null;
+  original_line: number | null;
+  side: "LEFT" | "RIGHT";
+  created_at: string;
+  updated_at: string;
+  in_reply_to_id?: number;
+}
+
+export async function fetchPRReviewComments(
+  owner: string,
+  repo: string,
+  number: number,
+): Promise<PRReviewComment[]> {
+  const url = `${GITHUB_API}/repos/${owner}/${repo}/pulls/${number}/comments?per_page=100`;
+  const data = await githubFetch<GitHubPRReviewComment[]>(url);
+
+  // Transform and group by thread (in_reply_to_id)
+  const commentsMap = new Map<number, PRReviewComment>();
+  const replies: GitHubPRReviewComment[] = [];
+
+  // First pass: create all top-level comments
+  for (const comment of data) {
+    if (!comment.in_reply_to_id) {
+      commentsMap.set(comment.id, {
+        id: comment.id,
+        body: comment.body,
+        user: {
+          login: comment.user?.login ?? "unknown",
+          avatarUrl: comment.user?.avatar_url ?? "",
+        },
+        path: comment.path,
+        line: comment.line,
+        originalLine: comment.original_line,
+        side: comment.side,
+        createdAt: comment.created_at,
+        updatedAt: comment.updated_at,
+        inReplyToId: null,
+        replies: [],
+      });
+    } else {
+      replies.push(comment);
+    }
+  }
+
+  // Second pass: attach replies to their parent comments
+  for (const reply of replies) {
+    const parent = commentsMap.get(reply.in_reply_to_id!);
+    if (parent) {
+      parent.replies!.push({
+        id: reply.id,
+        body: reply.body,
+        user: {
+          login: reply.user?.login ?? "unknown",
+          avatarUrl: reply.user?.avatar_url ?? "",
+        },
+        path: reply.path,
+        line: reply.line,
+        originalLine: reply.original_line,
+        side: reply.side,
+        createdAt: reply.created_at,
+        updatedAt: reply.updated_at,
+        inReplyToId: reply.in_reply_to_id ?? null,
+      });
+    }
+  }
+
+  return Array.from(commentsMap.values());
 }
