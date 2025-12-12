@@ -1,6 +1,7 @@
 import { MessageSquare } from "lucide-react";
 import type { PullRequest, PRComment } from "@/lib/types/github";
 import { Avatar } from "@/components/ui/avatar";
+import { MarkdownViewer } from "@/components/ui/markdown-viewer";
 
 interface PRDetailOverviewProps {
   pr: PullRequest;
@@ -28,19 +29,10 @@ function formatRelativeTime(dateString: string): string {
 }
 
 function Description({ body }: { body: string }) {
-  if (!body.trim()) {
-    return (
-      <div className="bg-white rounded-xl border border-neutral-200 p-6 mb-6">
-        <h2 className="text-sm font-medium text-neutral-500 mb-3">Description</h2>
-        <p className="text-neutral-400 italic">No description provided.</p>
-      </div>
-    );
-  }
-
   return (
     <div className="bg-white rounded-xl border border-neutral-200 p-6 mb-6">
       <h2 className="text-sm font-medium text-neutral-500 mb-3">Description</h2>
-      <div className="prose prose-sm max-w-none text-neutral-700 whitespace-pre-wrap">{body}</div>
+      <MarkdownViewer content={body} />
     </div>
   );
 }
@@ -78,7 +70,7 @@ function Comments({ comments }: { comments: PRComment[] }) {
                     {formatRelativeTime(comment.createdAt)}
                   </span>
                 </div>
-                <div className="text-sm text-neutral-700 whitespace-pre-wrap">{comment.body}</div>
+                <MarkdownViewer content={comment.body} />
               </div>
             </div>
           </div>
