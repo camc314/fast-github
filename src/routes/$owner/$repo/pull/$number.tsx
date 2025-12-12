@@ -78,7 +78,7 @@ function PullRequestDetailPage() {
     enabled: !!pr?.headSha,
   });
 
-  const { data: reviewComments = [], isLoading: reviewCommentsLoading } = useQuery({
+  const { data: _reviewComments = [], isLoading: reviewCommentsLoading } = useQuery({
     queryKey: ["pull-request-review-comments", owner, repo, prNumber],
     queryFn: () => fetchPRReviewComments(owner, repo, prNumber),
   });
@@ -99,7 +99,7 @@ function PullRequestDetailPage() {
       case "overview":
         return <PRDetailOverview pr={pr} comments={comments} />;
       case "files":
-        return <PRDetailFiles files={files} reviewComments={reviewComments} />;
+        return <PRDetailFiles files={files} />;
       case "commits":
         return <PRDetailCommits commits={commits} />;
       default:
