@@ -6,7 +6,9 @@
     "dev": "vite --port 3000",
     "build": "vite build && tsc",
     "preview": "vite preview",
-    "test": "vitest run"
+    "test": "vitest run",
+    "lint": "oxlint",
+    "fmt": "oxfmt ."
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.0.6",
@@ -30,6 +32,8 @@
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^5.0.4",
     "jsdom": "^27.0.0",
+    "oxfmt": "^0.17.0",
+    "oxlint": "^1.32.0",
     "typescript": "^5.7.2",
     "vite": "^7.1.7",
     "vitest": "^3.0.5",
