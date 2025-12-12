@@ -1,0 +1,35 @@
+import { memo, useState } from "react";
+
+interface AvatarProps {
+  src: string;
+  alt: string;
+  size?: number;
+  className?: string;
+}
+
+export const Avatar = memo(function Avatar({ src, alt, size = 20, className = "" }: AvatarProps) {
+  const [error, setError] = useState(false);
+
+  if (error) {
+    return (
+      <div
+        className={`rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-xs font-medium ${className}`}
+        style={{ width: size, height: size }}
+      >
+        {alt.charAt(0).toUpperCase()}
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={src}
+      alt={alt}
+      width={size}
+      height={size}
+      className={`rounded-full ${className}`}
+      loading="lazy"
+      onError={() => setError(true)}
+    />
+  );
+});

@@ -17,6 +17,7 @@
     "@tanstack/react-query-devtools": "^5.84.2",
     "@tanstack/react-router": "^1.132.0",
     "@tanstack/react-router-devtools": "^1.132.0",
+    "@tanstack/react-virtual": "^3.13.13",
     "@tanstack/router-plugin": "^1.132.0",
     "lucide-react": "^0.545.0",
     "react": "^19.2.0",
@@ -24,6 +25,7 @@
     "tailwindcss": "^4.0.6"
   },
   "devDependencies": {
+    "@octokit/openapi-types": "^27.0.0",
     "@tanstack/devtools-vite": "^0.3.11",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/react": "^16.2.0",
