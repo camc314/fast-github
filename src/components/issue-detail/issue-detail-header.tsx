@@ -1,30 +1,10 @@
 import { CircleDot, CheckCircle2 } from "lucide-react";
 import type { Issue } from "@/lib/types/github";
 import { Avatar } from "@/components/ui/avatar";
+import { formatRelativeTime } from "@/lib/utils/date";
 
 interface IssueDetailHeaderProps {
   issue: Issue;
-}
-
-function formatRelativeTime(dateString: string): string {
-  const date = new Date(dateString);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-  if (diffDays === 0) {
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-    if (diffHours === 0) {
-      const diffMinutes = Math.floor(diffMs / (1000 * 60));
-      return `${diffMinutes} minutes ago`;
-    }
-    return `${diffHours} hours ago`;
-  }
-  if (diffDays === 1) return "yesterday";
-  if (diffDays < 7) return `${diffDays} days ago`;
-  if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
-  if (diffDays < 365) return `${Math.floor(diffDays / 30)} months ago`;
-  return `${Math.floor(diffDays / 365)} years ago`;
 }
 
 function StateBadge({ state }: { state: string }) {

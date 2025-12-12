@@ -3,29 +3,10 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 import { GitCommit } from "lucide-react";
 import type { PRCommit } from "@/lib/types/github";
 import { Avatar } from "@/components/ui/avatar";
+import { formatRelativeTime } from "@/lib/utils/date";
 
 interface PRDetailCommitsProps {
   commits: PRCommit[];
-}
-
-function formatRelativeTime(dateString: string): string {
-  const date = new Date(dateString);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-  if (diffDays === 0) {
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-    if (diffHours === 0) {
-      const diffMinutes = Math.floor(diffMs / (1000 * 60));
-      return `${diffMinutes}m ago`;
-    }
-    return `${diffHours}h ago`;
-  }
-  if (diffDays === 1) return "yesterday";
-  if (diffDays < 7) return `${diffDays}d ago`;
-  if (diffDays < 30) return `${Math.floor(diffDays / 7)}w ago`;
-  return `${Math.floor(diffDays / 30)}mo ago`;
 }
 
 function getFirstLine(message: string): string {
