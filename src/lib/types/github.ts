@@ -60,6 +60,35 @@ export interface Issue {
   body: string;
 }
 
+// Sort configuration
+export type SortField = "created" | "updated" | "comments";
+export type SortDirection = "asc" | "desc";
+export type ListState = "open" | "closed" | "all";
+
+export interface SortOption {
+  label: string;
+  field: SortField;
+  direction: SortDirection;
+}
+
+export const SORT_OPTIONS: SortOption[] = [
+  { label: "Newest", field: "created", direction: "desc" },
+  { label: "Oldest", field: "created", direction: "asc" },
+  { label: "Recently updated", field: "updated", direction: "desc" },
+  { label: "Least recently updated", field: "updated", direction: "asc" },
+  { label: "Most commented", field: "comments", direction: "desc" },
+  { label: "Least commented", field: "comments", direction: "asc" },
+];
+
+// URL search params (shared between PR and Issue lists)
+export interface ListSearchParams {
+  state: ListState;
+  sort: SortField;
+  direction: SortDirection;
+  q?: string; // Search query
+}
+
+// Legacy list params (for backwards compatibility)
 export interface ListParams {
   state: "open" | "closed" | "all";
   sort: "created" | "updated" | "comments";
@@ -70,6 +99,28 @@ export interface ListParams {
 
 export type PRListParams = ListParams;
 export type IssueListParams = ListParams;
+
+// Pagination metadata
+export interface PaginationInfo {
+  page: number;
+  perPage: number;
+  hasNextPage: boolean;
+}
+
+// Response type for infinite queries
+export interface InfinitePRListResponse {
+  pullRequests: PullRequest[];
+  pagination: PaginationInfo;
+  openCount: number;
+  closedCount: number;
+}
+
+export interface InfiniteIssueListResponse {
+  issues: Issue[];
+  pagination: PaginationInfo;
+  openCount: number;
+  closedCount: number;
+}
 
 export interface PRListResponse {
   pullRequests: PullRequest[];

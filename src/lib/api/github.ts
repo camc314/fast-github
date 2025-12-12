@@ -1,10 +1,10 @@
 import type {
+  GitHubIssue,
+  GitHubIssueComment,
   GitHubPullRequestSimple,
   GitHubPullRequestFull,
-  GitHubIssue,
   GitHubPRFile,
   GitHubPRCommit,
-  GitHubIssueComment,
   PRListParams,
   PRListResponse,
   PullRequest,
@@ -25,6 +25,12 @@ import type {
   ChecksSummary,
   User,
   PRReviewComment,
+  SortField,
+  SortDirection,
+  ListState,
+  InfinitePRListResponse,
+  InfiniteIssueListResponse,
+  PaginationInfo,
 } from "../types/github";
 
 const GITHUB_API = "https://api.github.com";
@@ -332,6 +338,62 @@ export async function fetchIssueComments(
   }));
 }
 
+export async function createIssueComment(
+  owner: string,
+  repo: string,
+  issueNumber: number,
+  body: string,
+): Promise<PRComment> {
+  // TODO: Add authentication header when implementing auth
+  const response = await fetch(
+    `${GITHUB_API}/repos/${owner}/${repo}/issues/${issueNumber}/comments`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/vnd.github.v3+json",
+      },
+      body: JSON.stringify({ body }),
+    },
+  );
+
+  if (!response.ok) {
+    let errorMessage = "";
+    try {
+      const errorData = await response.json();
+      errorMessage = errorData.message || "";
+    } catch {
+      // Ignore JSON parse errors
+    }
+
+    if (response.status === 401) {
+      throw new Error("Authentication required. Please sign in to comment.");
+    }
+    if (response.status === 403) {
+      throw new Error(errorMessage || "You do not have permission to comment on this issue");
+    }
+    if (response.status === 404) {
+      throw new Error("Issue not found");
+    }
+    if (response.status === 422) {
+      throw new Error(errorMessage || "Comment body is invalid");
+    }
+    throw new Error(errorMessage || `Failed to create comment: ${response.statusText}`);
+  }
+
+  const data = await response.json();
+  return {
+    id: data.id,
+    body: data.body ?? "",
+    user: {
+      login: data.user?.login ?? "unknown",
+      avatarUrl: data.user?.avatar_url ?? "",
+    },
+    createdAt: data.created_at,
+    updatedAt: data.updated_at,
+  };
+}
+
 // PR Detail API
 export async function fetchPRFiles(owner: string, repo: string, number: number): Promise<PRFile[]> {
   const url = `${GITHUB_API}/repos/${owner}/${repo}/pulls/${number}/files?per_page=100`;
@@ -555,9 +617,247 @@ export async function fetchPRReviewComments(
         createdAt: reply.created_at,
         updatedAt: reply.updated_at,
         inReplyToId: reply.in_reply_to_id ?? null,
+        replies: [], // Replies don't have nested replies
       });
     }
   }
 
   return Array.from(commentsMap.values());
+}
+
+// ============================================================================
+// Infinite Scroll / Search API Functions
+// ============================================================================
+
+// Parse Link header for pagination info
+function parseLinkHeader(linkHeader: string | null): { hasNextPage: boolean } {
+  if (!linkHeader) return { hasNextPage: false };
+  return { hasNextPage: linkHeader.includes('rel="next"') };
+}
+
+// GitHub Search API response type
+interface GitHubSearchResponse {
+  total_count: number;
+  incomplete_results: boolean;
+  items: GitHubIssue[];
+}
+
+// Fetch with pagination info
+async function githubFetchWithPagination<T>(
+  url: string,
+): Promise<{ data: T; hasNextPage: boolean }> {
+  const response = await fetch(url, {
+    headers: {
+      Accept: "application/vnd.github.v3+json",
+    },
+  });
+
+  if (!response.ok) {
+    const rateLimitReset = response.headers.get("x-ratelimit-reset");
+    throw new GitHubError(response.status, response.statusText, rateLimitReset);
+  }
+
+  const linkHeader = response.headers.get("Link");
+  const { hasNextPage } = parseLinkHeader(linkHeader);
+  const data = await response.json();
+
+  return { data, hasNextPage };
+}
+
+// Transform search result item to PullRequest
+function transformSearchResultToPR(item: GitHubIssue): PullRequest {
+  const isMerged = item.state === "closed" && item.pull_request?.merged_at;
+  let state: PRState = item.state as PRState;
+  if (isMerged) {
+    state = "merged";
+  }
+
+  return {
+    id: item.id,
+    number: item.number,
+    title: item.title,
+    state,
+    user: {
+      login: item.user?.login ?? "unknown",
+      avatarUrl: item.user?.avatar_url ?? "",
+    },
+    labels: transformLabels(item.labels as Parameters<typeof transformLabels>[0]),
+    createdAt: item.created_at,
+    updatedAt: item.updated_at,
+    closedAt: item.closed_at,
+    mergedAt: item.pull_request?.merged_at ?? null,
+    comments: item.comments,
+    checkStatus: "none" as CheckStatus,
+    draft: item.draft ?? false,
+    body: item.body ?? "",
+    assignees: transformUsers(item.assignees),
+    requestedReviewers: [],
+    headSha: "",
+  };
+}
+
+// Paginated PR fetch (for infinite scroll without search)
+export async function fetchPullRequestsPaginated(
+  owner: string,
+  repo: string,
+  params: {
+    state: ListState;
+    sort: SortField;
+    direction: SortDirection;
+    page: number;
+    perPage: number;
+  },
+): Promise<InfinitePRListResponse> {
+  const state = params.state === "all" ? "all" : params.state;
+  const sort = params.sort === "comments" ? "popularity" : params.sort;
+
+  const url = `${GITHUB_API}/repos/${owner}/${repo}/pulls?state=${state}&sort=${sort}&direction=${params.direction}&per_page=${params.perPage}&page=${params.page}`;
+
+  const { data, hasNextPage } = await githubFetchWithPagination<GitHubPullRequestSimple[]>(url);
+  const pullRequests = data.map(transformPullRequest);
+
+  const { openCount, closedCount } = await fetchCounts(owner, repo, "pr");
+
+  const pagination: PaginationInfo = {
+    page: params.page,
+    perPage: params.perPage,
+    hasNextPage,
+  };
+
+  return {
+    pullRequests,
+    pagination,
+    openCount,
+    closedCount,
+  };
+}
+
+// Paginated Issue fetch (for infinite scroll without search)
+export async function fetchIssuesPaginated(
+  owner: string,
+  repo: string,
+  params: {
+    state: ListState;
+    sort: SortField;
+    direction: SortDirection;
+    page: number;
+    perPage: number;
+  },
+): Promise<InfiniteIssueListResponse> {
+  const state = params.state === "all" ? "all" : params.state;
+
+  const url = `${GITHUB_API}/repos/${owner}/${repo}/issues?state=${state}&sort=${params.sort}&direction=${params.direction}&per_page=${params.perPage}&page=${params.page}`;
+
+  const { data, hasNextPage } = await githubFetchWithPagination<GitHubIssue[]>(url);
+  // Filter out pull requests (GitHub API returns PRs in issues endpoint)
+  const issues = data.filter((issue) => !issue.pull_request).map(transformIssue);
+
+  const { openCount, closedCount } = await fetchCounts(owner, repo, "issue");
+
+  const pagination: PaginationInfo = {
+    page: params.page,
+    perPage: params.perPage,
+    hasNextPage,
+  };
+
+  return {
+    issues,
+    pagination,
+    openCount,
+    closedCount,
+  };
+}
+
+// Search PRs using GitHub Search API
+export async function searchPullRequests(
+  owner: string,
+  repo: string,
+  params: {
+    state: ListState;
+    sort: SortField;
+    direction: SortDirection;
+    query: string;
+    page: number;
+    perPage: number;
+  },
+): Promise<InfinitePRListResponse> {
+  // Build search query
+  const queryParts = [
+    `repo:${owner}/${repo}`,
+    "type:pr",
+    params.state !== "all" ? `state:${params.state}` : "",
+    params.query,
+  ].filter(Boolean);
+
+  const q = encodeURIComponent(queryParts.join(" "));
+  const sortParam = params.sort === "comments" ? "comments" : params.sort;
+
+  const url = `${GITHUB_API}/search/issues?q=${q}&sort=${sortParam}&order=${params.direction}&per_page=${params.perPage}&page=${params.page}`;
+
+  const { data, hasNextPage } = await githubFetchWithPagination<GitHubSearchResponse>(url);
+
+  // Transform search results to PullRequest type
+  const pullRequests = data.items.map(transformSearchResultToPR);
+
+  const { openCount, closedCount } = await fetchCounts(owner, repo, "pr");
+
+  const pagination: PaginationInfo = {
+    page: params.page,
+    perPage: params.perPage,
+    hasNextPage,
+  };
+
+  return {
+    pullRequests,
+    pagination,
+    openCount,
+    closedCount,
+  };
+}
+
+// Search Issues using GitHub Search API
+export async function searchIssues(
+  owner: string,
+  repo: string,
+  params: {
+    state: ListState;
+    sort: SortField;
+    direction: SortDirection;
+    query: string;
+    page: number;
+    perPage: number;
+  },
+): Promise<InfiniteIssueListResponse> {
+  // Build search query - exclude PRs
+  const queryParts = [
+    `repo:${owner}/${repo}`,
+    "type:issue",
+    params.state !== "all" ? `state:${params.state}` : "",
+    params.query,
+  ].filter(Boolean);
+
+  const q = encodeURIComponent(queryParts.join(" "));
+  const sortParam = params.sort === "comments" ? "comments" : params.sort;
+
+  const url = `${GITHUB_API}/search/issues?q=${q}&sort=${sortParam}&order=${params.direction}&per_page=${params.perPage}&page=${params.page}`;
+
+  const { data, hasNextPage } = await githubFetchWithPagination<GitHubSearchResponse>(url);
+
+  // Transform search results to Issue type
+  const issues = data.items.map(transformIssue);
+
+  const { openCount, closedCount } = await fetchCounts(owner, repo, "issue");
+
+  const pagination: PaginationInfo = {
+    page: params.page,
+    perPage: params.perPage,
+    hasNextPage,
+  };
+
+  return {
+    issues,
+    pagination,
+    openCount,
+    closedCount,
+  };
 }
