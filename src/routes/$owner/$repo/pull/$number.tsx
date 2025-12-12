@@ -1,138 +1,147 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import {
-  GitPullRequest,
-  GitMerge,
-  ArrowLeft,
-  MessageSquare,
-  GitCommit,
-  FileCode,
-} from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
 import { RepoHeader } from "@/components/repo/repo-header";
 import { PageSpinner } from "@/components/ui/spinner";
-import { Label } from "@/components/ui/label";
-import { Avatar } from "@/components/ui/avatar";
-import { fetchPullRequest } from "@/lib/api/github";
+import { PRDetailHeader } from "@/components/pr-detail/pr-detail-header";
+import { PRDetailTabs, type PRTab } from "@/components/pr-detail/pr-detail-tabs";
+import { PRDetailOverview } from "@/components/pr-detail/pr-detail-overview";
+import { PRDetailFiles } from "@/components/pr-detail/pr-detail-files";
+import { PRDetailCommits } from "@/components/pr-detail/pr-detail-commits";
+import { PRDetailSidebar } from "@/components/pr-detail/pr-detail-sidebar";
+import {
+  fetchPullRequest,
+  fetchPRFiles,
+  fetchPRCommits,
+  fetchPRComments,
+  fetchPRReviews,
+  fetchPRChecks,
+} from "@/lib/api/github";
+
+type SearchParams = {
+  tab?: PRTab;
+};
 
 export const Route = createFileRoute("/$owner/$repo/pull/$number")({
+  validateSearch: (search: Record<string, unknown>): SearchParams => {
+    const tab = search.tab;
+    if (tab === "overview" || tab === "files" || tab === "commits") {
+      return { tab };
+    }
+    return { tab: "overview" };
+  },
   component: PullRequestDetailPage,
 });
 
-function formatDate(dateString: string): string {
-  return new Date(dateString).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
-}
-
 function PullRequestDetailPage() {
   const { owner, repo, number } = Route.useParams();
+  const { tab = "overview" } = Route.useSearch();
   const prNumber = parseInt(number, 10);
 
-  const { data: pr, isLoading } = useQuery({
+  // Fetch all data in parallel
+  const { data: pr, isLoading: prLoading } = useQuery({
     queryKey: ["pull-request", owner, repo, prNumber],
     queryFn: () => fetchPullRequest(owner, repo, prNumber),
   });
 
+  const { data: files = [], isLoading: filesLoading } = useQuery({
+    queryKey: ["pull-request-files", owner, repo, prNumber],
+    queryFn: () => fetchPRFiles(owner, repo, prNumber),
+  });
+
+  const { data: commits = [], isLoading: commitsLoading } = useQuery({
+    queryKey: ["pull-request-commits", owner, repo, prNumber],
+    queryFn: () => fetchPRCommits(owner, repo, prNumber),
+  });
+
+  const { data: comments = [], isLoading: commentsLoading } = useQuery({
+    queryKey: ["pull-request-comments", owner, repo, prNumber],
+    queryFn: () => fetchPRComments(owner, repo, prNumber),
+  });
+
+  const { data: reviews = [], isLoading: reviewsLoading } = useQuery({
+    queryKey: ["pull-request-reviews", owner, repo, prNumber],
+    queryFn: () => fetchPRReviews(owner, repo, prNumber),
+  });
+
+  const { data: checks, isLoading: checksLoading } = useQuery({
+    queryKey: ["pull-request-checks", owner, repo, pr?.headSha],
+    queryFn: () => fetchPRChecks(owner, repo, pr!.headSha),
+    enabled: !!pr?.headSha,
+  });
+
+  const isLoading =
+    prLoading ||
+    filesLoading ||
+    commitsLoading ||
+    commentsLoading ||
+    reviewsLoading ||
+    checksLoading;
+
+  function renderTabContent(activeTab: PRTab) {
+    if (!pr) return null;
+
+    switch (activeTab) {
+      case "overview":
+        return <PRDetailOverview pr={pr} comments={comments} />;
+      case "files":
+        return <PRDetailFiles files={files} />;
+      case "commits":
+        return <PRDetailCommits commits={commits} />;
+      default:
+        return <PRDetailOverview pr={pr} comments={comments} />;
+    }
+  }
+
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-neutral-50">
       <RepoHeader />
 
-      <main className="max-w-5xl mx-auto px-4 py-6">
+      <main className="max-w-6xl mx-auto px-6 py-8">
         <Link
           to="/$owner/$repo/pulls"
           params={{ owner, repo }}
-          className="inline-flex items-center gap-1 text-sm text-blue-600 hover:underline mb-4"
+          className="inline-flex items-center gap-1.5 text-sm text-neutral-500 hover:text-neutral-900 mb-6 transition-colors"
         >
-          <ArrowLeft size={14} />
+          <ArrowLeft size={16} />
           Back to pull requests
         </Link>
 
         {isLoading ? (
           <PageSpinner />
         ) : pr ? (
-          <div>
-            {/* PR Header */}
-            <div className="border-b border-gray-200 pb-4 mb-6">
-              <h1 className="text-2xl font-semibold flex items-start gap-2">
-                <span>{pr.title}</span>
-                <span className="text-gray-400 font-normal">#{pr.number}</span>
-              </h1>
+          <>
+            <PRDetailHeader pr={pr} files={files} />
 
-              <div className="flex items-center gap-2 mt-2">
-                {pr.state === "open" ? (
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 text-sm font-medium text-white bg-green-600 rounded-full">
-                    <GitPullRequest size={14} />
-                    Open
-                  </span>
-                ) : pr.state === "merged" ? (
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 text-sm font-medium text-white bg-purple-600 rounded-full">
-                    <GitMerge size={14} />
-                    Merged
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 text-sm font-medium text-white bg-red-600 rounded-full">
-                    <GitPullRequest size={14} />
-                    Closed
-                  </span>
-                )}
+            <div className="flex gap-6">
+              {/* Main content */}
+              <div className="flex-1 min-w-0">
+                <PRDetailTabs
+                  owner={owner}
+                  repo={repo}
+                  number={number}
+                  activeTab={tab}
+                  filesCount={files.length}
+                  commitsCount={commits.length}
+                />
 
-                <span className="text-sm text-gray-600">
-                  <span className="font-medium">{pr.user.login}</span> wants to merge · opened{" "}
-                  {formatDate(pr.createdAt)}
-                </span>
+                {renderTabContent(tab)}
               </div>
 
-              {pr.labels.length > 0 && (
-                <div className="flex items-center gap-2 mt-3">
-                  {pr.labels.map((label) => (
-                    <Label key={label.id} label={label} />
-                  ))}
-                </div>
+              {/* Sidebar - only on overview tab */}
+              {tab === "overview" && (
+                <PRDetailSidebar
+                  pr={pr}
+                  reviews={reviews}
+                  checks={checks ?? { total: 0, success: 0, failure: 0, pending: 0, checks: [] }}
+                />
               )}
             </div>
-
-            {/* Tabs placeholder */}
-            <div className="flex gap-4 border-b border-gray-200 mb-6">
-              <button className="flex items-center gap-2 px-3 py-2 text-sm font-medium border-b-2 border-orange-500">
-                <MessageSquare size={16} />
-                Conversation
-                <span className="px-1.5 py-0.5 bg-gray-200 rounded-full text-xs">
-                  {pr.comments}
-                </span>
-              </button>
-              <button className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-gray-900">
-                <GitCommit size={16} />
-                Commits
-              </button>
-              <button className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-gray-900">
-                <FileCode size={16} />
-                Files changed
-              </button>
-            </div>
-
-            {/* Author info */}
-            <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
-              <Avatar src={pr.user.avatarUrl} alt={pr.user.login} size={40} />
-              <div>
-                <div className="font-medium">{pr.user.login}</div>
-                <p className="text-sm text-gray-600 mt-1">{pr.body}</p>
-              </div>
-            </div>
-
-            {/* Placeholder notice */}
-            <div className="mt-8 p-6 bg-yellow-50 border border-yellow-200 rounded-lg text-center">
-              <p className="text-yellow-800 font-medium">Minimal PR detail page</p>
-              <p className="text-yellow-700 text-sm mt-1">
-                Full implementation coming soon - this is a placeholder view
-              </p>
-            </div>
-          </div>
+          </>
         ) : (
-          <div className="text-center py-12">
-            <p className="text-gray-500">Pull request not found</p>
+          <div className="bg-white rounded-xl border border-neutral-200 p-12 text-center">
+            <p className="text-neutral-500">Pull request not found</p>
           </div>
         )}
       </main>

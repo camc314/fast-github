@@ -2,6 +2,9 @@ import type {
   GitHubPullRequestSimple,
   GitHubPullRequestFull,
   GitHubIssue,
+  GitHubPRFile,
+  GitHubPRCommit,
+  GitHubIssueComment,
   PRListParams,
   PRListResponse,
   PullRequest,
@@ -12,6 +15,15 @@ import type {
   Issue,
   IssueState,
   Label,
+  PRFile,
+  PRFileStatus,
+  PRCommit,
+  PRComment,
+  PRReview,
+  ReviewState,
+  CheckRun,
+  ChecksSummary,
+  User,
 } from "../types/github";
 
 const GITHUB_API = "https://api.github.com";
@@ -31,6 +43,17 @@ function transformLabels(
       description: label.description ?? undefined,
     };
   });
+}
+
+// Helper to transform users array
+function transformUsers(
+  users: { login?: string; avatar_url?: string }[] | null | undefined,
+): User[] {
+  if (!users) return [];
+  return users.map((u) => ({
+    login: u.login ?? "unknown",
+    avatarUrl: u.avatar_url ?? "",
+  }));
 }
 
 // Transform GitHub API response to our types
@@ -58,6 +81,9 @@ function transformPullRequest(pr: GitHubPullRequestSimple): PullRequest {
     checkStatus: "none" as CheckStatus,
     draft: pr.draft ?? false,
     body: pr.body ?? "",
+    assignees: transformUsers(pr.assignees),
+    requestedReviewers: transformUsers(pr.requested_reviewers),
+    headSha: pr.head.sha,
   };
 }
 
@@ -85,6 +111,9 @@ function transformFullPullRequest(pr: GitHubPullRequestFull): PullRequest {
     checkStatus: "none" as CheckStatus,
     draft: pr.draft ?? false,
     body: pr.body ?? "",
+    assignees: transformUsers(pr.assignees),
+    requestedReviewers: transformUsers(pr.requested_reviewers),
+    headSha: pr.head.sha,
   };
 }
 
@@ -256,5 +285,160 @@ export async function fetchIssue(
     return transformIssue(data);
   } catch {
     return null;
+  }
+}
+
+// PR Detail API
+export async function fetchPRFiles(owner: string, repo: string, number: number): Promise<PRFile[]> {
+  const url = `${GITHUB_API}/repos/${owner}/${repo}/pulls/${number}/files?per_page=100`;
+  const data = await githubFetch<GitHubPRFile[]>(url);
+
+  return data.map((file) => ({
+    sha: file.sha ?? "",
+    filename: file.filename,
+    status: file.status as PRFileStatus,
+    additions: file.additions,
+    deletions: file.deletions,
+    changes: file.changes,
+    patch: file.patch,
+  }));
+}
+
+export async function fetchPRCommits(
+  owner: string,
+  repo: string,
+  number: number,
+): Promise<PRCommit[]> {
+  const url = `${GITHUB_API}/repos/${owner}/${repo}/pulls/${number}/commits?per_page=100`;
+  const data = await githubFetch<GitHubPRCommit[]>(url);
+
+  return data.map((commit) => ({
+    sha: commit.sha,
+    message: commit.commit.message,
+    author: {
+      name: commit.commit.author?.name ?? "Unknown",
+      email: commit.commit.author?.email ?? "",
+      date: commit.commit.author?.date ?? "",
+    },
+    committer: {
+      name: commit.commit.committer?.name ?? "Unknown",
+      date: commit.commit.committer?.date ?? "",
+    },
+    user: commit.author
+      ? {
+          login: commit.author.login,
+          avatarUrl: commit.author.avatar_url,
+        }
+      : null,
+  }));
+}
+
+export async function fetchPRComments(
+  owner: string,
+  repo: string,
+  number: number,
+): Promise<PRComment[]> {
+  const url = `${GITHUB_API}/repos/${owner}/${repo}/issues/${number}/comments?per_page=100`;
+  const data = await githubFetch<GitHubIssueComment[]>(url);
+
+  return data.map((comment) => ({
+    id: comment.id,
+    body: comment.body ?? "",
+    user: {
+      login: comment.user?.login ?? "unknown",
+      avatarUrl: comment.user?.avatar_url ?? "",
+    },
+    createdAt: comment.created_at,
+    updatedAt: comment.updated_at,
+  }));
+}
+
+// PR Reviews API
+interface GitHubReview {
+  id: number;
+  user: { login: string; avatar_url: string } | null;
+  state: string;
+  submitted_at: string | null;
+}
+
+export async function fetchPRReviews(
+  owner: string,
+  repo: string,
+  number: number,
+): Promise<PRReview[]> {
+  const url = `${GITHUB_API}/repos/${owner}/${repo}/pulls/${number}/reviews`;
+  const data = await githubFetch<GitHubReview[]>(url);
+
+  return data.map((review) => ({
+    id: review.id,
+    user: {
+      login: review.user?.login ?? "unknown",
+      avatarUrl: review.user?.avatar_url ?? "",
+    },
+    state: review.state as ReviewState,
+    submittedAt: review.submitted_at,
+  }));
+}
+
+// Check Runs API
+interface GitHubCheckRun {
+  id: number;
+  name: string;
+  status: "queued" | "in_progress" | "completed";
+  conclusion:
+    | "success"
+    | "failure"
+    | "neutral"
+    | "cancelled"
+    | "skipped"
+    | "timed_out"
+    | "action_required"
+    | null;
+  html_url: string;
+}
+
+interface GitHubCheckRunsResponse {
+  total_count: number;
+  check_runs: GitHubCheckRun[];
+}
+
+export async function fetchPRChecks(
+  owner: string,
+  repo: string,
+  ref: string,
+): Promise<ChecksSummary> {
+  const url = `${GITHUB_API}/repos/${owner}/${repo}/commits/${ref}/check-runs?per_page=100`;
+
+  try {
+    const data = await githubFetch<GitHubCheckRunsResponse>(url);
+
+    const checks: CheckRun[] = data.check_runs.map((run) => ({
+      id: run.id,
+      name: run.name,
+      status: run.status,
+      conclusion: run.conclusion,
+      htmlUrl: run.html_url,
+    }));
+
+    const success = checks.filter(
+      (c) => c.status === "completed" && c.conclusion === "success",
+    ).length;
+    const failure = checks.filter(
+      (c) =>
+        c.status === "completed" && (c.conclusion === "failure" || c.conclusion === "timed_out"),
+    ).length;
+    const pending = checks.filter(
+      (c) => c.status === "queued" || c.status === "in_progress",
+    ).length;
+
+    return {
+      total: data.total_count,
+      success,
+      failure,
+      pending,
+      checks,
+    };
+  } catch {
+    return { total: 0, success: 0, failure: 0, pending: 0, checks: [] };
   }
 }
