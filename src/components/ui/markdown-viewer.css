@@ -1,0 +1,212 @@
+/* Tiptap Markdown Viewer Styles */
+/* Using Tailwind @apply for theming compatibility */
+@reference "tailwindcss";
+
+/* Base container */
+.tiptap {
+  @apply text-sm text-neutral-700 leading-relaxed;
+}
+
+/* Focus outline removal for read-only */
+.tiptap:focus {
+  @apply outline-none;
+}
+
+/* Headings */
+.tiptap h1 {
+  @apply text-2xl font-semibold text-neutral-900 mt-6 mb-4;
+}
+
+.tiptap h1:first-child {
+  @apply mt-0;
+}
+
+.tiptap h2 {
+  @apply text-xl font-semibold text-neutral-900 mt-5 mb-3;
+}
+
+.tiptap h2:first-child {
+  @apply mt-0;
+}
+
+.tiptap h3 {
+  @apply text-lg font-semibold text-neutral-900 mt-4 mb-2;
+}
+
+.tiptap h3:first-child {
+  @apply mt-0;
+}
+
+.tiptap h4,
+.tiptap h5,
+.tiptap h6 {
+  @apply text-base font-semibold text-neutral-900 mt-4 mb-2;
+}
+
+.tiptap h4:first-child,
+.tiptap h5:first-child,
+.tiptap h6:first-child {
+  @apply mt-0;
+}
+
+/* Empty headings - render as divider lines (GitHub style) */
+/* ProseMirror adds a trailing break, so we use :has() to detect "empty" headings */
+.tiptap h1:has(> br.ProseMirror-trailingBreak:only-child),
+.tiptap h2:has(> br.ProseMirror-trailingBreak:only-child),
+.tiptap h3:has(> br.ProseMirror-trailingBreak:only-child),
+.tiptap h4:has(> br.ProseMirror-trailingBreak:only-child),
+.tiptap h5:has(> br.ProseMirror-trailingBreak:only-child),
+.tiptap h6:has(> br.ProseMirror-trailingBreak:only-child) {
+  @apply border-b border-neutral-200 mt-4 mb-4 text-transparent leading-none;
+}
+
+/* Paragraphs */
+.tiptap p {
+  @apply mb-4;
+}
+
+.tiptap p:last-child {
+  @apply mb-0;
+}
+
+/* Empty paragraphs - hide them completely */
+.tiptap p:empty,
+.tiptap p:has(> br.ProseMirror-trailingBreak:only-child) {
+  @apply hidden;
+}
+
+/* Bold, Italic, Strike */
+.tiptap strong {
+  @apply font-semibold text-neutral-900;
+}
+
+.tiptap em {
+  @apply italic;
+}
+
+.tiptap s {
+  @apply line-through text-neutral-500;
+}
+
+/* Links */
+.tiptap a {
+  @apply text-blue-600 hover:underline;
+}
+
+/* Ensure nested elements in links inherit the link color */
+.tiptap a strong,
+.tiptap a b,
+.tiptap a em,
+.tiptap a code {
+  @apply text-inherit;
+}
+
+/* Inline code */
+.tiptap code {
+  @apply bg-neutral-100 text-neutral-800 px-1.5 py-0.5 rounded text-xs font-mono;
+}
+
+/* Code blocks */
+.tiptap pre {
+  @apply bg-neutral-100 rounded-lg p-4 overflow-x-auto mb-4;
+}
+
+.tiptap pre:last-child {
+  @apply mb-0;
+}
+
+.tiptap pre code {
+  @apply bg-transparent p-0 text-sm;
+}
+
+/* Blockquotes */
+.tiptap blockquote {
+  @apply border-l-4 border-neutral-300 pl-4 py-1 my-4 text-neutral-600 italic;
+}
+
+.tiptap blockquote:first-child {
+  @apply mt-0;
+}
+
+.tiptap blockquote:last-child {
+  @apply mb-0;
+}
+
+/* Unordered lists */
+.tiptap ul {
+  @apply list-disc pl-6 mb-4 space-y-1;
+}
+
+.tiptap ul:last-child {
+  @apply mb-0;
+}
+
+/* Ordered lists */
+.tiptap ol {
+  @apply list-decimal pl-6 mb-4 space-y-1;
+}
+
+.tiptap ol:last-child {
+  @apply mb-0;
+}
+
+/* List items */
+.tiptap li {
+  @apply text-neutral-700;
+}
+
+/* Paragraphs inside list items should be inline */
+.tiptap li > p {
+  @apply inline mb-0;
+}
+
+/* Nested lists */
+.tiptap li > ul,
+.tiptap li > ol {
+  @apply ml-4 mt-1 mb-0;
+}
+
+/* Task lists */
+.tiptap ul[data-type="taskList"] {
+  @apply list-none space-y-2 pl-0;
+}
+
+.tiptap ul[data-type="taskList"] li {
+  @apply flex items-start gap-2;
+}
+
+.tiptap ul[data-type="taskList"] li > label {
+  @apply flex items-center;
+}
+
+.tiptap ul[data-type="taskList"] li > label > input[type="checkbox"] {
+  @apply w-4 h-4 rounded border-neutral-300 text-blue-600 cursor-default;
+}
+
+.tiptap ul[data-type="taskList"] li > div {
+  @apply flex-1;
+}
+
+/* Horizontal rule */
+.tiptap hr {
+  @apply border-t border-neutral-200 my-6;
+}
+
+/* Images */
+.tiptap img {
+  @apply max-w-full h-auto rounded;
+}
+
+/* Subscript and Superscript */
+.tiptap sub {
+  @apply text-xs align-sub;
+}
+
+.tiptap sup {
+  @apply text-xs align-super;
+}
+
+/* Keyboard keys */
+.tiptap kbd {
+  @apply bg-neutral-100 border border-neutral-300 rounded px-1.5 py-0.5 text-xs font-mono text-neutral-800 shadow-sm;
+}
