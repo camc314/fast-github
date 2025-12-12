@@ -86,6 +86,17 @@ export interface ListSearchParams {
   sort: SortField;
   direction: SortDirection;
   q?: string; // Search query
+  author?: string; // Filter by author username
+  label?: string; // Filter by label name
+  assignee?: string; // Filter by assignee username
+}
+
+// Filter options for dropdowns
+export interface FilterOption {
+  value: string;
+  label: string;
+  icon?: string; // Avatar URL for users
+  color?: string; // Color for labels
 }
 
 // Legacy list params (for backwards compatibility)

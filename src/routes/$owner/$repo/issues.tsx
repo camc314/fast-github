@@ -18,6 +18,9 @@ type IssueListSearch = {
   sort?: SortField;
   direction?: SortDirection;
   q?: string;
+  author?: string;
+  label?: string;
+  assignee?: string;
 };
 
 // Validators
@@ -36,37 +39,49 @@ function validateDirection(value: unknown): SortDirection {
   return "desc";
 }
 
+function validateString(value: unknown): string | undefined {
+  if (typeof value === "string" && value.trim()) return value.trim();
+  return undefined;
+}
+
 export const Route = createFileRoute("/$owner/$repo/issues")({
   validateSearch: (search: Record<string, unknown>): IssueListSearch => ({
     state: validateState(search.state),
     sort: validateSort(search.sort),
     direction: validateDirection(search.direction),
-    q: typeof search.q === "string" && search.q.trim() ? search.q.trim() : undefined,
+    q: validateString(search.q),
+    author: validateString(search.author),
+    label: validateString(search.label),
+    assignee: validateString(search.assignee),
   }),
   component: IssuesPage,
 });
 
 function IssuesPage() {
   const { owner, repo } = Route.useParams();
-  const { state = "open", sort = "created", direction = "desc", q } = Route.useSearch();
+  const {
+    state = "open",
+    sort = "created",
+    direction = "desc",
+    q,
+    author,
+    label,
+    assignee,
+  } = Route.useSearch();
   const queryClient = useQueryClient();
 
-  const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    isLoading,
-    isFetching,
-    error,
-  } = useInfiniteIssueList({
-    owner,
-    repo,
-    state,
-    sort,
-    direction,
-    query: q,
-  });
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isFetching, error } =
+    useInfiniteIssueList({
+      owner,
+      repo,
+      state,
+      sort,
+      direction,
+      query: q,
+      author,
+      label,
+      assignee,
+    });
 
   // Flatten all pages into single array
   const issues = data?.pages.flatMap((page) => page.issues) ?? [];
@@ -92,10 +107,29 @@ function IssuesPage() {
     if (lastItem.index >= issues.length - 5 && hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
     }
-  }, [virtualizer.getVirtualItems(), hasNextPage, isFetchingNextPage, issues.length, fetchNextPage]);
+  }, [
+    virtualizer.getVirtualItems(),
+    hasNextPage,
+    isFetchingNextPage,
+    issues.length,
+    fetchNextPage,
+  ]);
 
   // Show initial loading spinner only on first load
   const showInitialLoading = isLoading && !data;
+
+  // Build description of active filters for empty state
+  const hasFilters = !!(q || author || label || assignee);
+  const filterDescription = hasFilters
+    ? [
+        q && `matching "${q}"`,
+        author && `by ${author}`,
+        label && `with label "${label}"`,
+        assignee && `assigned to ${assignee}`,
+      ]
+        .filter(Boolean)
+        .join(" ")
+    : "";
 
   return (
     <div className="min-h-screen bg-neutral-50">
@@ -112,6 +146,9 @@ function IssuesPage() {
           sort={sort}
           direction={direction}
           query={q}
+          author={author}
+          label={label}
+          assignee={assignee}
           openCount={counts.openCount}
           closedCount={counts.closedCount}
         />
@@ -131,14 +168,14 @@ function IssuesPage() {
           <div className="bg-white rounded-xl border border-neutral-200 shadow-sm overflow-hidden">
             <div
               ref={parentRef}
-              className={`h-[calc(100vh-320px)] overflow-auto transition-opacity duration-150 ${
+              className={`h-[calc(100vh-380px)] overflow-auto transition-opacity duration-150 ${
                 isFetching && !isFetchingNextPage ? "opacity-60" : "opacity-100"
               }`}
             >
               {issues.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-16 text-neutral-500">
                   <p className="text-sm">
-                    {q ? `No issues found matching "${q}"` : "No issues found"}
+                    {hasFilters ? `No issues found ${filterDescription}` : "No issues found"}
                   </p>
                 </div>
               ) : (
@@ -192,8 +229,8 @@ function IssuesPage() {
             </div>
 
             <div className="px-4 py-3 border-t border-neutral-100 bg-neutral-50 text-sm text-neutral-500">
-              {q ? (
-                <span>Found {issues.length} issues matching "{q}"</span>
+              {hasFilters ? (
+                <span>Found {issues.length} issues {filterDescription}</span>
               ) : (
                 <span>
                   Showing {issues.length} of{" "}

@@ -776,7 +776,10 @@ export async function searchPullRequests(
     state: ListState;
     sort: SortField;
     direction: SortDirection;
-    query: string;
+    query?: string;
+    author?: string;
+    label?: string;
+    assignee?: string;
     page: number;
     perPage: number;
   },
@@ -786,7 +789,10 @@ export async function searchPullRequests(
     `repo:${owner}/${repo}`,
     "type:pr",
     params.state !== "all" ? `state:${params.state}` : "",
-    params.query,
+    params.author ? `author:${params.author}` : "",
+    params.label ? `label:"${params.label}"` : "",
+    params.assignee ? `assignee:${params.assignee}` : "",
+    params.query || "",
   ].filter(Boolean);
 
   const q = encodeURIComponent(queryParts.join(" "));
@@ -823,7 +829,10 @@ export async function searchIssues(
     state: ListState;
     sort: SortField;
     direction: SortDirection;
-    query: string;
+    query?: string;
+    author?: string;
+    label?: string;
+    assignee?: string;
     page: number;
     perPage: number;
   },
@@ -833,7 +842,10 @@ export async function searchIssues(
     `repo:${owner}/${repo}`,
     "type:issue",
     params.state !== "all" ? `state:${params.state}` : "",
-    params.query,
+    params.author ? `author:${params.author}` : "",
+    params.label ? `label:"${params.label}"` : "",
+    params.assignee ? `assignee:${params.assignee}` : "",
+    params.query || "",
   ].filter(Boolean);
 
   const q = encodeURIComponent(queryParts.join(" "));
@@ -860,4 +872,37 @@ export async function searchIssues(
     openCount,
     closedCount,
   };
+}
+
+// ============================================================================
+// Repository Metadata API (for filter dropdowns)
+// ============================================================================
+
+// Fetch repository labels
+export async function fetchRepoLabels(owner: string, repo: string): Promise<Label[]> {
+  const url = `${GITHUB_API}/repos/${owner}/${repo}/labels?per_page=100`;
+  const data = await githubFetch<Array<{ id: number; name: string; color: string; description?: string }>>(url);
+  
+  return data.map((label) => ({
+    id: label.id,
+    name: label.name,
+    color: label.color,
+    description: label.description,
+  }));
+}
+
+// Fetch repository contributors (for author/assignee filters)
+export async function fetchRepoContributors(owner: string, repo: string): Promise<User[]> {
+  const url = `${GITHUB_API}/repos/${owner}/${repo}/contributors?per_page=50`;
+  
+  try {
+    const data = await githubFetch<Array<{ login: string; avatar_url: string }>>(url);
+    return data.map((user) => ({
+      login: user.login,
+      avatarUrl: user.avatar_url,
+    }));
+  } catch {
+    // Contributors endpoint might fail for some repos, return empty array
+    return [];
+  }
 }
