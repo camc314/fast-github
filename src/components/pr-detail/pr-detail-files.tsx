@@ -46,12 +46,12 @@ function getFileIcon(status: PRFileStatus) {
 
 function getStatusBadge(status: PRFileStatus) {
   const styles: Record<PRFileStatus, string> = {
-    added: "bg-emerald-50 text-emerald-700",
-    removed: "bg-red-50 text-red-700",
-    modified: "bg-amber-50 text-amber-700",
-    changed: "bg-amber-50 text-amber-700",
-    renamed: "bg-blue-50 text-blue-700",
-    copied: "bg-violet-50 text-violet-700",
+    added: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+    removed: "bg-red-500/10 text-red-600 dark:text-red-400",
+    modified: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
+    changed: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
+    renamed: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
+    copied: "bg-violet-500/10 text-violet-600 dark:text-violet-400",
     unchanged: "bg-bg text-fg-muted",
   };
 

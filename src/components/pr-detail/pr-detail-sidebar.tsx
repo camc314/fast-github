@@ -129,19 +129,19 @@ function ChecksSection({ checks }: { checks: ChecksSummary }) {
   const { success, failure, pending } = checks;
 
   // Overall status
-  let statusColor = "text-emerald-600";
-  let statusBg = "bg-emerald-50";
+  let statusColor = "text-emerald-600 dark:text-emerald-400";
+  let statusBg = "bg-emerald-500/10";
   let StatusIcon = Check;
   let statusText = "All checks passed";
 
   if (failure > 0) {
-    statusColor = "text-red-600";
-    statusBg = "bg-red-50";
+    statusColor = "text-red-600 dark:text-red-400";
+    statusBg = "bg-red-500/10";
     StatusIcon = X;
     statusText = `${failure} check${failure > 1 ? "s" : ""} failed`;
   } else if (pending > 0) {
-    statusColor = "text-amber-600";
-    statusBg = "bg-amber-50";
+    statusColor = "text-amber-600 dark:text-amber-400";
+    statusBg = "bg-amber-500/10";
     StatusIcon = Clock;
     statusText = `${pending} check${pending > 1 ? "s" : ""} pending`;
   }

@@ -97,7 +97,7 @@ export function FilterDropdown({
         // When filter is active, show as a pill with separate clickable areas
         <div
           className="inline-flex items-center gap-2 h-9 px-3 text-sm font-medium rounded-lg border transition-all duration-150
-            bg-blue-50 border-blue-200 text-blue-700"
+            bg-blue-500/10 border-blue-500/20 text-blue-600 dark:text-blue-400"
         >
           <button
             type="button"
@@ -183,7 +183,7 @@ export function FilterDropdown({
                   className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-left transition-colors duration-100
                     ${
                       option.value === value
-                        ? "bg-blue-50 text-blue-700"
+                        ? "bg-blue-500/10 text-blue-600 dark:text-blue-400"
                         : "text-fg-secondary hover:bg-bg-hover"
                     }`}
                 >

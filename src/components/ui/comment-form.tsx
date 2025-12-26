@@ -121,7 +121,7 @@ export function CommentForm({
 
         {/* Error message */}
         {error && (
-          <div className="text-sm text-[var(--color-error)] bg-red-50 border border-red-200 rounded-lg p-3">
+          <div className="text-sm text-[var(--color-error)] bg-red-500/10 border border-red-500/20 rounded-lg p-3">
             {error}
           </div>
         )}
