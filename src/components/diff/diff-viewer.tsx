@@ -169,7 +169,6 @@ export const DiffViewer = memo(function DiffViewer({
   // Handle clicking on a line to add a comment
   const handleLineClick = useCallback(
     (lineNumber: number, side: "deletions" | "additions") => {
-      console.log("Line clicked:", lineNumber, side);
       if (!onAddComment) return;
       setPendingCommentLocation({ line: lineNumber, side });
     },
@@ -196,7 +195,7 @@ export const DiffViewer = memo(function DiffViewer({
   // Configure diff options
   const options = useMemo(() => {
     return {
-      diffStyle: viewMode as "unified" | "split",
+      diffStyle: viewMode,
       diffIndicators: "bars" as const,
       disableBackground: false,
       disableFileHeader: true,
@@ -234,14 +233,15 @@ export const DiffViewer = memo(function DiffViewer({
   // Render hover utility (add comment button)
   const renderHoverUtility = useCallback(
     (getHoveredLine: () => { lineNumber: number; side: "deletions" | "additions" } | undefined) => {
-      const hoveredLine = getHoveredLine();
-      console.log("Rendering hover utility", hoveredLine);
-      if (!hoveredLine) return null;
-
       return (
         <button
           type="button"
-          onClick={() => handleLineClick(hoveredLine.lineNumber, hoveredLine.side)}
+          onClick={() => {
+            const hoveredLine = getHoveredLine();
+            if (hoveredLine) {
+              handleLineClick(hoveredLine.lineNumber, hoveredLine.side);
+            }
+          }}
           className="flex items-center justify-center w-5 h-5 bg-blue-500 hover:bg-blue-600 text-white rounded-full shadow-sm transition-colors"
           title="Add comment"
         >
@@ -260,8 +260,6 @@ export const DiffViewer = memo(function DiffViewer({
       </div>
     );
   }
-
-  console.log("onAddComment", onAddComment);
 
   return (
     <div className="border-t border-border overflow-hidden">
