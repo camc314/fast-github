@@ -36,38 +36,38 @@ function getEventIcon(type: TimelineEvent["type"]) {
   switch (type) {
     case "labeled":
     case "unlabeled":
-      return { icon: Tag, color: "text-yellow-500" };
+      return { icon: Tag, color: "text-yellow-500", bg: "bg-yellow-500/10" };
     case "assigned":
-      return { icon: UserPlus, color: "text-blue-500" };
+      return { icon: UserPlus, color: "text-blue-500", bg: "bg-blue-500/10" };
     case "unassigned":
-      return { icon: UserMinus, color: "text-gray-500" };
+      return { icon: UserMinus, color: "text-gray-500", bg: "bg-gray-500/10" };
     case "review_requested":
-      return { icon: UserCheck, color: "text-purple-500" };
+      return { icon: UserCheck, color: "text-purple-500", bg: "bg-purple-500/10" };
     case "review_request_removed":
-      return { icon: UserMinus, color: "text-gray-500" };
+      return { icon: UserMinus, color: "text-gray-500", bg: "bg-gray-500/10" };
     case "reviewed":
-      return { icon: Eye, color: "text-purple-500" };
+      return { icon: Eye, color: "text-purple-500", bg: "bg-purple-500/10" };
     case "merged":
-      return { icon: GitMerge, color: "text-purple-500" };
+      return { icon: GitMerge, color: "text-purple-500", bg: "bg-purple-500/10" };
     case "closed":
-      return { icon: XCircle, color: "text-red-500" };
+      return { icon: XCircle, color: "text-red-500", bg: "bg-red-500/10" };
     case "reopened":
-      return { icon: RotateCcw, color: "text-green-500" };
+      return { icon: RotateCcw, color: "text-green-500", bg: "bg-green-500/10" };
     case "renamed":
-      return { icon: Pencil, color: "text-gray-500" };
+      return { icon: Pencil, color: "text-gray-500", bg: "bg-gray-500/10" };
     case "head_ref_force_pushed":
     case "base_ref_force_pushed":
-      return { icon: GitBranch, color: "text-orange-500" };
+      return { icon: GitBranch, color: "text-orange-500", bg: "bg-orange-500/10" };
     case "referenced":
     case "cross-referenced":
-      return { icon: Link2, color: "text-blue-500" };
+      return { icon: Link2, color: "text-blue-500", bg: "bg-blue-500/10" };
     case "milestoned":
     case "demilestoned":
-      return { icon: Milestone, color: "text-blue-500" };
+      return { icon: Milestone, color: "text-blue-500", bg: "bg-blue-500/10" };
     case "commented":
-      return { icon: MessageSquare, color: "text-fg-muted" };
+      return { icon: MessageSquare, color: "text-fg-muted", bg: "bg-bg-tertiary" };
     default:
-      return { icon: MessageSquare, color: "text-fg-muted" };
+      return { icon: MessageSquare, color: "text-fg-muted", bg: "bg-bg-tertiary" };
   }
 }
 
@@ -75,13 +75,13 @@ function getEventIcon(type: TimelineEvent["type"]) {
 function getReviewStateIcon(state: string | undefined) {
   switch (state) {
     case "APPROVED":
-      return { icon: Check, color: "text-green-500" };
+      return { icon: Check, color: "text-green-500", bg: "bg-green-500/10" };
     case "CHANGES_REQUESTED":
-      return { icon: X, color: "text-red-500" };
+      return { icon: X, color: "text-red-500", bg: "bg-red-500/10" };
     case "COMMENTED":
-      return { icon: Eye, color: "text-gray-500" };
+      return { icon: Eye, color: "text-gray-500", bg: "bg-gray-500/10" };
     default:
-      return { icon: Eye, color: "text-gray-500" };
+      return { icon: Eye, color: "text-gray-500", bg: "bg-gray-500/10" };
   }
 }
 
@@ -93,7 +93,7 @@ function getEventDescription(event: TimelineEvent): React.ReactNode {
     case "labeled":
       return (
         <span className="flex items-center gap-1.5 flex-wrap">
-          <span className="font-medium">{actorName}</span>
+          <span className="font-medium text-fg">{actorName}</span>
           <span>added</span>
           {event.label && <Label label={event.label} />}
         </span>
@@ -101,7 +101,7 @@ function getEventDescription(event: TimelineEvent): React.ReactNode {
     case "unlabeled":
       return (
         <span className="flex items-center gap-1.5 flex-wrap">
-          <span className="font-medium">{actorName}</span>
+          <span className="font-medium text-fg">{actorName}</span>
           <span>removed</span>
           {event.label && <Label label={event.label} />}
         </span>
@@ -109,33 +109,33 @@ function getEventDescription(event: TimelineEvent): React.ReactNode {
     case "assigned":
       return (
         <span>
-          <span className="font-medium">{actorName}</span>
+          <span className="font-medium text-fg">{actorName}</span>
           <span> assigned </span>
-          <span className="font-medium">{event.assignee?.login ?? "someone"}</span>
+          <span className="font-medium text-fg">{event.assignee?.login ?? "someone"}</span>
         </span>
       );
     case "unassigned":
       return (
         <span>
-          <span className="font-medium">{actorName}</span>
+          <span className="font-medium text-fg">{actorName}</span>
           <span> unassigned </span>
-          <span className="font-medium">{event.assignee?.login ?? "someone"}</span>
+          <span className="font-medium text-fg">{event.assignee?.login ?? "someone"}</span>
         </span>
       );
     case "review_requested":
       return (
         <span>
-          <span className="font-medium">{actorName}</span>
+          <span className="font-medium text-fg">{actorName}</span>
           <span> requested review from </span>
-          <span className="font-medium">{event.requestedReviewer?.login ?? "someone"}</span>
+          <span className="font-medium text-fg">{event.requestedReviewer?.login ?? "someone"}</span>
         </span>
       );
     case "review_request_removed":
       return (
         <span>
-          <span className="font-medium">{actorName}</span>
+          <span className="font-medium text-fg">{actorName}</span>
           <span> removed review request from </span>
-          <span className="font-medium">{event.requestedReviewer?.login ?? "someone"}</span>
+          <span className="font-medium text-fg">{event.requestedReviewer?.login ?? "someone"}</span>
         </span>
       );
     case "reviewed":
@@ -147,74 +147,70 @@ function getEventDescription(event: TimelineEvent): React.ReactNode {
             : "reviewed";
       return (
         <span>
-          <span className="font-medium">{actorName}</span>
+          <span className="font-medium text-fg">{actorName}</span>
           <span> {reviewState}</span>
         </span>
       );
     case "merged":
       return (
         <span>
-          <span className="font-medium">{actorName}</span>
+          <span className="font-medium text-fg">{actorName}</span>
           <span> merged this pull request</span>
         </span>
       );
     case "closed":
       return (
         <span>
-          <span className="font-medium">{actorName}</span>
+          <span className="font-medium text-fg">{actorName}</span>
           <span> closed this</span>
         </span>
       );
     case "reopened":
       return (
         <span>
-          <span className="font-medium">{actorName}</span>
+          <span className="font-medium text-fg">{actorName}</span>
           <span> reopened this</span>
         </span>
       );
     case "renamed":
       return (
-        <span>
-          <span className="font-medium">{actorName}</span>
-          <span> changed the title from </span>
+        <span className="flex items-center gap-1 flex-wrap">
+          <span className="font-medium text-fg">{actorName}</span>
+          <span>changed the title from</span>
           <span className="line-through text-fg-muted">{event.rename?.from}</span>
-          <span> to </span>
-          <span className="font-medium">{event.rename?.to}</span>
+          <span>to</span>
+          <span className="font-medium text-fg">{event.rename?.to}</span>
         </span>
       );
     case "head_ref_force_pushed":
       return (
         <span>
-          <span className="font-medium">{actorName}</span>
+          <span className="font-medium text-fg">{actorName}</span>
           <span> force-pushed the branch</span>
         </span>
       );
     case "base_ref_force_pushed":
       return (
         <span>
-          <span className="font-medium">{actorName}</span>
+          <span className="font-medium text-fg">{actorName}</span>
           <span> force-pushed the base branch</span>
         </span>
       );
     case "referenced":
       return (
         <span>
-          <span className="font-medium">{actorName}</span>
+          <span className="font-medium text-fg">{actorName}</span>
           <span> referenced this in </span>
-          {event.source && (
-            <span className="font-medium">
-              #{event.source.number}
-            </span>
-          )}
+          {event.source && <span className="font-medium text-fg">#{event.source.number}</span>}
         </span>
       );
     case "cross-referenced":
       return (
         <span>
-          <span className="font-medium">{actorName}</span>
+          <span className="font-medium text-fg">{actorName}</span>
           <span> mentioned this in </span>
           {event.source && (
-            <span className="font-medium">
+            <span className="font-medium text-fg">
               #{event.source.number} {event.source.title}
             </span>
           )}
@@ -223,52 +219,58 @@ function getEventDescription(event: TimelineEvent): React.ReactNode {
     case "milestoned":
       return (
         <span>
-          <span className="font-medium">{actorName}</span>
+          <span className="font-medium text-fg">{actorName}</span>
           <span> added this to the </span>
-          <span className="font-medium">{event.milestone?.title}</span>
+          <span className="font-medium text-fg">{event.milestone?.title}</span>
           <span> milestone</span>
         </span>
       );
     case "demilestoned":
       return (
         <span>
-          <span className="font-medium">{actorName}</span>
+          <span className="font-medium text-fg">{actorName}</span>
           <span> removed this from the </span>
-          <span className="font-medium">{event.milestone?.title}</span>
+          <span className="font-medium text-fg">{event.milestone?.title}</span>
           <span> milestone</span>
         </span>
       );
     default:
       return (
         <span>
-          <span className="font-medium">{actorName}</span>
+          <span className="font-medium text-fg">{actorName}</span>
           <span> performed an action</span>
         </span>
       );
   }
 }
 
+/**
+ * Compact timeline event item - shown inline with icon
+ */
 const TimelineEventItem = memo(function TimelineEventItem({ event }: TimelineItemProps) {
   // Use review state icon for reviewed events
   const iconInfo =
-    event.type === "reviewed"
-      ? getReviewStateIcon(event.reviewState)
-      : getEventIcon(event.type);
+    event.type === "reviewed" ? getReviewStateIcon(event.reviewState) : getEventIcon(event.type);
   const Icon = iconInfo.icon;
 
   return (
-    <div className="flex items-start gap-3 py-2">
-      <div className={`mt-0.5 ${iconInfo.color}`}>
-        <Icon size={16} />
+    <div className="flex items-start gap-3 py-3">
+      {/* Icon with background circle */}
+      <div
+        className={`w-8 h-8 rounded-full ${iconInfo.bg} flex items-center justify-center shrink-0`}
+      >
+        <Icon size={16} className={iconInfo.color} />
       </div>
-      <div className="flex-1 min-w-0">
+
+      {/* Event description */}
+      <div className="flex-1 min-w-0 pt-1">
         <div className="flex items-center gap-2 text-sm text-fg-muted flex-wrap">
           {getEventDescription(event)}
           <span className="text-xs">{formatRelativeTime(event.createdAt)}</span>
         </div>
         {/* Show review body if present */}
         {event.type === "reviewed" && event.reviewBody && (
-          <div className="mt-2 pl-0 text-sm">
+          <div className="mt-2 text-sm bg-bg-tertiary rounded-lg p-3 border border-border">
             <MarkdownViewer content={event.reviewBody} />
           </div>
         )}
@@ -277,16 +279,25 @@ const TimelineEventItem = memo(function TimelineEventItem({ event }: TimelineIte
   );
 });
 
+/**
+ * Comment item - shown as a full card with avatar and body
+ */
 const CommentItem = memo(function CommentItem({ comment }: { comment: PRComment }) {
   return (
-    <div className="py-3">
-      <div className="flex items-start gap-3">
-        <Avatar src={comment.user.avatarUrl} alt={comment.user.login} size={32} />
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="font-medium text-sm text-fg">{comment.user.login}</span>
-            <span className="text-xs text-fg-muted">{formatRelativeTime(comment.createdAt)}</span>
-          </div>
+    <div className="flex items-start gap-3 py-3">
+      {/* Avatar */}
+      <Avatar src={comment.user.avatarUrl} alt={comment.user.login} size={32} />
+
+      {/* Comment card */}
+      <div className="flex-1 min-w-0 bg-bg rounded-lg border border-border overflow-hidden">
+        {/* Header */}
+        <div className="flex items-center gap-2 px-4 py-2 bg-bg-tertiary border-b border-border">
+          <span className="font-medium text-sm text-fg">{comment.user.login}</span>
+          <span className="text-xs text-fg-muted">{formatRelativeTime(comment.createdAt)}</span>
+        </div>
+
+        {/* Body */}
+        <div className="px-4 py-3">
           <MarkdownViewer content={comment.body} />
         </div>
       </div>
@@ -335,25 +346,29 @@ export const Timeline = memo(function Timeline({ events, comments }: TimelinePro
   }
 
   return (
-    <div className="bg-bg-secondary rounded-xl border border-border overflow-hidden">
-      <div className="flex items-center gap-2 text-fg-muted p-4 border-b border-border">
+    <div className="space-y-0">
+      {/* Header */}
+      <div className="flex items-center gap-2 text-fg-muted mb-4">
         <MessageSquare size={16} />
         <h2 className="text-sm font-medium">Activity</h2>
         <span className="text-xs bg-bg-tertiary px-1.5 py-0.5 rounded-full">{items.length}</span>
       </div>
 
-      <div className="divide-y divide-border">
-        {items.map((item, index) =>
-          item.type === "comment" ? (
-            <div key={`comment-${item.data.id}`} className="px-4">
-              <CommentItem comment={item.data} />
-            </div>
-          ) : (
-            <div key={`event-${item.data.id}-${index}`} className="px-4">
-              <TimelineEventItem event={item.data} />
-            </div>
-          ),
-        )}
+      {/* Timeline with vertical line */}
+      <div className="relative">
+        {/* Vertical timeline line */}
+        <div className="absolute left-4 top-4 bottom-4 w-px bg-border" />
+
+        {/* Timeline items */}
+        <div className="relative space-y-0">
+          {items.map((item, index) =>
+            item.type === "comment" ? (
+              <CommentItem key={`comment-${item.data.id}`} comment={item.data} />
+            ) : (
+              <TimelineEventItem key={`event-${item.data.id}-${index}`} event={item.data} />
+            ),
+          )}
+        </div>
       </div>
     </div>
   );
