@@ -6,7 +6,39 @@ import TaskItem from "@tiptap/extension-task-item";
 import Subscript from "@tiptap/extension-subscript";
 import Superscript from "@tiptap/extension-superscript";
 import { Markdown } from "@tiptap/markdown";
+import { Node, mergeAttributes } from "@tiptap/core";
 import "./markdown-viewer.css";
+
+// Custom Details extension for <details> and <summary> support
+const Details = Node.create({
+  name: "details",
+  group: "block",
+  content: "detailsSummary block+",
+  defining: true,
+
+  parseHTML() {
+    return [{ tag: "details" }];
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    return ["details", mergeAttributes(HTMLAttributes), 0];
+  },
+});
+
+const DetailsSummary = Node.create({
+  name: "detailsSummary",
+  group: "block",
+  content: "inline*",
+  defining: true,
+
+  parseHTML() {
+    return [{ tag: "summary" }];
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    return ["summary", mergeAttributes(HTMLAttributes), 0];
+  },
+});
 
 interface MarkdownViewerProps {
   content: string;
@@ -34,6 +66,8 @@ export function MarkdownViewer({ content, className }: MarkdownViewerProps) {
       }),
       Subscript,
       Superscript,
+      Details,
+      DetailsSummary,
       Markdown,
     ],
     content: content,
