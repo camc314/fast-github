@@ -130,6 +130,13 @@ const FileAccordionItem = memo(
   },
   // Custom comparison - only re-render if relevant props change
   (prevProps, nextProps) => {
+    // Compare comments by length and IDs instead of reference
+    const prevComments = prevProps.comments ?? [];
+    const nextComments = nextProps.comments ?? [];
+    const commentsEqual =
+      prevComments.length === nextComments.length &&
+      prevComments.every((c, i) => c.id === nextComments[i]?.id);
+
     return (
       prevProps.isExpanded === nextProps.isExpanded &&
       prevProps.viewMode === nextProps.viewMode &&
@@ -138,7 +145,7 @@ const FileAccordionItem = memo(
       prevProps.file.additions === nextProps.file.additions &&
       prevProps.file.deletions === nextProps.file.deletions &&
       prevProps.file.status === nextProps.file.status &&
-      prevProps.comments === nextProps.comments
+      commentsEqual
     );
   },
 );

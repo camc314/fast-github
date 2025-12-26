@@ -169,6 +169,7 @@ export const DiffViewer = memo(function DiffViewer({
   // Handle clicking on a line to add a comment
   const handleLineClick = useCallback(
     (lineNumber: number, side: "deletions" | "additions") => {
+      console.log("Line clicked:", lineNumber, side);
       if (!onAddComment) return;
       setPendingCommentLocation({ line: lineNumber, side });
     },
@@ -234,6 +235,7 @@ export const DiffViewer = memo(function DiffViewer({
   const renderHoverUtility = useCallback(
     (getHoveredLine: () => { lineNumber: number; side: "deletions" | "additions" } | undefined) => {
       const hoveredLine = getHoveredLine();
+      console.log("Rendering hover utility", hoveredLine);
       if (!hoveredLine) return null;
 
       return (
