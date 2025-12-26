@@ -9,6 +9,7 @@ import type {
   PRListResponse,
   PullRequest,
   PRState,
+  MergeableState,
   CheckStatus,
   IssueListParams,
   IssueListResponse,
@@ -127,6 +128,11 @@ function transformPullRequest(pr: GitHubPullRequestSimple): PullRequest {
     assignees: transformUsers(pr.assignees),
     requestedReviewers: transformUsers(pr.requested_reviewers),
     headSha: pr.head.sha,
+    mergeable: null,
+    mergeableState: "unknown",
+    baseBranch: pr.base.ref,
+    headBranch: pr.head.ref,
+    mergedBy: null,
   };
 }
 
@@ -134,6 +140,14 @@ function transformFullPullRequest(pr: GitHubPullRequestFull): PullRequest {
   let state: PRState = pr.state as PRState;
   if (pr.merged_at) {
     state = "merged";
+  }
+
+  // Determine mergeable state
+  let mergeableState: MergeableState = "unknown";
+  if (pr.mergeable === true) {
+    mergeableState = "mergeable";
+  } else if (pr.mergeable === false) {
+    mergeableState = "conflicting";
   }
 
   return {
@@ -157,6 +171,13 @@ function transformFullPullRequest(pr: GitHubPullRequestFull): PullRequest {
     assignees: transformUsers(pr.assignees),
     requestedReviewers: transformUsers(pr.requested_reviewers),
     headSha: pr.head.sha,
+    mergeable: pr.mergeable ?? null,
+    mergeableState,
+    baseBranch: pr.base.ref,
+    headBranch: pr.head.ref,
+    mergedBy: pr.merged_by
+      ? { login: pr.merged_by.login ?? "unknown", avatarUrl: pr.merged_by.avatar_url ?? "" }
+      : null,
   };
 }
 
@@ -854,6 +875,12 @@ function transformSearchResultToPR(item: GitHubIssue): PullRequest {
     assignees: transformUsers(item.assignees),
     requestedReviewers: [],
     headSha: "",
+    // Merge info not available from search results
+    mergeable: null,
+    mergeableState: "unknown",
+    baseBranch: "",
+    headBranch: "",
+    mergedBy: null,
   };
 }
 

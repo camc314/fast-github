@@ -25,6 +25,8 @@ export interface Label {
   description?: string;
 }
 
+export type MergeableState = "mergeable" | "conflicting" | "unknown";
+
 export interface PullRequest {
   id: number;
   number: number;
@@ -43,6 +45,12 @@ export interface PullRequest {
   assignees: User[];
   requestedReviewers: User[];
   headSha: string;
+  // Merge-related fields
+  mergeable: boolean | null;
+  mergeableState: MergeableState;
+  baseBranch: string;
+  headBranch: string;
+  mergedBy: User | null;
 }
 
 export interface Issue {

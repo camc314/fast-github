@@ -12,6 +12,7 @@ import { PRDetailOverview } from "@/components/pr-detail/pr-detail-overview";
 import { PRDetailFiles } from "@/components/pr-detail/pr-detail-files";
 import { PRDetailCommits } from "@/components/pr-detail/pr-detail-commits";
 import { PRDetailSidebar } from "@/components/pr-detail/pr-detail-sidebar";
+import { PRMergeSection } from "@/components/pr-detail/pr-merge-section";
 import { useDocumentTitle } from "@/lib/hooks/use-document-title";
 import {
   fetchPullRequest,
@@ -122,12 +123,19 @@ function PullRequestDetailPage() {
     [addCommentMutation],
   );
 
+  const checksData = checks ?? { total: 0, success: 0, failure: 0, pending: 0, skipped: 0, checks: [] };
+
   function renderTabContent(activeTab: PRTab) {
     if (!pr) return null;
 
     switch (activeTab) {
       case "overview":
-        return <PRDetailOverview pr={pr} comments={comments} />;
+        return (
+          <div className="space-y-6">
+            <PRDetailOverview pr={pr} comments={comments} />
+            <PRMergeSection pr={pr} checks={checksData} reviews={reviews} />
+          </div>
+        );
       case "files":
         return (
           <PRDetailFiles
@@ -139,7 +147,12 @@ function PullRequestDetailPage() {
       case "commits":
         return <PRDetailCommits commits={commits} />;
       default:
-        return <PRDetailOverview pr={pr} comments={comments} />;
+        return (
+          <div className="space-y-6">
+            <PRDetailOverview pr={pr} comments={comments} />
+            <PRMergeSection pr={pr} checks={checksData} reviews={reviews} />
+          </div>
+        );
     }
   }
 
@@ -190,7 +203,7 @@ function PullRequestDetailPage() {
                 <PRDetailSidebar
                   pr={pr}
                   reviews={reviews}
-                  checks={checks ?? { total: 0, success: 0, failure: 0, pending: 0, skipped: 0, checks: [] }}
+                  checks={checksData}
                 />
               )}
             </div>
