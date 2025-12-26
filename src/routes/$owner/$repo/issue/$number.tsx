@@ -8,6 +8,7 @@ import { IssueDetailHeader } from "@/components/issue-detail/issue-detail-header
 import { IssueDetailOverview } from "@/components/issue-detail/issue-detail-overview";
 import { IssueDetailSidebar } from "@/components/issue-detail/issue-detail-sidebar";
 import { CommentForm } from "@/components/ui/comment-form";
+import { useToastActions } from "@/components/ui/toast";
 import { useDocumentTitle } from "@/lib/hooks/use-document-title";
 import { fetchIssue, fetchIssueComments, createIssueComment } from "@/lib/api/github";
 import type { PRComment } from "@/lib/types/github";
@@ -20,6 +21,7 @@ function IssueDetailPage() {
   const { owner, repo, number } = Route.useParams();
   const issueNumber = parseInt(number, 10);
   const queryClient = useQueryClient();
+  const toast = useToastActions();
   useDocumentTitle(`#${number} · ${owner}/${repo}`);
 
   // Fetch issue and comments in parallel
@@ -66,7 +68,7 @@ function IssueDetailPage() {
 
       return { previousComments, optimisticComment };
     },
-    onError: (_err, _body, context) => {
+    onError: (err, _body, context) => {
       // Revert optimistic update on error
       if (context?.previousComments) {
         queryClient.setQueryData(
@@ -74,6 +76,10 @@ function IssueDetailPage() {
           context.previousComments,
         );
       }
+      toast.error("Failed to add comment", err instanceof Error ? err.message : "Please try again");
+    },
+    onSuccess: () => {
+      toast.success("Comment added", "Your comment was posted successfully");
     },
     onSettled: () => {
       // Always refetch after error or success

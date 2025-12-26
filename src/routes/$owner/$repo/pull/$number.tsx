@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useCallback } from "react";
 import { ArrowLeft } from "lucide-react";
+import { useToastActions } from "@/components/ui/toast";
 
 import { RepoHeader } from "@/components/repo/repo-header";
 import { PageSpinner } from "@/components/ui/spinner";
@@ -45,6 +46,7 @@ function PullRequestDetailPage() {
   const { tab = "overview" } = Route.useSearch();
   const prNumber = parseInt(number, 10);
   const queryClient = useQueryClient();
+  const toast = useToastActions();
   useDocumentTitle(`#${number} · ${owner}/${repo}`);
 
   // Fetch all data in parallel
@@ -108,10 +110,14 @@ function PullRequestDetailPage() {
         commitId: pr?.headSha ?? "",
       }),
     onSuccess: () => {
+      toast.success("Comment added", "Your review comment was posted successfully");
       // Invalidate and refetch review comments
       queryClient.invalidateQueries({
         queryKey: ["pull-request-review-comments", owner, repo, prNumber],
       });
+    },
+    onError: (error) => {
+      toast.error("Failed to add comment", error instanceof Error ? error.message : "Please try again");
     },
   });
 
