@@ -504,6 +504,12 @@ interface GitHubCheckRun {
     | "action_required"
     | null;
   html_url: string;
+  started_at: string | null;
+  completed_at: string | null;
+  app: {
+    name: string;
+    slug: string;
+  } | null;
 }
 
 interface GitHubCheckRunsResponse {
@@ -527,6 +533,10 @@ export async function fetchPRChecks(
       status: run.status,
       conclusion: run.conclusion,
       htmlUrl: run.html_url,
+      startedAt: run.started_at,
+      completedAt: run.completed_at,
+      appName: run.app?.name ?? null,
+      appSlug: run.app?.slug ?? null,
     }));
 
     const success = checks.filter(
@@ -539,16 +549,22 @@ export async function fetchPRChecks(
     const pending = checks.filter(
       (c) => c.status === "queued" || c.status === "in_progress",
     ).length;
+    const skipped = checks.filter(
+      (c) =>
+        c.status === "completed" &&
+        (c.conclusion === "skipped" || c.conclusion === "cancelled" || c.conclusion === "neutral"),
+    ).length;
 
     return {
       total: data.total_count,
       success,
       failure,
       pending,
+      skipped,
       checks,
     };
   } catch {
-    return { total: 0, success: 0, failure: 0, pending: 0, checks: [] };
+    return { total: 0, success: 0, failure: 0, pending: 0, skipped: 0, checks: [] };
   }
 }
 

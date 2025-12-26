@@ -190,7 +190,7 @@ function PullRequestDetailPage() {
                 <PRDetailSidebar
                   pr={pr}
                   reviews={reviews}
-                  checks={checks ?? { total: 0, success: 0, failure: 0, pending: 0, checks: [] }}
+                  checks={checks ?? { total: 0, success: 0, failure: 0, pending: 0, skipped: 0, checks: [] }}
                 />
               )}
             </div>

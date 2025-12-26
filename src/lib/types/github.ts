@@ -242,6 +242,10 @@ export interface CheckRun {
   status: CheckRunStatus;
   conclusion: CheckConclusion;
   htmlUrl: string;
+  startedAt: string | null;
+  completedAt: string | null;
+  appName: string | null;
+  appSlug: string | null;
 }
 
 export interface ChecksSummary {
@@ -249,6 +253,7 @@ export interface ChecksSummary {
   success: number;
   failure: number;
   pending: number;
+  skipped: number;
   checks: CheckRun[];
 }
 
