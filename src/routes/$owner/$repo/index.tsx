@@ -7,6 +7,7 @@ import { RepoSidebar } from "@/components/repo/repo-sidebar";
 import { MarkdownViewer } from "@/components/ui/markdown-viewer";
 import { PageSpinner } from "@/components/ui/spinner";
 import { ErrorMessage } from "@/components/ui/error-message";
+import { useDocumentTitle } from "@/lib/hooks/use-document-title";
 import {
   fetchRepository,
   fetchReadme,
@@ -20,6 +21,7 @@ export const Route = createFileRoute("/$owner/$repo/")({
 
 function RepoHomePage() {
   const { owner, repo } = useParams({ from: "/$owner/$repo/" });
+  useDocumentTitle(`${owner}/${repo}`);
 
   // Fetch repository data
   const repoQuery = useQuery({

@@ -10,7 +10,6 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as DemoTanstackQueryRouteImport } from './routes/demo/tanstack-query'
 import { Route as OwnerRepoIndexRouteImport } from './routes/$owner/$repo/index'
 import { Route as OwnerRepoPullsRouteImport } from './routes/$owner/$repo/pulls'
 import { Route as OwnerRepoIssuesRouteImport } from './routes/$owner/$repo/issues'
@@ -20,11 +19,6 @@ import { Route as OwnerRepoIssueNumberRouteImport } from './routes/$owner/$repo/
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoTanstackQueryRoute = DemoTanstackQueryRouteImport.update({
-  id: '/demo/tanstack-query',
-  path: '/demo/tanstack-query',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OwnerRepoIndexRoute = OwnerRepoIndexRouteImport.update({
@@ -55,7 +49,6 @@ const OwnerRepoIssueNumberRoute = OwnerRepoIssueNumberRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/$owner/$repo/issues': typeof OwnerRepoIssuesRoute
   '/$owner/$repo/pulls': typeof OwnerRepoPullsRoute
   '/$owner/$repo': typeof OwnerRepoIndexRoute
@@ -64,7 +57,6 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/$owner/$repo/issues': typeof OwnerRepoIssuesRoute
   '/$owner/$repo/pulls': typeof OwnerRepoPullsRoute
   '/$owner/$repo': typeof OwnerRepoIndexRoute
@@ -74,7 +66,6 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/$owner/$repo/issues': typeof OwnerRepoIssuesRoute
   '/$owner/$repo/pulls': typeof OwnerRepoPullsRoute
   '/$owner/$repo/': typeof OwnerRepoIndexRoute
@@ -85,7 +76,6 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/demo/tanstack-query'
     | '/$owner/$repo/issues'
     | '/$owner/$repo/pulls'
     | '/$owner/$repo'
@@ -94,7 +84,6 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/demo/tanstack-query'
     | '/$owner/$repo/issues'
     | '/$owner/$repo/pulls'
     | '/$owner/$repo'
@@ -103,7 +92,6 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
-    | '/demo/tanstack-query'
     | '/$owner/$repo/issues'
     | '/$owner/$repo/pulls'
     | '/$owner/$repo/'
@@ -113,7 +101,6 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  DemoTanstackQueryRoute: typeof DemoTanstackQueryRoute
   OwnerRepoIssuesRoute: typeof OwnerRepoIssuesRoute
   OwnerRepoPullsRoute: typeof OwnerRepoPullsRoute
   OwnerRepoIndexRoute: typeof OwnerRepoIndexRoute
@@ -128,13 +115,6 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/tanstack-query': {
-      id: '/demo/tanstack-query'
-      path: '/demo/tanstack-query'
-      fullPath: '/demo/tanstack-query'
-      preLoaderRoute: typeof DemoTanstackQueryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/$owner/$repo/': {
@@ -177,7 +157,6 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  DemoTanstackQueryRoute: DemoTanstackQueryRoute,
   OwnerRepoIssuesRoute: OwnerRepoIssuesRoute,
   OwnerRepoPullsRoute: OwnerRepoPullsRoute,
   OwnerRepoIndexRoute: OwnerRepoIndexRoute,

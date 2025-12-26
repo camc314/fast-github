@@ -10,6 +10,7 @@ import { PRListItem } from "@/components/pr-list/pr-list-item";
 import { PageSpinner, Spinner } from "@/components/ui/spinner";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { useInfinitePRList } from "@/lib/hooks/use-infinite-list";
+import { useDocumentTitle } from "@/lib/hooks/use-document-title";
 import type { SortField, SortDirection, ListState } from "@/lib/types/github";
 
 // URL search params type
@@ -69,6 +70,7 @@ function PullRequestsPage() {
     assignee,
   } = Route.useSearch();
   const queryClient = useQueryClient();
+  useDocumentTitle(`Pull Requests · ${owner}/${repo}`);
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isFetching, error } =
     useInfinitePRList({

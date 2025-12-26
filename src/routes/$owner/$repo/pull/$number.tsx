@@ -12,6 +12,7 @@ import { PRDetailOverview } from "@/components/pr-detail/pr-detail-overview";
 import { PRDetailFiles } from "@/components/pr-detail/pr-detail-files";
 import { PRDetailCommits } from "@/components/pr-detail/pr-detail-commits";
 import { PRDetailSidebar } from "@/components/pr-detail/pr-detail-sidebar";
+import { useDocumentTitle } from "@/lib/hooks/use-document-title";
 import {
   fetchPullRequest,
   fetchPRFiles,
@@ -43,6 +44,7 @@ function PullRequestDetailPage() {
   const { tab = "overview" } = Route.useSearch();
   const prNumber = parseInt(number, 10);
   const queryClient = useQueryClient();
+  useDocumentTitle(`#${number} · ${owner}/${repo}`);
 
   // Fetch all data in parallel
   const {

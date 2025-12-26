@@ -10,6 +10,7 @@ import { IssueListItem } from "@/components/issue-list/issue-list-item";
 import { PageSpinner, Spinner } from "@/components/ui/spinner";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { useInfiniteIssueList } from "@/lib/hooks/use-infinite-list";
+import { useDocumentTitle } from "@/lib/hooks/use-document-title";
 import type { SortField, SortDirection, ListState } from "@/lib/types/github";
 
 // URL search params type
@@ -69,6 +70,7 @@ function IssuesPage() {
     assignee,
   } = Route.useSearch();
   const queryClient = useQueryClient();
+  useDocumentTitle(`Issues · ${owner}/${repo}`);
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isFetching, error } =
     useInfiniteIssueList({

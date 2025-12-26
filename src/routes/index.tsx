@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { Search, Book, ArrowRight } from "lucide-react";
+import { useDocumentTitle } from "@/lib/hooks/use-document-title";
 
 export const Route = createFileRoute("/")({
   component: HomePage,
@@ -16,6 +17,7 @@ const POPULAR_REPOS = [
 ];
 
 function HomePage() {
+  useDocumentTitle(undefined); // Use base title on home page
   const navigate = useNavigate();
   const [repoInput, setRepoInput] = useState("");
   const [error, setError] = useState("");

@@ -8,6 +8,7 @@ import { IssueDetailHeader } from "@/components/issue-detail/issue-detail-header
 import { IssueDetailOverview } from "@/components/issue-detail/issue-detail-overview";
 import { IssueDetailSidebar } from "@/components/issue-detail/issue-detail-sidebar";
 import { CommentForm } from "@/components/ui/comment-form";
+import { useDocumentTitle } from "@/lib/hooks/use-document-title";
 import { fetchIssue, fetchIssueComments, createIssueComment } from "@/lib/api/github";
 import type { PRComment } from "@/lib/types/github";
 
@@ -19,6 +20,7 @@ function IssueDetailPage() {
   const { owner, repo, number } = Route.useParams();
   const issueNumber = parseInt(number, 10);
   const queryClient = useQueryClient();
+  useDocumentTitle(`#${number} · ${owner}/${repo}`);
 
   // Fetch issue and comments in parallel
   const { data: issue, isLoading: issueLoading } = useQuery({
