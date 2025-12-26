@@ -52,7 +52,10 @@ export function ListFilters({
 
   // Fetch filter options
   const { data: labels = [], isLoading: labelsLoading } = useRepoLabels(owner, repo);
-  const { data: contributors = [], isLoading: contributorsLoading } = useRepoContributors(owner, repo);
+  const { data: contributors = [], isLoading: contributorsLoading } = useRepoContributors(
+    owner,
+    repo,
+  );
 
   // Transform to filter options
   const labelOptions = labels.map((l) => ({
@@ -191,7 +194,7 @@ export function ListFilters({
       {/* Bottom row: Filter dropdowns */}
       <div className="flex flex-wrap items-center gap-2">
         <span className="text-sm text-neutral-500">Filters:</span>
-        
+
         <FilterDropdown
           label="Author"
           value={author}
