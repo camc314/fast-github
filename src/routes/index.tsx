@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { Search, Book, ArrowRight } from "lucide-react";
 import { useDocumentTitle } from "@/lib/hooks/use-document-title";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 export const Route = createFileRoute("/")({
   component: HomePage,
@@ -55,13 +56,14 @@ function HomePage() {
   return (
     <div className="min-h-screen bg-bg">
       <header className="sticky top-0 z-40 bg-bg-secondary/80 backdrop-blur-md border-b border-border">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center">
+        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-bg-tertiary flex items-center justify-center">
               <Book size={16} className="text-fg-secondary" />
             </div>
             <span className="font-semibold text-fg">Fast GitHub</span>
           </div>
+          <ThemeToggle />
         </div>
       </header>
 

@@ -1,14 +1,18 @@
-import { useSyncExternalStore, useCallback } from "react";
+import { useSyncExternalStore, useCallback, useEffect } from "react";
 import type { DiffViewMode } from "@/components/diff/diff-viewer";
 
 const STORAGE_KEY = "fast-github-preferences";
 
+export type Theme = "light" | "dark" | "system";
+
 interface Preferences {
   diffViewMode: DiffViewMode;
+  theme: Theme;
 }
 
 const defaultPreferences: Preferences = {
   diffViewMode: "unified",
+  theme: "system",
 };
 
 // In-memory cache to avoid repeated JSON parsing
@@ -71,6 +75,33 @@ function getServerSnapshot(): Preferences {
 }
 
 /**
+ * Get the resolved theme (accounting for system preference).
+ */
+function getResolvedTheme(theme: Theme): "light" | "dark" {
+  if (theme === "system") {
+    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  }
+  return theme;
+}
+
+/**
+ * Apply theme to document.
+ */
+function applyTheme(theme: Theme): void {
+  const resolved = getResolvedTheme(theme);
+  const root = document.documentElement;
+
+  // Remove existing theme classes
+  root.classList.remove("light", "dark");
+
+  // Add new theme class
+  root.classList.add(resolved);
+
+  // Update color-scheme for native elements
+  root.style.colorScheme = resolved;
+}
+
+/**
  * Hook to access and update user preferences.
  * Persists to localStorage and syncs across tabs.
  */
@@ -81,8 +112,31 @@ export function usePreferences() {
     setPreferences({ diffViewMode: mode });
   }, []);
 
+  const setTheme = useCallback((theme: Theme) => {
+    setPreferences({ theme });
+    applyTheme(theme);
+  }, []);
+
+  // Apply theme on mount and when system preference changes
+  useEffect(() => {
+    applyTheme(preferences.theme);
+
+    // Listen for system theme changes when using "system" theme
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const handleChange = () => {
+      if (preferences.theme === "system") {
+        applyTheme("system");
+      }
+    };
+
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
+  }, [preferences.theme]);
+
   return {
     preferences,
+    resolvedTheme: getResolvedTheme(preferences.theme),
     setDiffViewMode,
+    setTheme,
   };
 }

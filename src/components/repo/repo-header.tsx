@@ -5,6 +5,7 @@ import type { Repository } from "@/lib/types/github";
 import { fetchRepository } from "@/lib/api/github";
 import { formatCount } from "@/lib/utils/format";
 import { STALE_TIME_MS } from "@/lib/constants";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 interface RepoHeaderProps {
   owner?: string;
@@ -78,7 +79,7 @@ export function RepoHeader({ owner: ownerProp, repo: repoProp, repository }: Rep
           </div>
         </div>
 
-        {/* Right: Stats */}
+        {/* Right: Stats and Theme Toggle */}
         <div className="flex items-center gap-1">
           <a
             href={`https://github.com/${owner}/${repo}/stargazers`}
@@ -98,6 +99,9 @@ export function RepoHeader({ owner: ownerProp, repo: repoProp, repository }: Rep
             <GitFork size={14} />
             <span className="font-medium">{repoData ? formatCount(repoData.forks) : "..."}</span>
           </a>
+          <div className="ml-2 border-l border-border pl-2">
+            <ThemeToggle />
+          </div>
         </div>
       </div>
 

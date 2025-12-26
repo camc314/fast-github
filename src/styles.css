@@ -41,8 +41,9 @@
 }
 
 /* Light mode (default) */
-:root {
-  color-scheme: light dark;
+:root,
+:root.light {
+  color-scheme: light;
 
   --theme-bg: #fafafa;
   --theme-bg-secondary: #ffffff;
@@ -64,9 +65,37 @@
   --theme-error-border: #fecaca;
 }
 
-/* Dark mode */
+/* Dark mode - class-based for explicit selection */
+:root.dark {
+  color-scheme: dark;
+
+  --theme-bg: #0a0a0a;
+  --theme-bg-secondary: #171717;
+  --theme-bg-tertiary: #262626;
+  --theme-bg-hover: #262626;
+  --theme-fg: #fafafa;
+  --theme-fg-secondary: #a3a3a3;
+  --theme-fg-muted: #737373;
+  --theme-border: #262626;
+  --theme-border-secondary: #404040;
+
+  --color-accent: #3b82f6;
+
+  /* Comment thread - darker amber/yellow tones for dark mode */
+  --theme-comment-bg: #422006;
+  --theme-comment-border: #92400e;
+  --theme-comment-border-light: #78350f;
+
+  /* Error state */
+  --theme-error-bg: #450a0a;
+  --theme-error-border: #7f1d1d;
+}
+
+/* Fallback for system preference when no class is set (initial load) */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not(.light):not(.dark) {
+    color-scheme: dark;
+
     --theme-bg: #0a0a0a;
     --theme-bg-secondary: #171717;
     --theme-bg-tertiary: #262626;
