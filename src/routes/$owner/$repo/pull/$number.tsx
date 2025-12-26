@@ -23,6 +23,7 @@ import {
   fetchPRReviews,
   fetchPRChecks,
   fetchPRReviewComments,
+  fetchIssueTimeline,
   createPRReviewComment,
 } from "@/lib/api/github";
 
@@ -90,6 +91,11 @@ function PullRequestDetailPage() {
     queryFn: () => fetchPRReviewComments(owner, repo, prNumber),
   });
 
+  const { data: timelineEvents = [] } = useQuery({
+    queryKey: ["pull-request-timeline", owner, repo, prNumber],
+    queryFn: () => fetchIssueTimeline(owner, repo, prNumber),
+  });
+
   const isLoading =
     prLoading ||
     filesLoading ||
@@ -138,7 +144,7 @@ function PullRequestDetailPage() {
       case "overview":
         return (
           <div className="space-y-6">
-            <PRDetailOverview pr={pr} comments={comments} />
+            <PRDetailOverview pr={pr} comments={comments} timelineEvents={timelineEvents} />
             <PRMergeSection pr={pr} checks={checksData} reviews={reviews} />
           </div>
         );
@@ -155,7 +161,7 @@ function PullRequestDetailPage() {
       default:
         return (
           <div className="space-y-6">
-            <PRDetailOverview pr={pr} comments={comments} />
+            <PRDetailOverview pr={pr} comments={comments} timelineEvents={timelineEvents} />
             <PRMergeSection pr={pr} checks={checksData} reviews={reviews} />
           </div>
         );

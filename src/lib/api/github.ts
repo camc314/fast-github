@@ -35,6 +35,8 @@ import type {
   Repository,
   RepositoryReadme,
   LanguageBreakdown,
+  TimelineEvent,
+  TimelineEventType,
 } from "../types/github";
 
 const GITHUB_API = "https://api.github.com";
@@ -202,10 +204,12 @@ function transformIssue(issue: GitHubIssue): Issue {
 }
 
 // Fetch with error handling
-async function githubFetch<T>(url: string): Promise<T> {
+async function githubFetch<T>(url: string, options?: RequestInit): Promise<T> {
   const response = await fetch(url, {
+    ...options,
     headers: {
       Accept: "application/vnd.github.v3+json",
+      ...options?.headers,
     },
   });
 
@@ -360,6 +364,97 @@ export async function fetchIssueComments(
     createdAt: comment.created_at,
     updatedAt: comment.updated_at,
   }));
+}
+
+// Timeline Events API
+interface GitHubTimelineEvent {
+  id?: number;
+  node_id?: string;
+  event: string;
+  created_at: string;
+  actor?: { login: string; avatar_url: string } | null;
+  label?: { name: string; color: string };
+  assignee?: { login: string; avatar_url: string };
+  requested_reviewer?: { login: string; avatar_url: string };
+  review_requester?: { login: string; avatar_url: string };
+  state?: string;
+  body?: string;
+  rename?: { from: string; to: string };
+  source?: { type: string; issue?: { number: number; title: string } };
+  milestone?: { title: string };
+  commit_id?: string;
+  commit_url?: string;
+}
+
+export async function fetchIssueTimeline(
+  owner: string,
+  repo: string,
+  number: number,
+): Promise<TimelineEvent[]> {
+  const url = `${GITHUB_API}/repos/${owner}/${repo}/issues/${number}/timeline?per_page=100`;
+
+  try {
+    const data = await githubFetch<GitHubTimelineEvent[]>(url, {
+      headers: {
+        Accept: "application/vnd.github.mockingbird-preview+json",
+      },
+    });
+
+    return data
+      .filter((event) => {
+        // Filter to only include events we want to display
+        const supportedEvents = [
+          "labeled",
+          "unlabeled",
+          "assigned",
+          "unassigned",
+          "review_requested",
+          "review_request_removed",
+          "reviewed",
+          "merged",
+          "closed",
+          "reopened",
+          "renamed",
+          "head_ref_force_pushed",
+          "referenced",
+          "cross-referenced",
+          "milestoned",
+          "demilestoned",
+        ];
+        return supportedEvents.includes(event.event);
+      })
+      .map((event): TimelineEvent => ({
+        id: event.id ?? event.node_id ?? `${event.event}-${event.created_at}`,
+        type: event.event as TimelineEventType,
+        createdAt: event.created_at,
+        actor: event.actor
+          ? { login: event.actor.login, avatarUrl: event.actor.avatar_url }
+          : null,
+        label: event.label
+          ? { id: 0, name: event.label.name, color: event.label.color }
+          : undefined,
+        assignee: event.assignee
+          ? { login: event.assignee.login, avatarUrl: event.assignee.avatar_url }
+          : undefined,
+        requestedReviewer: event.requested_reviewer
+          ? { login: event.requested_reviewer.login, avatarUrl: event.requested_reviewer.avatar_url }
+          : undefined,
+        reviewState: event.state as ReviewState | undefined,
+        reviewBody: event.body,
+        rename: event.rename,
+        source: event.source?.issue
+          ? {
+              type: event.source.type === "pull_request" ? "pr" : "issue",
+              number: event.source.issue.number,
+              title: event.source.issue.title,
+            }
+          : undefined,
+        milestone: event.milestone ? { title: event.milestone.title } : undefined,
+      }));
+  } catch {
+    // Timeline API may not be available for all repos/issues
+    return [];
+  }
 }
 
 export async function createIssueComment(

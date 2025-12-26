@@ -265,6 +265,54 @@ export interface ChecksSummary {
   checks: CheckRun[];
 }
 
+// Timeline event types
+export type TimelineEventType =
+  | "commented"
+  | "committed"
+  | "labeled"
+  | "unlabeled"
+  | "assigned"
+  | "unassigned"
+  | "review_requested"
+  | "review_request_removed"
+  | "reviewed"
+  | "merged"
+  | "closed"
+  | "reopened"
+  | "renamed"
+  | "head_ref_force_pushed"
+  | "base_ref_force_pushed"
+  | "referenced"
+  | "cross-referenced"
+  | "milestoned"
+  | "demilestoned";
+
+export interface TimelineEvent {
+  id: number | string;
+  type: TimelineEventType;
+  createdAt: string;
+  actor: User | null;
+  // For labeled/unlabeled events
+  label?: Label;
+  // For assigned/unassigned events
+  assignee?: User;
+  // For review_requested events
+  requestedReviewer?: User;
+  // For reviewed events
+  reviewState?: ReviewState;
+  reviewBody?: string;
+  // For renamed events
+  rename?: { from: string; to: string };
+  // For referenced/cross-referenced events
+  source?: { type: "issue" | "pr"; number: number; title: string };
+  // For commented events (holds the comment data)
+  comment?: PRComment;
+  // For committed events
+  commit?: { sha: string; message: string };
+  // For milestone events
+  milestone?: { title: string };
+}
+
 // Repository types
 export interface Repository {
   id: number;

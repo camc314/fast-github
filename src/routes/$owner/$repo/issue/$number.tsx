@@ -10,7 +10,7 @@ import { IssueDetailSidebar } from "@/components/issue-detail/issue-detail-sideb
 import { CommentForm } from "@/components/ui/comment-form";
 import { useToastActions } from "@/components/ui/toast";
 import { useDocumentTitle } from "@/lib/hooks/use-document-title";
-import { fetchIssue, fetchIssueComments, createIssueComment } from "@/lib/api/github";
+import { fetchIssue, fetchIssueComments, fetchIssueTimeline, createIssueComment } from "@/lib/api/github";
 import type { PRComment } from "@/lib/types/github";
 
 export const Route = createFileRoute("/$owner/$repo/issue/$number")({
@@ -33,6 +33,11 @@ function IssueDetailPage() {
   const { data: comments = [], isLoading: commentsLoading } = useQuery({
     queryKey: ["issue-comments", owner, repo, issueNumber],
     queryFn: () => fetchIssueComments(owner, repo, issueNumber),
+  });
+
+  const { data: timelineEvents = [] } = useQuery({
+    queryKey: ["issue-timeline", owner, repo, issueNumber],
+    queryFn: () => fetchIssueTimeline(owner, repo, issueNumber),
   });
 
   // Mutation for creating comments
@@ -116,7 +121,7 @@ function IssueDetailPage() {
             <div className="flex gap-6">
               {/* Main content */}
               <div className="flex-1 min-w-0">
-                <IssueDetailOverview body={issue.body} comments={comments} />
+                <IssueDetailOverview body={issue.body} comments={comments} timelineEvents={timelineEvents} />
                 <CommentForm
                   onSubmit={handleCommentSubmit}
                   disabled={createCommentMutation.isPending}
