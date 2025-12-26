@@ -27,7 +27,8 @@ export const Avatar = memo(function Avatar({ src, alt, size = 20, className = ""
       alt={alt}
       width={size}
       height={size}
-      className={`rounded-full ${className}`}
+      style={{ minWidth: size, minHeight: size }}
+      className={`rounded-full aspect-square object-cover shrink-0 ${className}`}
       loading="lazy"
       onError={() => setError(true)}
     />
