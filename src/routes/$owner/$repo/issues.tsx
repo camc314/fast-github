@@ -230,7 +230,9 @@ function IssuesPage() {
 
             <div className="px-4 py-3 border-t border-neutral-100 bg-neutral-50 text-sm text-neutral-500">
               {hasFilters ? (
-                <span>Found {issues.length} issues {filterDescription}</span>
+                <span>
+                  Found {issues.length} issues {filterDescription}
+                </span>
               ) : (
                 <span>
                   Showing {issues.length} of{" "}

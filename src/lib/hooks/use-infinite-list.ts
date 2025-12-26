@@ -40,7 +40,12 @@ export function useInfinitePRList(options: UseInfiniteListOptions) {
   const { owner, repo, state, sort, direction, query, author, label, assignee } = options;
 
   return useInfiniteQuery<InfinitePRListResponse>({
-    queryKey: ["pull-requests-infinite", owner, repo, { state, sort, direction, query, author, label, assignee }],
+    queryKey: [
+      "pull-requests-infinite",
+      owner,
+      repo,
+      { state, sort, direction, query, author, label, assignee },
+    ],
     queryFn: async ({ pageParam }) => {
       const page = pageParam as number;
       if (hasFilters(options)) {
@@ -75,7 +80,12 @@ export function useInfiniteIssueList(options: UseInfiniteListOptions) {
   const { owner, repo, state, sort, direction, query, author, label, assignee } = options;
 
   return useInfiniteQuery<InfiniteIssueListResponse>({
-    queryKey: ["issues-infinite", owner, repo, { state, sort, direction, query, author, label, assignee }],
+    queryKey: [
+      "issues-infinite",
+      owner,
+      repo,
+      { state, sort, direction, query, author, label, assignee },
+    ],
     queryFn: async ({ pageParam }) => {
       const page = pageParam as number;
       if (hasFilters(options)) {

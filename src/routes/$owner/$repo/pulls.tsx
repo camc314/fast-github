@@ -232,7 +232,9 @@ function PullRequestsPage() {
 
             <div className="px-4 py-3 border-t border-neutral-100 bg-neutral-50 text-sm text-neutral-500">
               {hasFilters ? (
-                <span>Found {pullRequests.length} pull requests {filterDescription}</span>
+                <span>
+                  Found {pullRequests.length} pull requests {filterDescription}
+                </span>
               ) : (
                 <span>
                   Showing {pullRequests.length} of{" "}
