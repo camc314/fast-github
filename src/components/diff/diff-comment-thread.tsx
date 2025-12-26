@@ -10,7 +10,7 @@ interface DiffCommentThreadProps {
 
 function SingleComment({ comment }: { comment: PRReviewComment }) {
   return (
-    <div className="flex items-start gap-3 p-3 font-sans">
+    <div className="flex items-start gap-3 p-3">
       <Avatar src={comment.user.avatarUrl} alt={comment.user.login} size={28} />
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">

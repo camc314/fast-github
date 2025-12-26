@@ -706,6 +706,70 @@ export async function createPRReviewComment(
   };
 }
 
+/**
+ * Reply to an existing review comment on a PR.
+ * Requires authentication.
+ */
+export async function replyToPRReviewComment(
+  owner: string,
+  repo: string,
+  pullNumber: number,
+  commentId: number,
+  body: string,
+): Promise<PRReviewComment> {
+  const response = await fetch(
+    `${GITHUB_API}/repos/${owner}/${repo}/pulls/${pullNumber}/comments/${commentId}/replies`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/vnd.github.v3+json",
+      },
+      body: JSON.stringify({ body }),
+    },
+  );
+
+  if (!response.ok) {
+    let errorMessage = "";
+    try {
+      const errorData = await response.json();
+      errorMessage = errorData.message || "";
+    } catch {
+      // Ignore JSON parse errors
+    }
+
+    if (response.status === 401) {
+      throw new Error("Authentication required. Please sign in to reply.");
+    }
+    if (response.status === 403) {
+      throw new Error(errorMessage || "You do not have permission to reply on this pull request");
+    }
+    if (response.status === 404) {
+      throw new Error("Comment not found");
+    }
+    throw new Error(errorMessage || `Failed to reply: ${response.statusText}`);
+  }
+
+  const data: GitHubPRReviewComment = await response.json();
+
+  return {
+    id: data.id,
+    body: data.body,
+    user: {
+      login: data.user?.login ?? "unknown",
+      avatarUrl: data.user?.avatar_url ?? "",
+    },
+    path: data.path,
+    line: data.line,
+    originalLine: data.original_line,
+    side: data.side,
+    createdAt: data.created_at,
+    updatedAt: data.updated_at,
+    inReplyToId: data.in_reply_to_id ?? null,
+    replies: [],
+  };
+}
+
 // ============================================================================
 // Infinite Scroll / Search API Functions
 // ============================================================================

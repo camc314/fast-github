@@ -3,21 +3,13 @@ import { useQuery } from "@tanstack/react-query";
 import { Book, Star, GitFork, ExternalLink } from "lucide-react";
 import type { Repository } from "@/lib/types/github";
 import { fetchRepository } from "@/lib/api/github";
+import { formatCount } from "@/lib/utils/format";
+import { STALE_TIME_MS } from "@/lib/constants";
 
 interface RepoHeaderProps {
   owner?: string;
   repo?: string;
   repository?: Repository;
-}
-
-function formatCount(count: number): string {
-  if (count >= 1000000) {
-    return `${(count / 1000000).toFixed(1)}m`;
-  }
-  if (count >= 1000) {
-    return `${(count / 1000).toFixed(1)}k`;
-  }
-  return count.toString();
 }
 
 export function RepoHeader({ owner: ownerProp, repo: repoProp, repository }: RepoHeaderProps) {
@@ -31,7 +23,7 @@ export function RepoHeader({ owner: ownerProp, repo: repoProp, repository }: Rep
   const repoQuery = useQuery({
     queryKey: ["repository", owner, repo],
     queryFn: () => fetchRepository(owner, repo),
-    staleTime: 5 * 60 * 1000,
+    staleTime: STALE_TIME_MS,
     enabled: !repository && !!owner && !!repo,
   });
 

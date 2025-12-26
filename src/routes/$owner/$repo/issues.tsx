@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { useRef, useCallback, useEffect } from "react";
+import { useRef, useCallback, useEffect, useMemo } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import * as v from "valibot";
 import { valibotSearchValidator } from "@tanstack/router-valibot-adapter";
@@ -13,6 +13,7 @@ import { PageSpinner, Spinner } from "@/components/ui/spinner";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { useInfiniteIssueList } from "@/lib/hooks/use-infinite-list";
 import { useDocumentTitle } from "@/lib/hooks/use-document-title";
+import { VIRTUAL_LIST_OVERSCAN, INFINITE_SCROLL_THRESHOLD } from "@/lib/constants";
 
 const listSearchSchema = v.object({
   state: v.fallback(v.picklist(["open", "closed", "all"]), "open"),
@@ -66,27 +67,22 @@ function IssuesPage() {
     count: hasNextPage ? issues.length + 1 : issues.length,
     getScrollElement: () => parentRef.current,
     estimateSize: useCallback(() => 56, []),
-    overscan: 10,
+    overscan: VIRTUAL_LIST_OVERSCAN,
   });
+
+  // Get virtual items and compute last item index
+  const virtualItems = virtualizer.getVirtualItems();
+  const lastItemIndex = useMemo(
+    () => virtualItems[virtualItems.length - 1]?.index ?? 0,
+    [virtualItems],
+  );
 
   // Trigger fetch when scrolling near end
   useEffect(() => {
-    const virtualItems = virtualizer.getVirtualItems();
-    const lastItem = virtualItems[virtualItems.length - 1];
-
-    if (!lastItem) return;
-
-    // Fetch more when we're within 5 items of the end
-    if (lastItem.index >= issues.length - 5 && hasNextPage && !isFetchingNextPage) {
+    if (lastItemIndex >= issues.length - INFINITE_SCROLL_THRESHOLD && hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
     }
-  }, [
-    virtualizer.getVirtualItems(),
-    hasNextPage,
-    isFetchingNextPage,
-    issues.length,
-    fetchNextPage,
-  ]);
+  }, [lastItemIndex, hasNextPage, isFetchingNextPage, issues.length, fetchNextPage]);
 
   // Show initial loading spinner only on first load
   const showInitialLoading = isLoading && !data;

@@ -1,6 +1,7 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useCallback } from "react";
 import { ChevronDown, Check } from "lucide-react";
 import { SORT_OPTIONS, type SortField, type SortDirection } from "@/lib/types/github";
+import { useDropdownClose } from "@/lib/hooks/use-dropdown-close";
 
 interface SortDropdownProps {
   sort: SortField;
@@ -18,33 +19,11 @@ export function SortDropdown({ sort, direction, onChange }: SortDropdownProps) {
   );
   const currentLabel = currentOption?.label ?? "Sort";
 
-  // Close on click outside
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    }
+  // Close dropdown callback
+  const handleClose = useCallback(() => setIsOpen(false), []);
 
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-      return () => document.removeEventListener("mousedown", handleClickOutside);
-    }
-  }, [isOpen]);
-
-  // Close on escape
-  useEffect(() => {
-    function handleEscape(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        setIsOpen(false);
-      }
-    }
-
-    if (isOpen) {
-      document.addEventListener("keydown", handleEscape);
-      return () => document.removeEventListener("keydown", handleEscape);
-    }
-  }, [isOpen]);
+  // Use shared hook for click-outside and escape handling
+  useDropdownClose(isOpen, handleClose, dropdownRef);
 
   const handleSelect = (option: (typeof SORT_OPTIONS)[0]) => {
     onChange(option.field, option.direction);

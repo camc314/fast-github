@@ -2,21 +2,12 @@ import { Star, GitFork, Eye, Scale, Link as LinkIcon, Users } from "lucide-react
 import type { Repository, LanguageBreakdown, User } from "@/lib/types/github";
 import { LanguageBar } from "./language-bar";
 import { Avatar } from "@/components/ui/avatar";
+import { formatCount } from "@/lib/utils/format";
 
 interface RepoSidebarProps {
   repo: Repository;
   languages: LanguageBreakdown;
   contributors: User[];
-}
-
-function formatCount(count: number): string {
-  if (count >= 1000000) {
-    return `${(count / 1000000).toFixed(1)}m`;
-  }
-  if (count >= 1000) {
-    return `${(count / 1000).toFixed(1)}k`;
-  }
-  return count.toString();
 }
 
 export function RepoSidebar({ repo, languages, contributors }: RepoSidebarProps) {

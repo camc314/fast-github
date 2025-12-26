@@ -188,7 +188,11 @@ function ViewModeToggle({ viewMode, onChange }: ViewModeToggleProps) {
   );
 }
 
-export function PRDetailFiles({ files, reviewComments, onAddComment }: PRDetailFilesProps) {
+export function PRDetailFiles({
+  files,
+  reviewComments,
+  onAddComment,
+}: PRDetailFilesProps) {
   // Track which files are collapsed (default: all expanded)
   const [collapsedFiles, setCollapsedFiles] = useState<Set<string>>(new Set());
   // Get view mode from persisted preferences

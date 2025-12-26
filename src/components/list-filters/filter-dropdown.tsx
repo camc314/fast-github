@@ -1,5 +1,6 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { ChevronDown, X, User, Tag } from "lucide-react";
+import { useDropdownClose } from "@/lib/hooks/use-dropdown-close";
 
 interface FilterOption {
   value: string;
@@ -40,35 +41,14 @@ export function FilterDropdown({
     opt.label.toLowerCase().includes(search.toLowerCase()),
   );
 
-  // Close on click outside
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-        setSearch("");
-      }
-    }
+  // Close dropdown and reset search
+  const handleClose = useCallback(() => {
+    setIsOpen(false);
+    setSearch("");
+  }, []);
 
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-      return () => document.removeEventListener("mousedown", handleClickOutside);
-    }
-  }, [isOpen]);
-
-  // Close on escape
-  useEffect(() => {
-    function handleEscape(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        setIsOpen(false);
-        setSearch("");
-      }
-    }
-
-    if (isOpen) {
-      document.addEventListener("keydown", handleEscape);
-      return () => document.removeEventListener("keydown", handleEscape);
-    }
-  }, [isOpen]);
+  // Use shared hook for click-outside and escape handling
+  useDropdownClose(isOpen, handleClose, dropdownRef);
 
   // Focus input when dropdown opens
   useEffect(() => {

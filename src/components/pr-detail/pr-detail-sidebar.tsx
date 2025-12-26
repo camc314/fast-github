@@ -218,7 +218,6 @@ function LabelsSection({ labels }: { labels: PullRequest["labels"] }) {
 export function PRDetailSidebar({ pr, reviews, checks }: PRDetailSidebarProps) {
   return (
     <aside className="w-64 shrink-0">
-      {/* TODO: make stats be here */}
       <div className="bg-bg-secondary rounded-xl border border-border shadow-sm p-4">
         <SidebarSection title="Assignees" icon={Users}>
           <UserList users={pr.assignees} emptyText="No assignees" />

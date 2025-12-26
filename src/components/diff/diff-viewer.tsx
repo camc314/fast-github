@@ -216,7 +216,7 @@ export const DiffViewer = memo(function DiffViewer({
       const { comments: lineComments, isPendingComment } = annotation.metadata;
 
       return (
-        <div className="bg-bg border-y border-border">
+        <div className="bg-bg border-y border-border font-sans">
           {/* Existing comments */}
           {lineComments.length > 0 && <DiffCommentThread comments={lineComments} />}
 
