@@ -14,6 +14,7 @@ import { PRDetailFiles } from "@/components/pr-detail/pr-detail-files";
 import { PRDetailCommits } from "@/components/pr-detail/pr-detail-commits";
 import { PRDetailSidebar } from "@/components/pr-detail/pr-detail-sidebar";
 import { PRMergeSection } from "@/components/pr-detail/pr-merge-section";
+import { MobileSidebar } from "@/components/ui/mobile-sidebar";
 import { useDocumentTitle } from "@/lib/hooks/use-document-title";
 import {
   fetchPullRequest,
@@ -172,7 +173,7 @@ function PullRequestDetailPage() {
     <div className="min-h-screen bg-bg">
       <RepoHeader />
 
-      <main className="max-w-6xl mx-auto px-6 py-8">
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-4 sm:py-8">
         <Link
           to="/$owner/$repo/pulls"
           params={{ owner, repo }}
@@ -195,7 +196,7 @@ function PullRequestDetailPage() {
           <>
             <PRDetailHeader pr={pr} files={files} />
 
-            <div className="flex gap-6">
+            <div className="flex flex-col lg:flex-row gap-6">
               {/* Main content */}
               <div className="flex-1 min-w-0">
                 <PRDetailTabs
@@ -210,13 +211,15 @@ function PullRequestDetailPage() {
                 {renderTabContent(tab)}
               </div>
 
-              {/* Sidebar - only on overview tab */}
+              {/* Sidebar - only on overview tab, collapsible on mobile */}
               {tab === "overview" && (
-                <PRDetailSidebar
-                  pr={pr}
-                  reviews={reviews}
-                  checks={checksData}
-                />
+                <MobileSidebar title="PR Details">
+                  <PRDetailSidebar
+                    pr={pr}
+                    reviews={reviews}
+                    checks={checksData}
+                  />
+                </MobileSidebar>
               )}
             </div>
           </>

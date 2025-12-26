@@ -8,6 +8,7 @@ import { IssueDetailHeader } from "@/components/issue-detail/issue-detail-header
 import { IssueDetailOverview } from "@/components/issue-detail/issue-detail-overview";
 import { IssueDetailSidebar } from "@/components/issue-detail/issue-detail-sidebar";
 import { CommentForm } from "@/components/ui/comment-form";
+import { MobileSidebar } from "@/components/ui/mobile-sidebar";
 import { useToastActions } from "@/components/ui/toast";
 import { useDocumentTitle } from "@/lib/hooks/use-document-title";
 import { fetchIssue, fetchIssueComments, fetchIssueTimeline, createIssueComment } from "@/lib/api/github";
@@ -102,7 +103,7 @@ function IssueDetailPage() {
     <div className="min-h-screen bg-bg">
       <RepoHeader />
 
-      <main className="max-w-6xl mx-auto px-6 py-8">
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-4 sm:py-8">
         <Link
           to="/$owner/$repo/issues"
           params={{ owner, repo }}
@@ -118,7 +119,7 @@ function IssueDetailPage() {
           <>
             <IssueDetailHeader issue={issue} />
 
-            <div className="flex gap-6">
+            <div className="flex flex-col lg:flex-row gap-6">
               {/* Main content */}
               <div className="flex-1 min-w-0">
                 <IssueDetailOverview body={issue.body} comments={comments} timelineEvents={timelineEvents} />
@@ -128,8 +129,10 @@ function IssueDetailPage() {
                 />
               </div>
 
-              {/* Sidebar */}
-              <IssueDetailSidebar issue={issue} />
+              {/* Sidebar - collapsible on mobile */}
+              <MobileSidebar title="Issue Details">
+                <IssueDetailSidebar issue={issue} />
+              </MobileSidebar>
             </div>
           </>
         ) : (

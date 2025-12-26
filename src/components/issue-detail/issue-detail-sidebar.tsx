@@ -60,7 +60,7 @@ function LabelsSection({ labels }: { labels: LabelType[] }) {
 
 export function IssueDetailSidebar({ issue }: IssueDetailSidebarProps) {
   return (
-    <aside className="w-64 shrink-0">
+    <aside className="w-full lg:w-64 shrink-0">
       <div className="bg-bg-secondary rounded-xl border border-border shadow-sm p-4">
         <SidebarSection title="Assignees" icon={Users}>
           <UserList users={issue.assignees} emptyText="No assignees" />

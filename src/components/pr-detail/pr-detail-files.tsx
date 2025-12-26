@@ -14,6 +14,7 @@ import {
 import type { PRFile, PRFileStatus, PRReviewComment } from "@/lib/types/github";
 import { DiffViewer, type DiffViewMode } from "@/components/diff/diff-viewer";
 import { usePreferences } from "@/lib/hooks/use-preferences";
+import { useIsSmallScreen } from "@/lib/hooks/use-media-query";
 
 interface PRDetailFilesProps {
   files: PRFile[];
@@ -197,7 +198,9 @@ export function PRDetailFiles({
   const [collapsedFiles, setCollapsedFiles] = useState<Set<string>>(new Set());
   // Get view mode from persisted preferences
   const { preferences, setDiffViewMode } = usePreferences();
-  const viewMode = preferences.diffViewMode;
+  const isSmallScreen = useIsSmallScreen();
+  // Force unified view on small screens (split view doesn't fit)
+  const viewMode = isSmallScreen ? "unified" : preferences.diffViewMode;
 
   // Toggle handler - memoized to avoid creating new functions on each render
   const createToggleHandler = useCallback(
@@ -240,7 +243,10 @@ export function PRDetailFiles({
             <span className="font-medium text-emerald-600">+{totalAdditions.toLocaleString()}</span>
             <span className="font-medium text-red-500">-{totalDeletions.toLocaleString()}</span>
           </div>
-          <ViewModeToggle viewMode={viewMode} onChange={setDiffViewMode} />
+          {/* Hide view mode toggle on small screens (forced to unified) */}
+          {!isSmallScreen && (
+            <ViewModeToggle viewMode={viewMode} onChange={setDiffViewMode} />
+          )}
         </div>
       </div>
 

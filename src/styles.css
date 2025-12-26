@@ -166,3 +166,12 @@ code {
   background-color: var(--color-accent);
   color: var(--color-accent-foreground);
 }
+
+/* Hide scrollbar utility */
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}

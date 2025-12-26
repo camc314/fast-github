@@ -40,22 +40,23 @@ export function RepoHeader({ owner: ownerProp, repo: repoProp, repository }: Rep
 
   return (
     <header className="sticky top-0 z-40 bg-bg-secondary/80 backdrop-blur-md border-b border-border">
-      <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between">
         {/* Left: Repo info */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           <Link
             to="/$owner/$repo"
             params={{ owner, repo }}
-            className="w-8 h-8 rounded-lg bg-bg-tertiary flex items-center justify-center hover:bg-bg-hover transition-colors"
+            className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-bg-tertiary flex items-center justify-center hover:bg-bg-hover transition-colors shrink-0"
           >
-            <Book size={16} className="text-fg-secondary" />
+            <Book size={14} className="text-fg-secondary sm:hidden" />
+            <Book size={16} className="text-fg-secondary hidden sm:block" />
           </Link>
 
-          <div className="flex items-center gap-1.5 text-sm">
+          <div className="flex items-center gap-1 sm:gap-1.5 text-sm min-w-0">
             <Link
               to="/$owner/$repo"
               params={{ owner, repo }}
-              className="text-fg-secondary hover:text-fg transition-colors"
+              className="text-fg-secondary hover:text-fg transition-colors truncate max-w-[80px] sm:max-w-none"
             >
               {owner}
             </Link>
@@ -63,7 +64,7 @@ export function RepoHeader({ owner: ownerProp, repo: repoProp, repository }: Rep
             <Link
               to="/$owner/$repo"
               params={{ owner, repo }}
-              className="font-semibold text-fg hover:text-accent transition-colors"
+              className="font-semibold text-fg hover:text-accent transition-colors truncate max-w-[100px] sm:max-w-none"
             >
               {repo}
             </Link>
@@ -71,7 +72,7 @@ export function RepoHeader({ owner: ownerProp, repo: repoProp, repository }: Rep
               href={`https://github.com/${owner}/${repo}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="ml-1 p-1 rounded hover:bg-bg-hover text-fg-muted hover:text-fg-secondary transition-colors"
+              className="ml-1 p-1 rounded hover:bg-bg-hover text-fg-muted hover:text-fg-secondary transition-colors shrink-0 hidden sm:inline-flex"
               title="View on GitHub"
             >
               <ExternalLink size={12} />
@@ -80,38 +81,40 @@ export function RepoHeader({ owner: ownerProp, repo: repoProp, repository }: Rep
         </div>
 
         {/* Right: Stats and Theme Toggle */}
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 shrink-0">
+          {/* Stars - hide label on mobile */}
           <a
             href={`https://github.com/${owner}/${repo}/stargazers`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-fg-secondary hover:text-fg hover:bg-bg-hover rounded-lg transition-colors"
+            className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 text-sm text-fg-secondary hover:text-fg hover:bg-bg-hover rounded-lg transition-colors"
           >
             <Star size={14} />
-            <span className="font-medium">{repoData ? formatCount(repoData.stars) : "..."}</span>
+            <span className="font-medium hidden sm:inline">{repoData ? formatCount(repoData.stars) : "..."}</span>
           </a>
+          {/* Forks - hide on mobile */}
           <a
             href={`https://github.com/${owner}/${repo}/forks`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-fg-secondary hover:text-fg hover:bg-bg-hover rounded-lg transition-colors"
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-sm text-fg-secondary hover:text-fg hover:bg-bg-hover rounded-lg transition-colors"
           >
             <GitFork size={14} />
             <span className="font-medium">{repoData ? formatCount(repoData.forks) : "..."}</span>
           </a>
-          <div className="ml-2 border-l border-border pl-2">
+          <div className="ml-1 sm:ml-2 border-l border-border pl-1 sm:pl-2">
             <ThemeToggle />
           </div>
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="max-w-6xl mx-auto px-6">
-        <nav className="flex gap-1 -mb-px">
+      {/* Tabs - scrollable on mobile */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 overflow-x-auto scrollbar-none">
+        <nav className="flex gap-1 -mb-px min-w-max">
           <Link
             to="/$owner/$repo"
             params={{ owner, repo }}
-            className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+            className={`px-3 sm:px-4 py-2 sm:py-2.5 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
               isCodeActive
                 ? "text-fg border-fg"
                 : "text-fg-secondary hover:text-fg border-transparent hover:border-border-secondary"
@@ -122,7 +125,7 @@ export function RepoHeader({ owner: ownerProp, repo: repoProp, repository }: Rep
           <Link
             to="/$owner/$repo/issues"
             params={{ owner, repo }}
-            className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+            className={`px-3 sm:px-4 py-2 sm:py-2.5 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
               isIssuesActive
                 ? "text-fg border-fg"
                 : "text-fg-secondary hover:text-fg border-transparent hover:border-border-secondary"
@@ -133,7 +136,7 @@ export function RepoHeader({ owner: ownerProp, repo: repoProp, repository }: Rep
           <Link
             to="/$owner/$repo/pulls"
             params={{ owner, repo }}
-            className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+            className={`px-3 sm:px-4 py-2 sm:py-2.5 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
               isPullsActive
                 ? "text-fg border-fg"
                 : "text-fg-secondary hover:text-fg border-transparent hover:border-border-secondary"
