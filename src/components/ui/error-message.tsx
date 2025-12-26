@@ -30,9 +30,9 @@ export function ErrorMessage({ error, onRetry }: ErrorMessageProps) {
     title = "Rate limit exceeded";
   } else if (isNotFound) {
     Icon = FileQuestion;
-    iconColor = "text-neutral-500";
-    bgColor = "bg-neutral-50";
-    borderColor = "border-neutral-200";
+    iconColor = "text-fg-muted";
+    bgColor = "bg-bg";
+    borderColor = "border-border";
     title = "Not found";
   }
 
@@ -40,17 +40,17 @@ export function ErrorMessage({ error, onRetry }: ErrorMessageProps) {
     <div className={`rounded-xl border ${borderColor} ${bgColor} p-8`}>
       <div className="flex flex-col items-center text-center">
         <Icon size={48} className={`${iconColor} mb-4`} />
-        <h2 className="text-lg font-semibold text-neutral-900 mb-2">{title}</h2>
-        <p className="text-sm text-neutral-600 mb-4 max-w-md">{error.message}</p>
+        <h2 className="text-lg font-semibold text-fg mb-2">{title}</h2>
+        <p className="text-sm text-fg-secondary mb-4 max-w-md">{error.message}</p>
 
         {isRateLimit && isGitHubError && error.rateLimitReset && (
-          <p className="text-xs text-neutral-500 mb-4">
+          <p className="text-xs text-fg-muted mb-4">
             Rate limit resets at {error.rateLimitReset.toLocaleTimeString()}
           </p>
         )}
 
         {isRateLimit && (
-          <div className="text-xs text-neutral-500 mb-4 max-w-md">
+          <div className="text-xs text-fg-muted mb-4 max-w-md">
             <p>
               GitHub limits unauthenticated requests to 60 per hour. To increase this limit to 5,000
               requests per hour, you can authenticate with a GitHub token.
@@ -61,7 +61,7 @@ export function ErrorMessage({ error, onRetry }: ErrorMessageProps) {
         {onRetry && (
           <button
             onClick={onRetry}
-            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-fg-secondary bg-bg-secondary border border-border rounded-lg hover:bg-bg-hover transition-colors"
           >
             <RefreshCw size={16} />
             Try again

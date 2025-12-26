@@ -136,32 +136,32 @@ export function FilterDropdown({
           onClick={() => setIsOpen(!isOpen)}
           className="inline-flex items-center gap-2 h-9 px-3 text-sm font-medium rounded-lg border transition-all duration-150
             focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500
-            bg-white border-neutral-200 text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900"
+            bg-bg-secondary border-border text-fg-secondary hover:bg-bg-hover hover:text-fg"
         >
-          <DefaultIcon size={14} className="text-neutral-400" />
-          <span className="text-neutral-400">{label}</span>
+          <DefaultIcon size={14} className="text-fg-muted" />
+          <span className="text-fg-muted">{label}</span>
           <ChevronDown
             size={14}
-            className={`text-neutral-400 transition-transform duration-150 ${isOpen ? "rotate-180" : ""}`}
+            className={`text-fg-muted transition-transform duration-150 ${isOpen ? "rotate-180" : ""}`}
           />
         </button>
       )}
 
       {isOpen && (
         <div
-          className="absolute left-0 mt-1 w-64 bg-white border border-neutral-200 rounded-lg shadow-lg z-50
+          className="absolute left-0 mt-1 w-64 bg-bg-secondary border border-border rounded-lg shadow-lg z-50
             animate-in fade-in slide-in-from-top-1 duration-150"
         >
           {/* Search input */}
-          <div className="p-2 border-b border-neutral-100">
+          <div className="p-2 border-b border-border">
             <input
               ref={inputRef}
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={placeholder}
-              className="w-full h-8 px-3 text-sm bg-neutral-50 border border-neutral-200 rounded-md
-                placeholder:text-neutral-400 text-neutral-900
+              className="w-full h-8 px-3 text-sm bg-bg border border-border rounded-md
+                placeholder:text-fg-muted text-fg
                 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
             />
           </div>
@@ -169,9 +169,9 @@ export function FilterDropdown({
           {/* Options list */}
           <div className="max-h-64 overflow-auto py-1">
             {isLoading ? (
-              <div className="px-3 py-4 text-sm text-neutral-500 text-center">Loading...</div>
+              <div className="px-3 py-4 text-sm text-fg-muted text-center">Loading...</div>
             ) : filteredOptions.length === 0 ? (
-              <div className="px-3 py-4 text-sm text-neutral-500 text-center">
+              <div className="px-3 py-4 text-sm text-fg-muted text-center">
                 {search ? "No matches found" : "No options available"}
               </div>
             ) : (
@@ -184,7 +184,7 @@ export function FilterDropdown({
                     ${
                       option.value === value
                         ? "bg-blue-50 text-blue-700"
-                        : "text-neutral-700 hover:bg-neutral-50"
+                        : "text-fg-secondary hover:bg-bg-hover"
                     }`}
                 >
                   {type === "user" && option.icon ? (
@@ -195,7 +195,7 @@ export function FilterDropdown({
                       style={{ backgroundColor: `#${option.color}` }}
                     />
                   ) : (
-                    <DefaultIcon size={16} className="text-neutral-400 flex-shrink-0" />
+                    <DefaultIcon size={16} className="text-fg-muted flex-shrink-0" />
                   )}
                   <span className="truncate">{option.label}</span>
                 </button>
@@ -205,14 +205,14 @@ export function FilterDropdown({
 
           {/* Clear option */}
           {value && (
-            <div className="p-2 border-t border-neutral-100">
+            <div className="p-2 border-t border-border">
               <button
                 type="button"
                 onClick={() => {
                   onChange(undefined);
                   setIsOpen(false);
                 }}
-                className="w-full px-3 py-2 text-sm text-neutral-500 hover:text-neutral-700 hover:bg-neutral-50 rounded-md transition-colors"
+                className="w-full px-3 py-2 text-sm text-fg-muted hover:text-fg-secondary hover:bg-bg-hover rounded-md transition-colors"
               >
                 Clear filter
               </button>

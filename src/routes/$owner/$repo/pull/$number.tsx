@@ -144,14 +144,14 @@ function PullRequestDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-50">
+    <div className="min-h-screen bg-bg">
       <RepoHeader />
 
       <main className="max-w-6xl mx-auto px-6 py-8">
         <Link
           to="/$owner/$repo/pulls"
           params={{ owner, repo }}
-          className="inline-flex items-center gap-1.5 text-sm text-neutral-500 hover:text-neutral-900 mb-6 transition-colors"
+          className="inline-flex items-center gap-1.5 text-sm text-fg-muted hover:text-fg mb-6 transition-colors"
         >
           <ArrowLeft size={16} />
           Back to pull requests

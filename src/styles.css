@@ -1,29 +1,6 @@
 @import "tailwindcss";
 
 @theme {
-  /* Colors - Vercel/shadcn inspired neutral palette */
-  --color-background: #fafafa;
-  --color-foreground: #0a0a0a;
-  --color-muted: #737373;
-  --color-muted-foreground: #a3a3a3;
-  --color-border: #e5e5e5;
-  --color-border-hover: #d4d4d4;
-  --color-card: #ffffff;
-  --color-card-hover: #fafafa;
-
-  /* Accent colors */
-  --color-accent: #0070f3;
-  --color-accent-foreground: #ffffff;
-  --color-success: #10b981;
-  --color-warning: #f59e0b;
-  --color-error: #ef4444;
-  --color-purple: #8b5cf6;
-
-  /* Shadows - subtle, layered */
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.03);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.05), 0 4px 6px -4px rgb(0 0 0 / 0.05);
-
   /* Border radius */
   --radius-sm: 6px;
   --radius-md: 8px;
@@ -33,10 +10,57 @@
   /* Transitions */
   --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Theme colors - these reference the CSS variables below */
+  --color-bg: var(--theme-bg);
+  --color-bg-secondary: var(--theme-bg-secondary);
+  --color-bg-tertiary: var(--theme-bg-tertiary);
+  --color-bg-hover: var(--theme-bg-hover);
+  --color-fg: var(--theme-fg);
+  --color-fg-secondary: var(--theme-fg-secondary);
+  --color-fg-muted: var(--theme-fg-muted);
+  --color-border: var(--theme-border);
+  --color-border-secondary: var(--theme-border-secondary);
+
+  /* Accent colors */
+  --color-accent: #0070f3;
+  --color-accent-foreground: #ffffff;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-purple: #8b5cf6;
 }
 
-* {
-  border-color: var(--color-border);
+/* Light mode (default) */
+:root {
+  color-scheme: light dark;
+
+  --theme-bg: #fafafa;
+  --theme-bg-secondary: #ffffff;
+  --theme-bg-tertiary: #f5f5f5;
+  --theme-bg-hover: #f0f0f0;
+  --theme-fg: #0a0a0a;
+  --theme-fg-secondary: #525252;
+  --theme-fg-muted: #a3a3a3;
+  --theme-border: #e5e5e5;
+  --theme-border-secondary: #d4d4d4;
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --theme-bg: #0a0a0a;
+    --theme-bg-secondary: #171717;
+    --theme-bg-tertiary: #262626;
+    --theme-bg-hover: #262626;
+    --theme-fg: #fafafa;
+    --theme-fg-secondary: #a3a3a3;
+    --theme-fg-muted: #737373;
+    --theme-border: #262626;
+    --theme-border-secondary: #404040;
+
+    --color-accent: #3b82f6;
+  }
 }
 
 body {
@@ -48,8 +72,8 @@ body {
     "Segoe UI",
     "Roboto",
     sans-serif;
-  background-color: var(--color-background);
-  color: var(--color-foreground);
+  background-color: var(--color-bg);
+  color: var(--color-fg);
 }
 
 code {
@@ -72,7 +96,7 @@ code {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-border-hover);
+  background: var(--color-border-secondary);
 }
 
 /* Focus states */

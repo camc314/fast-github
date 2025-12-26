@@ -216,7 +216,7 @@ export const DiffViewer = memo(function DiffViewer({
       const { comments: lineComments, isPendingComment } = annotation.metadata;
 
       return (
-        <div className="bg-neutral-50 border-y border-neutral-200">
+        <div className="bg-bg border-y border-border">
           {/* Existing comments */}
           {lineComments.length > 0 && <DiffCommentThread comments={lineComments} />}
 
@@ -253,14 +253,14 @@ export const DiffViewer = memo(function DiffViewer({
   // No diff available
   if (!patch || !fileDiff) {
     return (
-      <div className="p-6 text-center text-neutral-500 text-sm bg-neutral-50 border-t border-neutral-200">
+      <div className="p-6 text-center text-fg-muted text-sm bg-bg border-t border-border">
         No diff available for {filename}
       </div>
     );
   }
 
   return (
-    <div className="border-t border-neutral-200 overflow-hidden">
+    <div className="border-t border-border overflow-hidden">
       <FileDiff
         fileDiff={fileDiff}
         options={options}

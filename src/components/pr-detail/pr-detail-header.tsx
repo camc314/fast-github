@@ -24,7 +24,7 @@ function StateIcon({ state }: { state: string }) {
 function StateBadge({ state, draft }: { state: string; draft: boolean }) {
   if (draft) {
     return (
-      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-sm font-medium text-neutral-600 bg-neutral-100 rounded-full">
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-sm font-medium text-fg-secondary bg-bg-tertiary rounded-full">
         <GitPullRequest size={14} />
         Draft
       </span>
@@ -68,33 +68,33 @@ function DiffStats({ files }: { files: PRFile[] }) {
     <div className="flex items-center gap-2 text-xs">
       <span className="font-medium text-emerald-600">+{additions.toLocaleString()}</span>
       <span className="font-medium text-red-500">-{deletions.toLocaleString()}</span>
-      <div className="flex h-1.5 w-16 rounded-full overflow-hidden bg-neutral-100">
+      <div className="flex h-1.5 w-16 rounded-full overflow-hidden bg-bg-tertiary">
         <div className="bg-emerald-500" style={{ width: `${addPct}%` }} />
         <div className="bg-red-400" style={{ width: `${100 - addPct}%` }} />
       </div>
-      <span className="text-neutral-500">{files.length} files</span>
+      <span className="text-fg-muted">{files.length} files</span>
     </div>
   );
 }
 
 export function PRDetailHeader({ pr, files }: PRDetailHeaderProps) {
   return (
-    <div className="bg-white rounded-xl border border-neutral-200 shadow-sm p-6 mb-6">
+    <div className="bg-bg-secondary rounded-xl border border-border shadow-sm p-6 mb-6">
       {/* Title row */}
       <div className="flex items-start justify-between gap-4">
-        <h1 className="text-xl font-semibold text-neutral-900 leading-tight">
+        <h1 className="text-xl font-semibold text-fg leading-tight">
           {pr.title}
-          <span className="ml-2 text-neutral-400 font-normal">#{pr.number}</span>
+          <span className="ml-2 text-fg-muted font-normal">#{pr.number}</span>
         </h1>
         <StateBadge state={pr.state} draft={pr.draft} />
       </div>
 
       {/* Meta row */}
       <div className="flex items-center justify-between gap-4 mt-3">
-        <div className="flex items-center gap-3 text-sm text-neutral-600">
+        <div className="flex items-center gap-3 text-sm text-fg-secondary">
           <Avatar src={pr.user.avatarUrl} alt={pr.user.login} size={20} />
           <span>
-            <span className="font-medium text-neutral-900">{pr.user.login}</span>
+            <span className="font-medium text-fg">{pr.user.login}</span>
             {" opened "}
             {formatRelativeTime(pr.createdAt)}
           </span>

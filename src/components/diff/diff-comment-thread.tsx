@@ -13,10 +13,10 @@ function SingleComment({ comment }: { comment: PRReviewComment }) {
       <Avatar src={comment.user.avatarUrl} alt={comment.user.login} size={28} />
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">
-          <span className="font-medium text-sm text-neutral-900">{comment.user.login}</span>
-          <span className="text-xs text-neutral-400">{formatRelativeTime(comment.createdAt)}</span>
+          <span className="font-medium text-sm text-fg">{comment.user.login}</span>
+          <span className="text-xs text-fg-muted">{formatRelativeTime(comment.createdAt)}</span>
         </div>
-        <div className="text-sm text-neutral-700 whitespace-pre-wrap">{comment.body}</div>
+        <div className="text-sm text-fg-secondary whitespace-pre-wrap">{comment.body}</div>
       </div>
     </div>
   );

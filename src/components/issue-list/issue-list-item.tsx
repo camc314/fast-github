@@ -27,7 +27,7 @@ function IssueStateIcon({ state }: { state: string }) {
       );
     default:
       return (
-        <div className="w-5 h-5 flex items-center justify-center text-neutral-400">
+        <div className="w-5 h-5 flex items-center justify-center text-fg-muted">
           <CircleDot size={18} />
         </div>
       );
@@ -46,7 +46,7 @@ export const IssueListItem = memo(function IssueListItem({ issue, style }: Issue
       <Link
         to="/$owner/$repo/issue/$number"
         params={{ owner, repo, number: String(issue.number) }}
-        className="group flex items-center gap-3 h-[56px] px-4 hover:bg-neutral-50 border-b border-neutral-100 transition-colors"
+        className="group flex items-center gap-3 h-[56px] px-4 hover:bg-bg-hover border-b border-border transition-colors"
       >
         {/* State icon */}
         <IssueStateIcon state={issue.state} />
@@ -55,14 +55,14 @@ export const IssueListItem = memo(function IssueListItem({ issue, style }: Issue
         <div className="flex-1 min-w-0 flex items-center gap-3">
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-neutral-900 group-hover:text-blue-600 truncate transition-colors">
+              <span className="text-sm font-medium text-fg group-hover:text-blue-600 truncate transition-colors">
                 {issue.title}
               </span>
               {issue.labels.slice(0, 2).map((label) => (
                 <Label key={label.id} label={label} />
               ))}
             </div>
-            <p className="text-xs text-neutral-500 mt-0.5">
+            <p className="text-xs text-fg-muted mt-0.5">
               #{issue.number}
               <span className="mx-1">·</span>
               {formatRelativeTime(issue.createdAt)} by {issue.user.login}
@@ -73,7 +73,7 @@ export const IssueListItem = memo(function IssueListItem({ issue, style }: Issue
         {/* Right side */}
         <div className="flex items-center gap-4 shrink-0">
           {issue.comments > 0 && (
-            <span className="inline-flex items-center gap-1 text-xs text-neutral-400">
+            <span className="inline-flex items-center gap-1 text-xs text-fg-muted">
               <MessageSquare size={12} />
               {issue.comments}
             </span>

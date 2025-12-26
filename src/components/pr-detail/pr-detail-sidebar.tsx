@@ -19,8 +19,8 @@ function SidebarSection({
   children: React.ReactNode;
 }) {
   return (
-    <div className="py-4 border-b border-neutral-100 last:border-b-0">
-      <div className="flex items-center gap-2 text-xs font-medium text-neutral-500 uppercase tracking-wide mb-3">
+    <div className="py-4 border-b border-border last:border-b-0">
+      <div className="flex items-center gap-2 text-xs font-medium text-fg-muted uppercase tracking-wide mb-3">
         <Icon size={14} />
         {title}
       </div>
@@ -31,7 +31,7 @@ function SidebarSection({
 
 function UserList({ users, emptyText }: { users: User[]; emptyText: string }) {
   if (users.length === 0) {
-    return <p className="text-sm text-neutral-400">{emptyText}</p>;
+    return <p className="text-sm text-fg-muted">{emptyText}</p>;
   }
 
   return (
@@ -39,7 +39,7 @@ function UserList({ users, emptyText }: { users: User[]; emptyText: string }) {
       {users.map((user) => (
         <div key={user.login} className="flex items-center gap-1.5">
           <Avatar src={user.avatarUrl} alt={user.login} size={20} />
-          <span className="text-sm text-neutral-700">{user.login}</span>
+          <span className="text-sm text-fg-secondary">{user.login}</span>
         </div>
       ))}
     </div>
@@ -73,7 +73,7 @@ function ReviewersList({
   const reviewers = Array.from(reviewerMap.values());
 
   if (reviewers.length === 0) {
-    return <p className="text-sm text-neutral-400">No reviewers</p>;
+    return <p className="text-sm text-fg-muted">No reviewers</p>;
   }
 
   return (
@@ -81,7 +81,7 @@ function ReviewersList({
       {reviewers.map(({ user, state }) => (
         <div key={user.login} className="flex items-center gap-2">
           <Avatar src={user.avatarUrl} alt={user.login} size={20} />
-          <span className="text-sm text-neutral-700 flex-1">{user.login}</span>
+          <span className="text-sm text-fg-secondary flex-1">{user.login}</span>
           <ReviewStateIcon state={state} />
         </div>
       ))}
@@ -105,7 +105,7 @@ function ReviewStateIcon({ state }: { state: string | null }) {
       );
     case "COMMENTED":
       return (
-        <span className="flex items-center gap-1 text-xs text-neutral-400">
+        <span className="flex items-center gap-1 text-xs text-fg-muted">
           <CircleDot size={14} />
         </span>
       );
@@ -123,7 +123,7 @@ function ReviewStateIcon({ state }: { state: string | null }) {
 
 function ChecksSection({ checks }: { checks: ChecksSummary }) {
   if (checks.total === 0) {
-    return <p className="text-sm text-neutral-400">No checks</p>;
+    return <p className="text-sm text-fg-muted">No checks</p>;
   }
 
   const { success, failure, pending } = checks;
@@ -174,7 +174,7 @@ function ChecksSection({ checks }: { checks: ChecksSummary }) {
             {pending}
           </span>
         )}
-        <span className="text-neutral-400">{checks.total} total</span>
+        <span className="text-fg-muted">{checks.total} total</span>
       </div>
 
       {/* Individual checks (collapsed by default, show first few failures) */}
@@ -203,7 +203,7 @@ function ChecksSection({ checks }: { checks: ChecksSummary }) {
 
 function LabelsSection({ labels }: { labels: PullRequest["labels"] }) {
   if (labels.length === 0) {
-    return <p className="text-sm text-neutral-400">No labels</p>;
+    return <p className="text-sm text-fg-muted">No labels</p>;
   }
 
   return (
@@ -219,7 +219,7 @@ export function PRDetailSidebar({ pr, reviews, checks }: PRDetailSidebarProps) {
   return (
     <aside className="w-64 shrink-0">
       {/* TODO: make stats be here */}
-      <div className="bg-white rounded-xl border border-neutral-200 shadow-sm p-4">
+      <div className="bg-bg-secondary rounded-xl border border-border shadow-sm p-4">
         <SidebarSection title="Assignees" icon={Users}>
           <UserList users={pr.assignees} emptyText="No assignees" />
         </SidebarSection>

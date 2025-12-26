@@ -30,21 +30,21 @@ function StateBadge({ state }: { state: string }) {
 
 export function IssueDetailHeader({ issue }: IssueDetailHeaderProps) {
   return (
-    <div className="bg-white rounded-xl border border-neutral-200 shadow-sm p-6 mb-6">
+    <div className="bg-bg-secondary rounded-xl border border-border shadow-sm p-6 mb-6">
       {/* Title row */}
       <div className="flex items-start justify-between gap-4">
-        <h1 className="text-xl font-semibold text-neutral-900 leading-tight">
+        <h1 className="text-xl font-semibold text-fg leading-tight">
           {issue.title}
-          <span className="ml-2 text-neutral-400 font-normal">#{issue.number}</span>
+          <span className="ml-2 text-fg-muted font-normal">#{issue.number}</span>
         </h1>
         <StateBadge state={issue.state} />
       </div>
 
       {/* Meta row */}
-      <div className="flex items-center gap-3 mt-3 text-sm text-neutral-600">
+      <div className="flex items-center gap-3 mt-3 text-sm text-fg-secondary">
         <Avatar src={issue.user.avatarUrl} alt={issue.user.login} size={20} />
         <span>
-          <span className="font-medium text-neutral-900">{issue.user.login}</span>
+          <span className="font-medium text-fg">{issue.user.login}</span>
           {" opened "}
           {formatRelativeTime(issue.createdAt)}
         </span>

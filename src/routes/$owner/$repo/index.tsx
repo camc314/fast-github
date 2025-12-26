@@ -54,7 +54,7 @@ function RepoHomePage() {
   // Loading state
   if (repoQuery.isLoading) {
     return (
-      <div className="min-h-screen bg-neutral-50">
+      <div className="min-h-screen bg-bg">
         <RepoHeader />
         <PageSpinner />
       </div>
@@ -64,7 +64,7 @@ function RepoHomePage() {
   // Error state
   if (repoQuery.error) {
     return (
-      <div className="min-h-screen bg-neutral-50">
+      <div className="min-h-screen bg-bg">
         <RepoHeader />
         <main className="max-w-6xl mx-auto px-6 py-8">
           <ErrorMessage error={repoQuery.error} onRetry={() => repoQuery.refetch()} />
@@ -79,18 +79,18 @@ function RepoHomePage() {
   const contributors = contributorsQuery.data ?? [];
 
   return (
-    <div className="min-h-screen bg-neutral-50">
+    <div className="min-h-screen bg-bg">
       <RepoHeader repository={repository} />
 
       <main className="max-w-6xl mx-auto px-6 py-8">
         <div className="flex gap-8">
           {/* Main content - README */}
           <div className="flex-1 min-w-0">
-            <div className="bg-white rounded-xl border border-neutral-200 overflow-hidden">
+            <div className="bg-bg-secondary rounded-xl border border-border overflow-hidden">
               {/* README header */}
-              <div className="flex items-center gap-2 px-4 py-3 border-b border-neutral-200 bg-neutral-50">
-                <FileText size={16} className="text-neutral-500" />
-                <span className="text-sm font-medium text-neutral-700">
+              <div className="flex items-center gap-2 px-4 py-3 border-b border-border bg-bg">
+                <FileText size={16} className="text-fg-muted" />
+                <span className="text-sm font-medium text-fg-secondary">
                   {readme?.name ?? "README.md"}
                 </span>
               </div>
@@ -99,15 +99,15 @@ function RepoHomePage() {
               <div className="p-6">
                 {readmeQuery.isLoading ? (
                   <div className="flex items-center justify-center py-12">
-                    <div className="w-6 h-6 border-2 border-neutral-300 border-t-neutral-600 rounded-full animate-spin" />
+                    <div className="w-6 h-6 border-2 border-border border-t-fg-secondary rounded-full animate-spin" />
                   </div>
                 ) : readme ? (
                   <MarkdownViewer content={readme.content} />
                 ) : (
                   <div className="text-center py-12">
-                    <FileText size={48} className="mx-auto text-neutral-300 mb-3" />
-                    <p className="text-neutral-500">No README found</p>
-                    <p className="text-sm text-neutral-400 mt-1">
+                    <FileText size={48} className="mx-auto text-border mb-3" />
+                    <p className="text-fg-muted">No README found</p>
+                    <p className="text-sm text-fg-muted mt-1">
                       Add a README to help others understand this repository
                     </p>
                   </div>

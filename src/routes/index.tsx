@@ -53,24 +53,22 @@ function HomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50">
-      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-neutral-200">
+    <div className="min-h-screen bg-bg">
+      <header className="sticky top-0 z-40 bg-bg-secondary/80 backdrop-blur-md border-b border-border">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-neutral-100 to-neutral-200 flex items-center justify-center">
-              <Book size={16} className="text-neutral-600" />
+            <div className="w-8 h-8 rounded-lg bg-bg-tertiary flex items-center justify-center">
+              <Book size={16} className="text-fg-secondary" />
             </div>
-            <span className="font-semibold text-neutral-900">Fast GitHub</span>
+            <span className="font-semibold text-fg">Fast GitHub</span>
           </div>
         </div>
       </header>
 
       <main className="max-w-6xl mx-auto px-6 py-12">
         <div className="max-w-xl mx-auto text-center mb-10">
-          <h1 className="text-2xl font-semibold text-neutral-900 mb-2">
-            Explore GitHub Repositories
-          </h1>
-          <p className="text-sm text-neutral-500">
+          <h1 className="text-2xl font-semibold text-fg mb-2">Explore GitHub Repositories</h1>
+          <p className="text-sm text-fg-secondary">
             Enter a repository to browse its issues and pull requests
           </p>
         </div>
@@ -79,7 +77,7 @@ function HomePage() {
           <div className="relative">
             <Search
               size={16}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none"
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-muted pointer-events-none"
             />
             <input
               type="text"
@@ -89,44 +87,44 @@ function HomePage() {
                 setError("");
               }}
               placeholder="owner/repo"
-              className="w-full h-10 pl-9 pr-24 text-sm bg-white border border-neutral-200 rounded-lg
-                placeholder:text-neutral-400 text-neutral-900
-                focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500
+              className="w-full h-10 pl-9 pr-24 text-sm bg-bg-secondary border border-border rounded-lg
+                placeholder:text-fg-muted text-fg
+                focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent
                 transition-all duration-150"
             />
             <button
               type="submit"
               className="absolute right-1.5 top-1/2 -translate-y-1/2 h-7 px-3 text-sm font-medium
-                bg-neutral-900 text-white rounded-md hover:bg-neutral-800
+                bg-fg text-bg-secondary rounded-md hover:opacity-90
                 transition-colors duration-150 flex items-center gap-1.5"
             >
               Go
               <ArrowRight size={14} />
             </button>
           </div>
-          {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+          {error && <p className="text-error text-sm mt-2">{error}</p>}
         </form>
 
         <div className="max-w-xl mx-auto">
-          <h2 className="text-xs font-medium text-neutral-400 uppercase tracking-wider mb-3">
+          <h2 className="text-xs font-medium text-fg-muted uppercase tracking-wider mb-3">
             Popular Repositories
           </h2>
-          <div className="bg-white rounded-xl border border-neutral-200 shadow-sm overflow-hidden divide-y divide-neutral-100">
+          <div className="bg-bg-secondary rounded-xl border border-border shadow-sm overflow-hidden divide-y divide-border">
             {POPULAR_REPOS.map(({ owner, repo }) => (
               <button
                 key={`${owner}/${repo}`}
                 onClick={() => goToRepo(owner, repo)}
                 className="w-full px-4 py-3 flex items-center justify-between text-left
-                  hover:bg-neutral-50 transition-colors duration-150 group"
+                  hover:bg-bg-hover transition-colors duration-150 group"
               >
                 <div className="flex items-center gap-2 text-sm">
-                  <span className="text-neutral-500">{owner}</span>
-                  <span className="text-neutral-300">/</span>
-                  <span className="font-medium text-neutral-900">{repo}</span>
+                  <span className="text-fg-secondary">{owner}</span>
+                  <span className="text-fg-muted">/</span>
+                  <span className="font-medium text-fg">{repo}</span>
                 </div>
                 <ArrowRight
                   size={14}
-                  className="text-neutral-300 group-hover:text-neutral-500 transition-colors"
+                  className="text-fg-muted group-hover:text-fg-secondary transition-colors"
                 />
               </button>
             ))}

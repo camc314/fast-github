@@ -78,7 +78,7 @@ export function MarkdownViewer({ content, className }: MarkdownViewerProps) {
 
   // Handle empty content
   if (!content?.trim()) {
-    return <p className="text-neutral-400 italic text-sm">No description provided.</p>;
+    return <p className="text-fg-muted italic text-sm">No description provided.</p>;
   }
 
   return <EditorContent editor={editor} className={className} />;

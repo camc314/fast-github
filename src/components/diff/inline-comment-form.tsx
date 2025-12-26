@@ -66,7 +66,7 @@ export function InlineCommentForm({
   );
 
   return (
-    <div className="p-3 bg-white border-t border-neutral-200">
+    <div className="p-3 bg-bg-secondary border-t border-border">
       <textarea
         ref={textareaRef}
         value={body}
@@ -77,7 +77,7 @@ export function InlineCommentForm({
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
         disabled={isSubmitting}
-        className="w-full min-h-[80px] p-2 text-sm border border-neutral-200 rounded-lg resize-y focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:opacity-50 disabled:bg-neutral-50"
+        className="w-full min-h-[80px] p-2 text-sm border border-border rounded-lg resize-y focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:opacity-50 disabled:bg-bg"
       />
 
       {error && (
@@ -87,14 +87,14 @@ export function InlineCommentForm({
       )}
 
       <div className="flex items-center justify-between mt-2">
-        <span className="text-xs text-neutral-400">Ctrl+Enter to submit, Esc to cancel</span>
+        <span className="text-xs text-fg-muted">Ctrl+Enter to submit, Esc to cancel</span>
 
         <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={onCancel}
             disabled={isSubmitting}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 rounded-lg transition-colors disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-fg-secondary hover:text-fg hover:bg-bg-tertiary rounded-lg transition-colors disabled:opacity-50"
           >
             <X size={14} />
             Cancel

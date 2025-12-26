@@ -11,8 +11,8 @@ interface PRDetailOverviewProps {
 
 function Description({ body }: { body: string }) {
   return (
-    <div className="bg-white rounded-xl border border-neutral-200 p-6 mb-6">
-      <h2 className="text-sm font-medium text-neutral-500 mb-3">Description</h2>
+    <div className="bg-bg-secondary rounded-xl border border-border p-6 mb-6">
+      <h2 className="text-sm font-medium text-fg-muted mb-3">Description</h2>
       <MarkdownViewer content={body} />
     </div>
   );
@@ -21,33 +21,33 @@ function Description({ body }: { body: string }) {
 function Comments({ comments }: { comments: PRComment[] }) {
   if (comments.length === 0) {
     return (
-      <div className="bg-white rounded-xl border border-neutral-200 p-6">
-        <div className="flex items-center gap-2 text-neutral-500 mb-3">
+      <div className="bg-bg-secondary rounded-xl border border-border p-6">
+        <div className="flex items-center gap-2 text-fg-muted mb-3">
           <MessageSquare size={16} />
           <h2 className="text-sm font-medium">Conversation</h2>
         </div>
-        <p className="text-neutral-400 italic">No comments yet.</p>
+        <p className="text-fg-muted italic">No comments yet.</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-xl border border-neutral-200 overflow-hidden">
-      <div className="flex items-center gap-2 text-neutral-500 p-4 border-b border-neutral-100">
+    <div className="bg-bg-secondary rounded-xl border border-border overflow-hidden">
+      <div className="flex items-center gap-2 text-fg-muted p-4 border-b border-border">
         <MessageSquare size={16} />
         <h2 className="text-sm font-medium">Conversation</h2>
-        <span className="text-xs bg-neutral-100 px-1.5 py-0.5 rounded-full">{comments.length}</span>
+        <span className="text-xs bg-bg-tertiary px-1.5 py-0.5 rounded-full">{comments.length}</span>
       </div>
 
-      <div className="divide-y divide-neutral-100">
+      <div className="divide-y divide-border">
         {comments.map((comment) => (
           <div key={comment.id} className="p-4">
             <div className="flex items-start gap-3">
               <Avatar src={comment.user.avatarUrl} alt={comment.user.login} size={32} />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="font-medium text-sm text-neutral-900">{comment.user.login}</span>
-                  <span className="text-xs text-neutral-400">
+                  <span className="font-medium text-sm text-fg">{comment.user.login}</span>
+                  <span className="text-xs text-fg-muted">
                     {formatRelativeTime(comment.createdAt)}
                   </span>
                 </div>

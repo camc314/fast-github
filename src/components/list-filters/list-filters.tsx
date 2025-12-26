@@ -154,15 +154,15 @@ export function ListFilters({
 
         <div className="flex items-center gap-3 w-full sm:w-auto">
           {/* State toggle - pill style */}
-          <div className="inline-flex items-center bg-neutral-100 rounded-lg p-1">
+          <div className="inline-flex items-center bg-bg-tertiary rounded-lg p-1">
             <Link
               to={routePath}
               params={{ owner, repo }}
               search={buildSearch({ state: "open" })}
               className={`inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-md transition-all ${
                 state === "open"
-                  ? "bg-white text-neutral-900 shadow-sm"
-                  : "text-neutral-600 hover:text-neutral-900"
+                  ? "bg-bg-secondary text-fg shadow-sm"
+                  : "text-fg-secondary hover:text-fg"
               }`}
             >
               <OpenIcon size={14} className="text-emerald-500" />
@@ -176,8 +176,8 @@ export function ListFilters({
               search={buildSearch({ state: "closed" })}
               className={`inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-md transition-all ${
                 state === "closed"
-                  ? "bg-white text-neutral-900 shadow-sm"
-                  : "text-neutral-600 hover:text-neutral-900"
+                  ? "bg-bg-secondary text-fg shadow-sm"
+                  : "text-fg-secondary hover:text-fg"
               }`}
             >
               <ClosedIcon size={14} className="text-violet-500" />
@@ -193,7 +193,7 @@ export function ListFilters({
 
       {/* Bottom row: Filter dropdowns */}
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-sm text-neutral-500">Filters:</span>
+        <span className="text-sm text-fg-muted">Filters:</span>
 
         <FilterDropdown
           label="Author"
@@ -235,7 +235,7 @@ export function ListFilters({
                 search: buildSearch({ author: undefined, label: undefined, assignee: undefined }),
               });
             }}
-            className="text-sm text-neutral-500 hover:text-neutral-700 underline underline-offset-2"
+            className="text-sm text-fg-muted hover:text-fg-secondary underline underline-offset-2"
           >
             Clear all filters
           </button>

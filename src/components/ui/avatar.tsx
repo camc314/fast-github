@@ -13,7 +13,7 @@ export const Avatar = memo(function Avatar({ src, alt, size = 20, className = ""
   if (error) {
     return (
       <div
-        className={`rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-xs font-medium ${className}`}
+        className={`rounded-full bg-bg-tertiary flex items-center justify-center text-fg-secondary text-xs font-medium ${className}`}
         style={{ width: size, height: size }}
       >
         {alt.charAt(0).toUpperCase()}

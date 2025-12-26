@@ -93,22 +93,22 @@ export function CommentForm({
   };
 
   return (
-    <div className="bg-white rounded-xl border border-neutral-200 overflow-hidden mt-6">
+    <div className="bg-bg-secondary rounded-xl border border-border overflow-hidden mt-6">
       {/* Header */}
-      <div className="flex items-center gap-2 text-neutral-500 px-4 py-3 border-b border-neutral-100">
+      <div className="flex items-center gap-2 text-fg-muted px-4 py-3 border-b border-border">
         <MessageSquare size={16} />
         <h2 className="text-sm font-medium">Add a comment</h2>
       </div>
 
       <div className="p-4 space-y-3">
         {/* Editor/Preview */}
-        <div className="border border-neutral-200 rounded-lg min-h-[100px] focus-within:border-[var(--color-accent)] focus-within:ring-1 focus-within:ring-[var(--color-accent)] transition-[border-color,box-shadow] duration-[var(--transition-fast)]">
+        <div className="border border-border rounded-lg min-h-[100px] focus-within:border-[var(--color-accent)] focus-within:ring-1 focus-within:ring-[var(--color-accent)] transition-[border-color,box-shadow] duration-[var(--transition-fast)]">
           {showPreview ? (
-            <div className="prose prose-sm max-w-none p-3 bg-neutral-50 rounded-lg min-h-[100px]">
+            <div className="prose prose-sm max-w-none p-3 bg-bg rounded-lg min-h-[100px]">
               {editor?.getText() ? (
                 <EditorContent editor={editor} className="pointer-events-none" />
               ) : (
-                <p className="text-neutral-400 italic m-0">Nothing to preview</p>
+                <p className="text-fg-muted italic m-0">Nothing to preview</p>
               )}
             </div>
           ) : (
@@ -132,13 +132,13 @@ export function CommentForm({
             <button
               type="button"
               onClick={() => setShowPreview(!showPreview)}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 rounded-md transition-colors duration-[var(--transition-fast)]"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-fg-secondary hover:text-fg hover:bg-bg-tertiary rounded-md transition-colors duration-[var(--transition-fast)]"
               disabled={isSubmitting}
             >
               {showPreview ? <EyeOff size={14} /> : <Eye size={14} />}
               {showPreview ? "Edit" : "Preview"}
             </button>
-            <span className="text-xs text-neutral-400">Ctrl+Enter to submit</span>
+            <span className="text-xs text-fg-muted">Ctrl+Enter to submit</span>
           </div>
 
           <button

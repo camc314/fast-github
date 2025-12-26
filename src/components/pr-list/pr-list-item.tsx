@@ -14,7 +14,7 @@ interface PRListItemProps {
 function PRStateIcon({ state, draft }: { state: string; draft: boolean }) {
   if (draft) {
     return (
-      <div className="w-5 h-5 flex items-center justify-center text-neutral-400">
+      <div className="w-5 h-5 flex items-center justify-center text-fg-muted">
         <GitPullRequest size={18} />
       </div>
     );
@@ -41,7 +41,7 @@ function PRStateIcon({ state, draft }: { state: string; draft: boolean }) {
       );
     default:
       return (
-        <div className="w-5 h-5 flex items-center justify-center text-neutral-400">
+        <div className="w-5 h-5 flex items-center justify-center text-fg-muted">
           <GitPullRequest size={18} />
         </div>
       );
@@ -73,7 +73,7 @@ export const PRListItem = memo(function PRListItem({ pr, style }: PRListItemProp
       <Link
         to="/$owner/$repo/pull/$number"
         params={{ owner, repo, number: String(pr.number) }}
-        className="group flex items-center gap-3 h-[56px] px-4 hover:bg-neutral-50 border-b border-neutral-100 transition-colors"
+        className="group flex items-center gap-3 h-[56px] px-4 hover:bg-bg-hover border-b border-border transition-colors"
       >
         {/* State icon */}
         <PRStateIcon state={pr.state} draft={pr.draft} />
@@ -82,16 +82,16 @@ export const PRListItem = memo(function PRListItem({ pr, style }: PRListItemProp
         <div className="flex-1 min-w-0 flex items-center gap-3">
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-neutral-900 group-hover:text-blue-600 truncate transition-colors">
+              <span className="text-sm font-medium text-fg group-hover:text-blue-600 truncate transition-colors">
                 {pr.title}
               </span>
               {pr.labels.slice(0, 2).map((label) => (
                 <Label key={label.id} label={label} />
               ))}
             </div>
-            <p className="text-xs text-neutral-500 mt-0.5">
+            <p className="text-xs text-fg-muted mt-0.5">
               #{pr.number}
-              {pr.draft && <span className="ml-1 text-neutral-400">(draft)</span>}
+              {pr.draft && <span className="ml-1 text-fg-muted">(draft)</span>}
               <span className="mx-1">·</span>
               {formatRelativeTime(pr.createdAt)} by {pr.user.login}
             </p>
@@ -103,7 +103,7 @@ export const PRListItem = memo(function PRListItem({ pr, style }: PRListItemProp
           <CheckStatusIcon status={pr.checkStatus} />
 
           {pr.comments > 0 && (
-            <span className="inline-flex items-center gap-1 text-xs text-neutral-400">
+            <span className="inline-flex items-center gap-1 text-xs text-fg-muted">
               <MessageSquare size={12} />
               {pr.comments}
             </span>

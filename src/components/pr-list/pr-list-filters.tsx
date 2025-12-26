@@ -16,13 +16,13 @@ export function PRListFilters({
   return (
     <div className="flex items-center gap-2 mb-4">
       {/* State toggle - pill style */}
-      <div className="inline-flex items-center bg-neutral-100 rounded-lg p-1">
+      <div className="inline-flex items-center bg-bg-tertiary rounded-lg p-1">
         <button
           onClick={() => onStateChange("open")}
           className={`inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-md transition-all ${
             state === "open"
-              ? "bg-white text-neutral-900 shadow-sm"
-              : "text-neutral-600 hover:text-neutral-900"
+              ? "bg-bg-secondary text-fg shadow-sm"
+              : "text-fg-secondary hover:text-fg"
           }`}
         >
           <GitPullRequest size={14} className="text-emerald-500" />
@@ -34,8 +34,8 @@ export function PRListFilters({
           onClick={() => onStateChange("closed")}
           className={`inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-md transition-all ${
             state === "closed"
-              ? "bg-white text-neutral-900 shadow-sm"
-              : "text-neutral-600 hover:text-neutral-900"
+              ? "bg-bg-secondary text-fg shadow-sm"
+              : "text-fg-secondary hover:text-fg"
           }`}
         >
           <Check size={14} className="text-violet-500" />

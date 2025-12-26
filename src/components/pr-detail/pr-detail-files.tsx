@@ -40,7 +40,7 @@ function getFileIcon(status: PRFileStatus) {
     case "copied":
       return <Copy size={16} className="text-violet-500" />;
     default:
-      return <File size={16} className="text-neutral-400" />;
+      return <File size={16} className="text-fg-muted" />;
   }
 }
 
@@ -52,7 +52,7 @@ function getStatusBadge(status: PRFileStatus) {
     changed: "bg-amber-50 text-amber-700",
     renamed: "bg-blue-50 text-blue-700",
     copied: "bg-violet-50 text-violet-700",
-    unchanged: "bg-neutral-50 text-neutral-500",
+    unchanged: "bg-bg text-fg-muted",
   };
 
   return (
@@ -84,15 +84,15 @@ const FileAccordionItem = memo(
     onAddComment,
   }: FileAccordionItemProps) {
     return (
-      <div className="border-b border-neutral-200 last:border-b-0">
+      <div className="border-b border-border last:border-b-0">
         {/* File header - clickable */}
         <button
           type="button"
           onClick={onToggle}
-          className="flex items-center gap-3 w-full px-4 py-3 hover:bg-neutral-50 transition-colors text-left"
+          className="flex items-center gap-3 w-full px-4 py-3 hover:bg-bg-hover transition-colors text-left"
         >
           {/* Expand/collapse chevron */}
-          <span className="text-neutral-400">
+          <span className="text-fg-muted">
             {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
           </span>
 
@@ -100,9 +100,7 @@ const FileAccordionItem = memo(
           {getFileIcon(file.status)}
 
           {/* Filename */}
-          <span className="flex-1 min-w-0 text-sm font-mono text-neutral-900 truncate">
-            {file.filename}
-          </span>
+          <span className="flex-1 min-w-0 text-sm font-mono text-fg truncate">{file.filename}</span>
 
           {/* Stats */}
           <div className="flex items-center gap-3 shrink-0">
@@ -152,14 +150,14 @@ interface ViewModeToggleProps {
 
 function ViewModeToggle({ viewMode, onChange }: ViewModeToggleProps) {
   return (
-    <div className="flex items-center gap-1 p-0.5 bg-neutral-100 rounded-md">
+    <div className="flex items-center gap-1 p-0.5 bg-bg-tertiary rounded-md">
       <button
         type="button"
         onClick={() => onChange("unified")}
         className={`flex items-center gap-1.5 px-2 py-1 text-xs font-medium rounded transition-colors ${
           viewMode === "unified"
-            ? "bg-white text-neutral-900 shadow-sm"
-            : "text-neutral-500 hover:text-neutral-700"
+            ? "bg-bg-secondary text-fg shadow-sm"
+            : "text-fg-muted hover:text-fg-secondary"
         }`}
         title="Unified view"
       >
@@ -171,8 +169,8 @@ function ViewModeToggle({ viewMode, onChange }: ViewModeToggleProps) {
         onClick={() => onChange("split")}
         className={`flex items-center gap-1.5 px-2 py-1 text-xs font-medium rounded transition-colors ${
           viewMode === "split"
-            ? "bg-white text-neutral-900 shadow-sm"
-            : "text-neutral-500 hover:text-neutral-700"
+            ? "bg-bg-secondary text-fg shadow-sm"
+            : "text-fg-muted hover:text-fg-secondary"
         }`}
         title="Split view"
       >
@@ -208,9 +206,9 @@ export function PRDetailFiles({ files, reviewComments, onAddComment }: PRDetailF
 
   if (files.length === 0) {
     return (
-      <div className="bg-white rounded-xl border border-neutral-200 p-12 text-center">
-        <File size={32} className="mx-auto text-neutral-300 mb-3" />
-        <p className="text-neutral-500">No files changed</p>
+      <div className="bg-bg-secondary rounded-xl border border-border p-12 text-center">
+        <File size={32} className="mx-auto text-fg-muted mb-3" />
+        <p className="text-fg-muted">No files changed</p>
       </div>
     );
   }
@@ -220,10 +218,10 @@ export function PRDetailFiles({ files, reviewComments, onAddComment }: PRDetailF
   const totalDeletions = files.reduce((sum, f) => sum + f.deletions, 0);
 
   return (
-    <div className="bg-white rounded-xl border border-neutral-200 overflow-hidden">
+    <div className="bg-bg-secondary rounded-xl border border-border overflow-hidden">
       {/* Header with stats and view toggle */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-200 bg-neutral-50">
-        <span className="text-sm font-medium text-neutral-700">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-bg">
+        <span className="text-sm font-medium text-fg-secondary">
           {files.length} {files.length === 1 ? "file" : "files"} changed
         </span>
         <div className="flex items-center gap-4">

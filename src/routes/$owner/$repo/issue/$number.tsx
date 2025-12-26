@@ -88,14 +88,14 @@ function IssueDetailPage() {
   const isLoading = issueLoading || commentsLoading;
 
   return (
-    <div className="min-h-screen bg-neutral-50">
+    <div className="min-h-screen bg-bg">
       <RepoHeader />
 
       <main className="max-w-6xl mx-auto px-6 py-8">
         <Link
           to="/$owner/$repo/issues"
           params={{ owner, repo }}
-          className="inline-flex items-center gap-1.5 text-sm text-neutral-500 hover:text-neutral-900 mb-6 transition-colors"
+          className="inline-flex items-center gap-1.5 text-sm text-fg-muted hover:text-fg mb-6 transition-colors"
         >
           <ArrowLeft size={16} />
           Back to issues
@@ -122,8 +122,8 @@ function IssueDetailPage() {
             </div>
           </>
         ) : (
-          <div className="bg-white rounded-xl border border-neutral-200 p-12 text-center">
-            <p className="text-neutral-500">Issue not found</p>
+          <div className="bg-bg-secondary rounded-xl border border-border p-12 text-center">
+            <p className="text-fg-muted">Issue not found</p>
           </div>
         )}
       </main>

@@ -66,7 +66,7 @@ export function LanguageBar({ languages, showLabels = true }: LanguageBarProps) 
   return (
     <div>
       {/* Bar */}
-      <div className="flex h-2 rounded-full overflow-hidden bg-neutral-100">
+      <div className="flex h-2 rounded-full overflow-hidden bg-bg-tertiary">
         {sorted.map(([lang, bytes]) => {
           const pct = (bytes / total) * 100;
           if (pct < 0.5) return null; // Skip tiny languages
@@ -95,8 +95,8 @@ export function LanguageBar({ languages, showLabels = true }: LanguageBarProps) 
                   className="w-2.5 h-2.5 rounded-full"
                   style={{ backgroundColor: getLanguageColor(lang) }}
                 />
-                <span className="font-medium text-neutral-700">{lang}</span>
-                <span className="text-neutral-400">{pct.toFixed(1)}%</span>
+                <span className="font-medium text-fg-secondary">{lang}</span>
+                <span className="text-fg-muted">{pct.toFixed(1)}%</span>
               </div>
             );
           })}

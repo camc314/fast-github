@@ -52,7 +52,7 @@ export function SearchInput({
     <div className="relative flex-1 max-w-sm">
       <Search
         size={16}
-        className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none"
+        className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-muted pointer-events-none"
       />
       <input
         ref={inputRef}
@@ -60,8 +60,8 @@ export function SearchInput({
         value={localValue}
         onChange={(e) => setLocalValue(e.target.value)}
         placeholder={placeholder}
-        className="w-full h-9 pl-9 pr-8 text-sm bg-white border border-neutral-200 rounded-lg
-          placeholder:text-neutral-400 text-neutral-900
+        className="w-full h-9 pl-9 pr-8 text-sm bg-bg-secondary border border-border rounded-lg
+          placeholder:text-fg-muted text-fg
           focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500
           transition-all duration-150"
       />
@@ -69,7 +69,7 @@ export function SearchInput({
         <button
           type="button"
           onClick={handleClear}
-          className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-neutral-400 hover:text-neutral-600 transition-colors"
+          className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-fg-muted hover:text-fg-secondary transition-colors"
         >
           <X size={14} />
         </button>

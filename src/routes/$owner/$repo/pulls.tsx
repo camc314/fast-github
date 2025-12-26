@@ -134,7 +134,7 @@ function PullRequestsPage() {
     : "";
 
   return (
-    <div className="min-h-screen bg-neutral-50">
+    <div className="min-h-screen bg-bg">
       <RepoHeader />
 
       <main className="max-w-6xl mx-auto px-6 py-8">
@@ -167,7 +167,7 @@ function PullRequestsPage() {
         ) : showInitialLoading ? (
           <PageSpinner />
         ) : data ? (
-          <div className="bg-white rounded-xl border border-neutral-200 shadow-sm overflow-hidden">
+          <div className="bg-bg-secondary rounded-xl border border-border shadow-sm overflow-hidden">
             <div
               ref={parentRef}
               className={`h-[calc(100vh-380px)] overflow-auto transition-opacity duration-150 ${
@@ -175,7 +175,7 @@ function PullRequestsPage() {
               }`}
             >
               {pullRequests.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-16 text-neutral-500">
+                <div className="flex flex-col items-center justify-center py-16 text-fg-muted">
                   <p className="text-sm">
                     {hasFilters
                       ? `No pull requests found ${filterDescription}`
@@ -232,7 +232,7 @@ function PullRequestsPage() {
               )}
             </div>
 
-            <div className="px-4 py-3 border-t border-neutral-100 bg-neutral-50 text-sm text-neutral-500">
+            <div className="px-4 py-3 border-t border-border bg-bg text-sm text-fg-muted">
               {hasFilters ? (
                 <span>
                   Found {pullRequests.length} pull requests {filterDescription}

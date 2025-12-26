@@ -26,23 +26,21 @@ const CommitRow = memo(function CommitRow({
   return (
     <div
       style={style}
-      className="flex items-center gap-4 px-4 h-[64px] hover:bg-neutral-50 border-b border-neutral-100 transition-colors"
+      className="flex items-center gap-4 px-4 h-[64px] hover:bg-bg-hover border-b border-border transition-colors"
     >
       {/* Avatar or icon */}
       {commit.user ? (
         <Avatar src={commit.user.avatarUrl} alt={commit.user.login} size={32} />
       ) : (
-        <div className="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center">
-          <GitCommit size={16} className="text-neutral-400" />
+        <div className="w-8 h-8 rounded-full bg-bg-tertiary flex items-center justify-center">
+          <GitCommit size={16} className="text-fg-muted" />
         </div>
       )}
 
       {/* Message and author */}
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-neutral-900 truncate">
-          {getFirstLine(commit.message)}
-        </p>
-        <p className="text-xs text-neutral-500 mt-0.5">
+        <p className="text-sm font-medium text-fg truncate">{getFirstLine(commit.message)}</p>
+        <p className="text-xs text-fg-muted mt-0.5">
           {commit.user?.login ?? commit.author.name} committed{" "}
           {formatRelativeTime(commit.author.date)}
         </p>
@@ -50,7 +48,7 @@ const CommitRow = memo(function CommitRow({
 
       {/* SHA */}
       <div className="shrink-0">
-        <code className="px-2 py-1 text-xs font-mono bg-neutral-100 text-neutral-600 rounded">
+        <code className="px-2 py-1 text-xs font-mono bg-bg-tertiary text-fg-secondary rounded">
           {shortSha}
         </code>
       </div>
@@ -70,18 +68,18 @@ export function PRDetailCommits({ commits }: PRDetailCommitsProps) {
 
   if (commits.length === 0) {
     return (
-      <div className="bg-white rounded-xl border border-neutral-200 p-12 text-center">
-        <GitCommit size={32} className="mx-auto text-neutral-300 mb-3" />
-        <p className="text-neutral-500">No commits</p>
+      <div className="bg-bg-secondary rounded-xl border border-border p-12 text-center">
+        <GitCommit size={32} className="mx-auto text-fg-muted mb-3" />
+        <p className="text-fg-muted">No commits</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-xl border border-neutral-200 overflow-hidden">
+    <div className="bg-bg-secondary rounded-xl border border-border overflow-hidden">
       {/* Header */}
-      <div className="px-4 py-3 border-b border-neutral-200 bg-neutral-50">
-        <span className="text-sm font-medium text-neutral-700">
+      <div className="px-4 py-3 border-b border-border bg-bg">
+        <span className="text-sm font-medium text-fg-secondary">
           {commits.length} {commits.length === 1 ? "commit" : "commits"}
         </span>
       </div>

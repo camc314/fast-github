@@ -23,12 +23,12 @@ export function RepoSidebar({ repo, languages, contributors }: RepoSidebarProps)
   return (
     <aside className="space-y-6">
       {/* About */}
-      <section className="bg-white rounded-xl border border-neutral-200 p-4">
-        <h2 className="text-sm font-semibold text-neutral-900 mb-3">About</h2>
+      <section className="bg-bg-secondary rounded-xl border border-border p-4">
+        <h2 className="text-sm font-semibold text-fg mb-3">About</h2>
         {repo.description ? (
-          <p className="text-sm text-neutral-600 leading-relaxed">{repo.description}</p>
+          <p className="text-sm text-fg-secondary leading-relaxed">{repo.description}</p>
         ) : (
-          <p className="text-sm text-neutral-400 italic">No description provided.</p>
+          <p className="text-sm text-fg-muted italic">No description provided.</p>
         )}
 
         {/* Homepage link */}
@@ -60,68 +60,62 @@ export function RepoSidebar({ repo, languages, contributors }: RepoSidebarProps)
 
         {/* License */}
         {repo.license && (
-          <div className="flex items-center gap-2 mt-4 text-sm text-neutral-600">
-            <Scale size={14} className="text-neutral-400" />
+          <div className="flex items-center gap-2 mt-4 text-sm text-fg-secondary">
+            <Scale size={14} className="text-fg-muted" />
             <span>{repo.license.name}</span>
           </div>
         )}
       </section>
 
       {/* Stats */}
-      <section className="bg-white rounded-xl border border-neutral-200 p-4">
+      <section className="bg-bg-secondary rounded-xl border border-border p-4">
         <div className="grid grid-cols-3 gap-2">
           <a
             href={`https://github.com/${repo.fullName}/stargazers`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex flex-col items-center p-2 rounded-lg hover:bg-neutral-50 transition-colors"
+            className="flex flex-col items-center p-2 rounded-lg hover:bg-bg-hover transition-colors"
           >
-            <Star size={16} className="text-neutral-400 mb-1" />
-            <span className="text-sm font-semibold text-neutral-900">
-              {formatCount(repo.stars)}
-            </span>
-            <span className="text-xs text-neutral-500">Stars</span>
+            <Star size={16} className="text-fg-muted mb-1" />
+            <span className="text-sm font-semibold text-fg">{formatCount(repo.stars)}</span>
+            <span className="text-xs text-fg-muted">Stars</span>
           </a>
           <a
             href={`https://github.com/${repo.fullName}/forks`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex flex-col items-center p-2 rounded-lg hover:bg-neutral-50 transition-colors"
+            className="flex flex-col items-center p-2 rounded-lg hover:bg-bg-hover transition-colors"
           >
-            <GitFork size={16} className="text-neutral-400 mb-1" />
-            <span className="text-sm font-semibold text-neutral-900">
-              {formatCount(repo.forks)}
-            </span>
-            <span className="text-xs text-neutral-500">Forks</span>
+            <GitFork size={16} className="text-fg-muted mb-1" />
+            <span className="text-sm font-semibold text-fg">{formatCount(repo.forks)}</span>
+            <span className="text-xs text-fg-muted">Forks</span>
           </a>
           <a
             href={`https://github.com/${repo.fullName}/watchers`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex flex-col items-center p-2 rounded-lg hover:bg-neutral-50 transition-colors"
+            className="flex flex-col items-center p-2 rounded-lg hover:bg-bg-hover transition-colors"
           >
-            <Eye size={16} className="text-neutral-400 mb-1" />
-            <span className="text-sm font-semibold text-neutral-900">
-              {formatCount(repo.watchers)}
-            </span>
-            <span className="text-xs text-neutral-500">Watching</span>
+            <Eye size={16} className="text-fg-muted mb-1" />
+            <span className="text-sm font-semibold text-fg">{formatCount(repo.watchers)}</span>
+            <span className="text-xs text-fg-muted">Watching</span>
           </a>
         </div>
       </section>
 
       {/* Languages */}
       {Object.keys(languages).length > 0 && (
-        <section className="bg-white rounded-xl border border-neutral-200 p-4">
-          <h2 className="text-sm font-semibold text-neutral-900 mb-3">Languages</h2>
+        <section className="bg-bg-secondary rounded-xl border border-border p-4">
+          <h2 className="text-sm font-semibold text-fg mb-3">Languages</h2>
           <LanguageBar languages={languages} />
         </section>
       )}
 
       {/* Contributors */}
       {contributors.length > 0 && (
-        <section className="bg-white rounded-xl border border-neutral-200 p-4">
+        <section className="bg-bg-secondary rounded-xl border border-border p-4">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-semibold text-neutral-900">Contributors</h2>
+            <h2 className="text-sm font-semibold text-fg">Contributors</h2>
             <a
               href={`https://github.com/${repo.fullName}/graphs/contributors`}
               target="_blank"

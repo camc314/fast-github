@@ -6,7 +6,7 @@ interface SpinnerProps {
 }
 
 export function Spinner({ size = 24, className = "" }: SpinnerProps) {
-  return <Loader2 size={size} className={`animate-spin text-gray-500 ${className}`} />;
+  return <Loader2 size={size} className={`animate-spin text-fg-muted ${className}`} />;
 }
 
 export function PageSpinner() {

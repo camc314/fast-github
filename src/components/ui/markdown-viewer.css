@@ -1,96 +1,122 @@
 /* Tiptap Markdown Viewer Styles */
-/* Using Tailwind @apply for theming compatibility */
-@reference "tailwindcss";
+/* Using CSS variables for theme compatibility */
 
 /* Base container */
 .tiptap {
-  @apply text-sm text-neutral-700 leading-relaxed;
+  font-size: 0.875rem;
+  line-height: 1.625;
+  color: var(--theme-fg-secondary);
 }
 
 /* Focus outline removal for read-only */
 .tiptap:focus {
-  @apply outline-none;
+  outline: none;
 }
 
 /* Headings */
 .tiptap h1 {
-  @apply text-2xl font-semibold text-neutral-900 mt-6 mb-4;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--theme-fg);
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .tiptap h1:first-child {
-  @apply mt-0;
+  margin-top: 0;
 }
 
 .tiptap h2 {
-  @apply text-xl font-semibold text-neutral-900 mt-5 mb-3;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--theme-fg);
+  margin-top: 1.25rem;
+  margin-bottom: 0.75rem;
 }
 
 .tiptap h2:first-child {
-  @apply mt-0;
+  margin-top: 0;
 }
 
 .tiptap h3 {
-  @apply text-lg font-semibold text-neutral-900 mt-4 mb-2;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--theme-fg);
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
 }
 
 .tiptap h3:first-child {
-  @apply mt-0;
+  margin-top: 0;
 }
 
 .tiptap h4,
 .tiptap h5,
 .tiptap h6 {
-  @apply text-base font-semibold text-neutral-900 mt-4 mb-2;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--theme-fg);
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
 }
 
 .tiptap h4:first-child,
 .tiptap h5:first-child,
 .tiptap h6:first-child {
-  @apply mt-0;
+  margin-top: 0;
 }
 
 /* Empty headings - render as divider lines (GitHub style) */
-/* ProseMirror adds a trailing break, so we use :has() to detect "empty" headings */
 .tiptap h1:has(> br.ProseMirror-trailingBreak:only-child),
 .tiptap h2:has(> br.ProseMirror-trailingBreak:only-child),
 .tiptap h3:has(> br.ProseMirror-trailingBreak:only-child),
 .tiptap h4:has(> br.ProseMirror-trailingBreak:only-child),
 .tiptap h5:has(> br.ProseMirror-trailingBreak:only-child),
 .tiptap h6:has(> br.ProseMirror-trailingBreak:only-child) {
-  @apply border-b border-neutral-200 mt-4 mb-4 text-transparent leading-none;
+  border-bottom: 1px solid var(--theme-border);
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  color: transparent;
+  line-height: 0;
 }
 
 /* Paragraphs */
 .tiptap p {
-  @apply mb-4;
+  margin-bottom: 1rem;
 }
 
 .tiptap p:last-child {
-  @apply mb-0;
+  margin-bottom: 0;
 }
 
 /* Empty paragraphs - hide them completely */
 .tiptap p:empty,
 .tiptap p:has(> br.ProseMirror-trailingBreak:only-child) {
-  @apply hidden;
+  display: none;
 }
 
 /* Bold, Italic, Strike */
 .tiptap strong {
-  @apply font-semibold text-neutral-900;
+  font-weight: 600;
+  color: var(--theme-fg);
 }
 
 .tiptap em {
-  @apply italic;
+  font-style: italic;
 }
 
 .tiptap s {
-  @apply line-through text-neutral-500;
+  text-decoration: line-through;
+  color: var(--theme-fg-muted);
 }
 
 /* Links */
 .tiptap a {
-  @apply text-blue-600 hover:underline;
+  color: var(--theme-accent);
+}
+
+.tiptap a:hover {
+  text-decoration: underline;
 }
 
 /* Ensure nested elements in links inherit the link color */
@@ -98,150 +124,238 @@
 .tiptap a b,
 .tiptap a em,
 .tiptap a code {
-  @apply text-inherit;
+  color: inherit;
 }
 
 /* Inline code */
 .tiptap code {
-  @apply bg-neutral-100 text-neutral-800 px-1.5 py-0.5 rounded text-xs font-mono;
+  background-color: var(--theme-bg-tertiary);
+  color: var(--theme-fg);
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-family: "SF Mono", "Fira Code", "Fira Mono", Menlo, Monaco, Consolas, monospace;
 }
 
 /* Code blocks */
 .tiptap pre {
-  @apply bg-neutral-100 rounded-lg p-4 overflow-x-auto mb-4;
+  background-color: var(--theme-bg-tertiary);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  overflow-x: auto;
+  margin-bottom: 1rem;
 }
 
 .tiptap pre:last-child {
-  @apply mb-0;
+  margin-bottom: 0;
 }
 
 .tiptap pre code {
-  @apply bg-transparent p-0 text-sm;
+  background-color: transparent;
+  padding: 0;
+  font-size: 0.875rem;
 }
 
 /* Blockquotes */
 .tiptap blockquote {
-  @apply border-l-4 border-neutral-300 pl-4 py-1 my-4 text-neutral-600 italic;
+  border-left: 4px solid var(--theme-border-secondary);
+  padding-left: 1rem;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  color: var(--theme-fg-secondary);
+  font-style: italic;
 }
 
 .tiptap blockquote:first-child {
-  @apply mt-0;
+  margin-top: 0;
 }
 
 .tiptap blockquote:last-child {
-  @apply mb-0;
+  margin-bottom: 0;
 }
 
 /* Unordered lists */
 .tiptap ul {
-  @apply list-disc pl-6 mb-4 space-y-1;
+  list-style-type: disc;
+  padding-left: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .tiptap ul:last-child {
-  @apply mb-0;
+  margin-bottom: 0;
 }
 
 /* Ordered lists */
 .tiptap ol {
-  @apply list-decimal pl-6 mb-4 space-y-1;
+  list-style-type: decimal;
+  padding-left: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .tiptap ol:last-child {
-  @apply mb-0;
+  margin-bottom: 0;
 }
 
 /* List items */
 .tiptap li {
-  @apply text-neutral-700;
+  color: var(--theme-fg-secondary);
+  margin-bottom: 0.25rem;
 }
 
 /* Paragraphs inside list items should be inline */
 .tiptap li > p {
-  @apply inline mb-0;
+  display: inline;
+  margin-bottom: 0;
 }
 
 /* Nested lists */
 .tiptap li > ul,
 .tiptap li > ol {
-  @apply ml-4 mt-1 mb-0;
+  margin-left: 1rem;
+  margin-top: 0.25rem;
+  margin-bottom: 0;
 }
 
 /* Task lists */
 .tiptap ul[data-type="taskList"] {
-  @apply list-none space-y-2 pl-0;
+  list-style: none;
+  padding-left: 0;
 }
 
 .tiptap ul[data-type="taskList"] li {
-  @apply flex items-start gap-2;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
 }
 
 .tiptap ul[data-type="taskList"] li > label {
-  @apply flex items-center;
+  display: flex;
+  align-items: center;
 }
 
 .tiptap ul[data-type="taskList"] li > label > input[type="checkbox"] {
-  @apply w-4 h-4 rounded border-neutral-300 text-blue-600 cursor-default;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 0.25rem;
+  border-color: var(--theme-border-secondary);
+  cursor: default;
 }
 
 .tiptap ul[data-type="taskList"] li > div {
-  @apply flex-1;
+  flex: 1;
 }
 
 /* Horizontal rule */
 .tiptap hr {
-  @apply border-t border-neutral-200 my-6;
+  border: none;
+  border-top: 1px solid var(--theme-border);
+  margin: 1.5rem 0;
 }
 
 /* Images */
 .tiptap img {
-  @apply max-w-full h-auto rounded;
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.25rem;
 }
 
 /* Subscript and Superscript */
 .tiptap sub {
-  @apply text-xs align-sub;
+  font-size: 0.75rem;
+  vertical-align: sub;
 }
 
 .tiptap sup {
-  @apply text-xs align-super;
+  font-size: 0.75rem;
+  vertical-align: super;
 }
 
 /* Keyboard keys */
 .tiptap kbd {
-  @apply bg-neutral-100 border border-neutral-300 rounded px-1.5 py-0.5 text-xs font-mono text-neutral-800 shadow-sm;
+  background-color: var(--theme-bg-tertiary);
+  border: 1px solid var(--theme-border-secondary);
+  border-radius: 0.25rem;
+  padding: 0.125rem 0.375rem;
+  font-size: 0.75rem;
+  font-family: "SF Mono", "Fira Code", "Fira Mono", Menlo, Monaco, Consolas, monospace;
+  color: var(--theme-fg);
+  box-shadow: 0 1px 0 var(--theme-border);
 }
 
 /* Details/Summary (collapsible sections) */
 .tiptap details {
-  @apply border border-neutral-200 rounded-md mb-4;
+  border: 1px solid var(--theme-border);
+  border-radius: 0.375rem;
+  margin-bottom: 1rem;
 }
 
 .tiptap details:last-child {
-  @apply mb-0;
+  margin-bottom: 0;
 }
 
 .tiptap details summary {
-  @apply px-4 py-2 cursor-pointer font-medium text-neutral-900 bg-neutral-50 rounded-t-md select-none;
-  @apply hover:bg-neutral-100 transition-colors;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-weight: 500;
+  color: var(--theme-fg);
+  background-color: var(--theme-bg);
+  border-radius: 0.375rem 0.375rem 0 0;
+  user-select: none;
+  transition: background-color 150ms;
+}
+
+.tiptap details summary:hover {
+  background-color: var(--theme-bg-hover);
 }
 
 .tiptap details summary::-webkit-details-marker {
-  @apply mr-2;
+  margin-right: 0.5rem;
 }
 
 .tiptap details[open] summary {
-  @apply border-b border-neutral-200;
+  border-bottom: 1px solid var(--theme-border);
 }
 
 .tiptap details > *:not(summary) {
-  @apply px-4 py-3;
+  padding: 0.75rem 1rem;
 }
 
 .tiptap details > *:not(summary):last-child {
-  @apply pb-4;
+  padding-bottom: 1rem;
 }
 
 /* Nested details */
 .tiptap details details {
-  @apply mt-2 mb-0;
+  margin-top: 0.5rem;
+  margin-bottom: 0;
+}
+
+/* Tables */
+.tiptap table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.tiptap table:last-child {
+  margin-bottom: 0;
+}
+
+.tiptap th,
+.tiptap td {
+  border: 1px solid var(--theme-border);
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+}
+
+.tiptap th {
+  background-color: var(--theme-bg);
+  font-weight: 600;
+  color: var(--theme-fg);
+}
+
+.tiptap td {
+  color: var(--theme-fg-secondary);
 }
