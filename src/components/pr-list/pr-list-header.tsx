@@ -1,13 +1,11 @@
-import { useParams } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 
-export function PRListHeader() {
-  const params = useParams({ strict: false }) as {
-    owner?: string;
-    repo?: string;
-  };
-  const { owner = "facebook", repo = "react" } = params;
+interface PRListHeaderProps {
+  owner: string;
+  repo: string;
+}
 
+export function PRListHeader({ owner, repo }: PRListHeaderProps) {
   return (
     <div className="flex items-center justify-between mb-6">
       <div>

@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { Link, useParams } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { GitPullRequest, GitMerge, MessageSquare, Check, X, Clock } from "lucide-react";
 import type { PullRequest, CheckStatus } from "@/lib/types/github";
 import { Label } from "@/components/ui/label";
@@ -8,6 +8,8 @@ import { formatRelativeTime } from "@/lib/utils/date";
 
 interface PRListItemProps {
   pr: PullRequest;
+  owner: string;
+  repo: string;
   style?: React.CSSProperties;
 }
 
@@ -61,13 +63,7 @@ function CheckStatusIcon({ status }: { status: CheckStatus }) {
   }
 }
 
-export const PRListItem = memo(function PRListItem({ pr, style }: PRListItemProps) {
-  const params = useParams({ strict: false }) as {
-    owner?: string;
-    repo?: string;
-  };
-  const { owner = "facebook", repo = "react" } = params;
-
+export const PRListItem = memo(function PRListItem({ pr, owner, repo, style }: PRListItemProps) {
   return (
     <div style={style}>
       <Link

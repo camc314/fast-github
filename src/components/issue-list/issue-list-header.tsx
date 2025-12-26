@@ -1,13 +1,11 @@
-import { useParams } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 
-export function IssueListHeader() {
-  const params = useParams({ strict: false }) as {
-    owner?: string;
-    repo?: string;
-  };
-  const { owner = "facebook", repo = "react" } = params;
+interface IssueListHeaderProps {
+  owner: string;
+  repo: string;
+}
 
+export function IssueListHeader({ owner, repo }: IssueListHeaderProps) {
   return (
     <div className="flex items-center justify-between mb-6">
       <div>

@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { Link, useParams } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { CircleDot, CheckCircle2, MessageSquare } from "lucide-react";
 import type { Issue } from "@/lib/types/github";
 import { Label } from "@/components/ui/label";
@@ -8,6 +8,8 @@ import { formatRelativeTime } from "@/lib/utils/date";
 
 interface IssueListItemProps {
   issue: Issue;
+  owner: string;
+  repo: string;
   style?: React.CSSProperties;
 }
 
@@ -34,13 +36,12 @@ function IssueStateIcon({ state }: { state: string }) {
   }
 }
 
-export const IssueListItem = memo(function IssueListItem({ issue, style }: IssueListItemProps) {
-  const params = useParams({ strict: false }) as {
-    owner?: string;
-    repo?: string;
-  };
-  const { owner = "facebook", repo = "react" } = params;
-
+export const IssueListItem = memo(function IssueListItem({
+  issue,
+  owner,
+  repo,
+  style,
+}: IssueListItemProps) {
   return (
     <div style={style}>
       <Link

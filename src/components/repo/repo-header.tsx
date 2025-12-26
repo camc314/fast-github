@@ -5,6 +5,8 @@ import type { Repository } from "@/lib/types/github";
 import { fetchRepository } from "@/lib/api/github";
 
 interface RepoHeaderProps {
+  owner?: string;
+  repo?: string;
   repository?: Repository;
 }
 
@@ -18,12 +20,11 @@ function formatCount(count: number): string {
   return count.toString();
 }
 
-export function RepoHeader({ repository }: RepoHeaderProps) {
-  const params = useParams({ strict: false }) as {
-    owner?: string;
-    repo?: string;
-  };
-  const { owner = "facebook", repo = "react" } = params;
+export function RepoHeader({ owner: ownerProp, repo: repoProp, repository }: RepoHeaderProps) {
+  // Use props if provided, otherwise extract from URL params
+  const params = useParams({ strict: false });
+  const owner = ownerProp ?? (params as { owner?: string }).owner ?? "";
+  const repo = repoProp ?? (params as { repo?: string }).repo ?? "";
   const matchRoute = useMatchRoute();
 
   // Fetch repository data if not provided as prop
@@ -31,7 +32,7 @@ export function RepoHeader({ repository }: RepoHeaderProps) {
     queryKey: ["repository", owner, repo],
     queryFn: () => fetchRepository(owner, repo),
     staleTime: 5 * 60 * 1000,
-    enabled: !repository, // Only fetch if not provided
+    enabled: !repository && !!owner && !!repo,
   });
 
   const repoData = repository ?? repoQuery.data;
@@ -39,6 +40,10 @@ export function RepoHeader({ repository }: RepoHeaderProps) {
   const isCodeActive = matchRoute({ to: "/$owner/$repo", params: { owner, repo } });
   const isIssuesActive = matchRoute({ to: "/$owner/$repo/issues", params: { owner, repo } });
   const isPullsActive = matchRoute({ to: "/$owner/$repo/pulls", params: { owner, repo } });
+
+  if (!owner || !repo) {
+    return null;
+  }
 
   return (
     <header className="sticky top-0 z-40 bg-bg-secondary/80 backdrop-blur-md border-b border-border">

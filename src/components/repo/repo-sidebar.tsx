@@ -50,7 +50,7 @@ export function RepoSidebar({ repo, languages, contributors }: RepoSidebarProps)
             {repo.topics.map((topic) => (
               <span
                 key={topic}
-                className="px-2 py-0.5 text-xs font-medium text-blue-700 bg-blue-50 rounded-full hover:bg-blue-100 cursor-pointer transition-colors"
+                className="px-2 py-0.5 text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-500/10 rounded-full hover:bg-blue-500/20 cursor-pointer transition-colors"
               >
                 {topic}
               </span>

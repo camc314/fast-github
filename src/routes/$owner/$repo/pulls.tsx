@@ -2,6 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRef, useCallback, useEffect } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
+import * as v from "valibot";
+import { valibotSearchValidator } from "@tanstack/router-valibot-adapter";
 
 import { RepoHeader } from "@/components/repo/repo-header";
 import { PRListHeader } from "@/components/pr-list/pr-list-header";
@@ -11,50 +13,19 @@ import { PageSpinner, Spinner } from "@/components/ui/spinner";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { useInfinitePRList } from "@/lib/hooks/use-infinite-list";
 import { useDocumentTitle } from "@/lib/hooks/use-document-title";
-import type { SortField, SortDirection, ListState } from "@/lib/types/github";
 
-// URL search params type
-type PRListSearch = {
-  state?: ListState;
-  sort?: SortField;
-  direction?: SortDirection;
-  q?: string;
-  author?: string;
-  label?: string;
-  assignee?: string;
-};
-
-// Validators
-function validateState(value: unknown): ListState {
-  if (value === "open" || value === "closed" || value === "all") return value;
-  return "open";
-}
-
-function validateSort(value: unknown): SortField {
-  if (value === "created" || value === "updated" || value === "comments") return value;
-  return "created";
-}
-
-function validateDirection(value: unknown): SortDirection {
-  if (value === "asc" || value === "desc") return value;
-  return "desc";
-}
-
-function validateString(value: unknown): string | undefined {
-  if (typeof value === "string" && value.trim()) return value.trim();
-  return undefined;
-}
+const listSearchSchema = v.object({
+  state: v.fallback(v.picklist(["open", "closed", "all"]), "open"),
+  sort: v.fallback(v.picklist(["created", "updated", "comments"]), "created"),
+  direction: v.fallback(v.picklist(["asc", "desc"]), "desc"),
+  q: v.optional(v.pipe(v.string(), v.trim(), v.minLength(1))),
+  author: v.optional(v.pipe(v.string(), v.trim(), v.minLength(1))),
+  label: v.optional(v.pipe(v.string(), v.trim(), v.minLength(1))),
+  assignee: v.optional(v.pipe(v.string(), v.trim(), v.minLength(1))),
+});
 
 export const Route = createFileRoute("/$owner/$repo/pulls")({
-  validateSearch: (search: Record<string, unknown>): PRListSearch => ({
-    state: validateState(search.state),
-    sort: validateSort(search.sort),
-    direction: validateDirection(search.direction),
-    q: validateString(search.q),
-    author: validateString(search.author),
-    label: validateString(search.label),
-    assignee: validateString(search.assignee),
-  }),
+  validateSearch: valibotSearchValidator(listSearchSchema),
   component: PullRequestsPage,
 });
 
@@ -138,7 +109,7 @@ function PullRequestsPage() {
       <RepoHeader />
 
       <main className="max-w-6xl mx-auto px-6 py-8">
-        <PRListHeader />
+        <PRListHeader owner={owner} repo={repo} />
 
         <ListFilters
           type="pr"
@@ -217,6 +188,8 @@ function PullRequestsPage() {
                       <PRListItem
                         key={pr.id}
                         pr={pr}
+                        owner={owner}
+                        repo={repo}
                         style={{
                           position: "absolute",
                           top: 0,

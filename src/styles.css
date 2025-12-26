@@ -29,6 +29,15 @@
   --color-warning: #f59e0b;
   --color-error: #ef4444;
   --color-purple: #8b5cf6;
+
+  /* Comment thread colors */
+  --color-comment-bg: var(--theme-comment-bg);
+  --color-comment-border: var(--theme-comment-border);
+  --color-comment-border-light: var(--theme-comment-border-light);
+
+  /* Error state colors */
+  --color-error-bg: var(--theme-error-bg);
+  --color-error-border: var(--theme-error-border);
 }
 
 /* Light mode (default) */
@@ -44,6 +53,15 @@
   --theme-fg-muted: #a3a3a3;
   --theme-border: #e5e5e5;
   --theme-border-secondary: #d4d4d4;
+
+  /* Comment thread - amber tones for light mode */
+  --theme-comment-bg: #fffbeb;
+  --theme-comment-border: #fcd34d;
+  --theme-comment-border-light: #fef3c7;
+
+  /* Error state */
+  --theme-error-bg: #fef2f2;
+  --theme-error-border: #fecaca;
 }
 
 /* Dark mode */
@@ -60,6 +78,15 @@
     --theme-border-secondary: #404040;
 
     --color-accent: #3b82f6;
+
+    /* Comment thread - darker amber/yellow tones for dark mode */
+    --theme-comment-bg: #422006;
+    --theme-comment-border: #92400e;
+    --theme-comment-border-light: #78350f;
+
+    /* Error state */
+    --theme-error-bg: #450a0a;
+    --theme-error-border: #7f1d1d;
   }
 }
 

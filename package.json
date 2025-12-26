@@ -20,6 +20,7 @@
     "@tanstack/react-router-devtools": "^1.143.11",
     "@tanstack/react-virtual": "^3.13.13",
     "@tanstack/router-plugin": "^1.143.11",
+    "@tanstack/router-valibot-adapter": "^1.81.5",
     "@tiptap/core": "^3.14.0",
     "@tiptap/extension-link": "^3.14.0",
     "@tiptap/extension-placeholder": "^3.14.0",
@@ -34,7 +35,8 @@
     "lucide-react": "^0.562.0",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
-    "tailwindcss": "^4.1.18"
+    "tailwindcss": "^4.1.18",
+    "valibot": "^1.2.0"
   },
   "devDependencies": {
     "@octokit/openapi-types": "^27.0.0",

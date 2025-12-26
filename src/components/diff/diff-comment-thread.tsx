@@ -36,14 +36,14 @@ export const DiffCommentThread = memo(function DiffCommentThread({
   const additionalComments = comments.slice(1);
 
   return (
-    <div className="bg-amber-50 border-b border-amber-200">
+    <div className="bg-comment border-b border-comment-border">
       <SingleComment comment={mainComment} />
 
       {/* Replies from the main comment */}
       {mainComment.replies && mainComment.replies.length > 0 && (
-        <div className="border-t border-amber-200 ml-10">
+        <div className="border-t border-comment-border ml-10">
           {mainComment.replies.map((reply) => (
-            <div key={reply.id} className="border-b border-amber-100 last:border-b-0">
+            <div key={reply.id} className="border-b border-comment-border-light last:border-b-0">
               <SingleComment comment={reply} />
             </div>
           ))}
@@ -52,12 +52,12 @@ export const DiffCommentThread = memo(function DiffCommentThread({
 
       {/* Additional top-level comments on the same line */}
       {additionalComments.map((comment) => (
-        <div key={comment.id} className="border-t border-amber-200">
+        <div key={comment.id} className="border-t border-comment-border">
           <SingleComment comment={comment} />
           {comment.replies && comment.replies.length > 0 && (
-            <div className="border-t border-amber-100 ml-10">
+            <div className="border-t border-comment-border-light ml-10">
               {comment.replies.map((reply) => (
-                <div key={reply.id} className="border-b border-amber-100 last:border-b-0">
+                <div key={reply.id} className="border-b border-comment-border-light last:border-b-0">
                   <SingleComment comment={reply} />
                 </div>
               ))}

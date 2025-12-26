@@ -81,7 +81,7 @@ export function InlineCommentForm({
       />
 
       {error && (
-        <div className="mt-2 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg p-2">
+        <div className="mt-2 text-sm text-red-600 dark:text-red-400 bg-error border border-error-border rounded-lg p-2">
           {error}
         </div>
       )}
