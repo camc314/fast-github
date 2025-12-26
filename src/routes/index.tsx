@@ -38,14 +38,14 @@ function HomePage() {
 
     const [, owner, repo] = match;
     navigate({
-      to: "/$owner/$repo/issues",
+      to: "/$owner/$repo",
       params: { owner, repo: repo.replace(/\.git$/, "") },
     });
   };
 
   const goToRepo = (owner: string, repo: string) => {
     navigate({
-      to: "/$owner/$repo/issues",
+      to: "/$owner/$repo",
       params: { owner, repo },
     });
   };

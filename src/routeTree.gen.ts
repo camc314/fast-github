@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DemoTanstackQueryRouteImport } from './routes/demo/tanstack-query'
+import { Route as OwnerRepoIndexRouteImport } from './routes/$owner/$repo/index'
 import { Route as OwnerRepoPullsRouteImport } from './routes/$owner/$repo/pulls'
 import { Route as OwnerRepoIssuesRouteImport } from './routes/$owner/$repo/issues'
 import { Route as OwnerRepoPullNumberRouteImport } from './routes/$owner/$repo/pull/$number'
@@ -24,6 +25,11 @@ const IndexRoute = IndexRouteImport.update({
 const DemoTanstackQueryRoute = DemoTanstackQueryRouteImport.update({
   id: '/demo/tanstack-query',
   path: '/demo/tanstack-query',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OwnerRepoIndexRoute = OwnerRepoIndexRouteImport.update({
+  id: '/$owner/$repo/',
+  path: '/$owner/$repo/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OwnerRepoPullsRoute = OwnerRepoPullsRouteImport.update({
@@ -52,6 +58,7 @@ export interface FileRoutesByFullPath {
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/$owner/$repo/issues': typeof OwnerRepoIssuesRoute
   '/$owner/$repo/pulls': typeof OwnerRepoPullsRoute
+  '/$owner/$repo': typeof OwnerRepoIndexRoute
   '/$owner/$repo/issue/$number': typeof OwnerRepoIssueNumberRoute
   '/$owner/$repo/pull/$number': typeof OwnerRepoPullNumberRoute
 }
@@ -60,6 +67,7 @@ export interface FileRoutesByTo {
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/$owner/$repo/issues': typeof OwnerRepoIssuesRoute
   '/$owner/$repo/pulls': typeof OwnerRepoPullsRoute
+  '/$owner/$repo': typeof OwnerRepoIndexRoute
   '/$owner/$repo/issue/$number': typeof OwnerRepoIssueNumberRoute
   '/$owner/$repo/pull/$number': typeof OwnerRepoPullNumberRoute
 }
@@ -69,6 +77,7 @@ export interface FileRoutesById {
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/$owner/$repo/issues': typeof OwnerRepoIssuesRoute
   '/$owner/$repo/pulls': typeof OwnerRepoPullsRoute
+  '/$owner/$repo/': typeof OwnerRepoIndexRoute
   '/$owner/$repo/issue/$number': typeof OwnerRepoIssueNumberRoute
   '/$owner/$repo/pull/$number': typeof OwnerRepoPullNumberRoute
 }
@@ -79,6 +88,7 @@ export interface FileRouteTypes {
     | '/demo/tanstack-query'
     | '/$owner/$repo/issues'
     | '/$owner/$repo/pulls'
+    | '/$owner/$repo'
     | '/$owner/$repo/issue/$number'
     | '/$owner/$repo/pull/$number'
   fileRoutesByTo: FileRoutesByTo
@@ -87,6 +97,7 @@ export interface FileRouteTypes {
     | '/demo/tanstack-query'
     | '/$owner/$repo/issues'
     | '/$owner/$repo/pulls'
+    | '/$owner/$repo'
     | '/$owner/$repo/issue/$number'
     | '/$owner/$repo/pull/$number'
   id:
@@ -95,6 +106,7 @@ export interface FileRouteTypes {
     | '/demo/tanstack-query'
     | '/$owner/$repo/issues'
     | '/$owner/$repo/pulls'
+    | '/$owner/$repo/'
     | '/$owner/$repo/issue/$number'
     | '/$owner/$repo/pull/$number'
   fileRoutesById: FileRoutesById
@@ -104,6 +116,7 @@ export interface RootRouteChildren {
   DemoTanstackQueryRoute: typeof DemoTanstackQueryRoute
   OwnerRepoIssuesRoute: typeof OwnerRepoIssuesRoute
   OwnerRepoPullsRoute: typeof OwnerRepoPullsRoute
+  OwnerRepoIndexRoute: typeof OwnerRepoIndexRoute
   OwnerRepoIssueNumberRoute: typeof OwnerRepoIssueNumberRoute
   OwnerRepoPullNumberRoute: typeof OwnerRepoPullNumberRoute
 }
@@ -122,6 +135,13 @@ declare module '@tanstack/react-router' {
       path: '/demo/tanstack-query'
       fullPath: '/demo/tanstack-query'
       preLoaderRoute: typeof DemoTanstackQueryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/$owner/$repo/': {
+      id: '/$owner/$repo/'
+      path: '/$owner/$repo'
+      fullPath: '/$owner/$repo'
+      preLoaderRoute: typeof OwnerRepoIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/$owner/$repo/pulls': {
@@ -160,6 +180,7 @@ const rootRouteChildren: RootRouteChildren = {
   DemoTanstackQueryRoute: DemoTanstackQueryRoute,
   OwnerRepoIssuesRoute: OwnerRepoIssuesRoute,
   OwnerRepoPullsRoute: OwnerRepoPullsRoute,
+  OwnerRepoIndexRoute: OwnerRepoIndexRoute,
   OwnerRepoIssueNumberRoute: OwnerRepoIssueNumberRoute,
   OwnerRepoPullNumberRoute: OwnerRepoPullNumberRoute,
 }
