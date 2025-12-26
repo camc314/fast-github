@@ -20,7 +20,7 @@ import type { TimelineEvent, PRComment } from "@/lib/types/github";
 import { Avatar } from "@/components/ui/avatar";
 import { Label } from "@/components/ui/label";
 import { MarkdownViewer } from "@/components/ui/markdown-viewer";
-import { formatRelativeTime } from "@/lib/utils/date";
+import { RelativeTime } from "@/components/ui/relative-time";
 
 interface TimelineProps {
   events: TimelineEvent[];
@@ -266,7 +266,7 @@ const TimelineEventItem = memo(function TimelineEventItem({ event }: TimelineIte
       <div className="flex-1 min-w-0 pt-1">
         <div className="flex items-center gap-2 text-sm text-fg-muted flex-wrap">
           {getEventDescription(event)}
-          <span className="text-xs">{formatRelativeTime(event.createdAt)}</span>
+          <RelativeTime date={event.createdAt} className="text-xs" />
         </div>
         {/* Show review body if present */}
         {event.type === "reviewed" && event.reviewBody && (
@@ -293,7 +293,7 @@ const CommentItem = memo(function CommentItem({ comment }: { comment: PRComment 
         {/* Header */}
         <div className="flex items-center gap-2 px-4 py-2 bg-bg-tertiary border-b border-border">
           <span className="font-medium text-sm text-fg">{comment.user.login}</span>
-          <span className="text-xs text-fg-muted">{formatRelativeTime(comment.createdAt)}</span>
+          <RelativeTime date={comment.createdAt} className="text-xs text-fg-muted" />
         </div>
 
         {/* Body */}

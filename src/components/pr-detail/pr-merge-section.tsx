@@ -17,7 +17,7 @@ import {
   ShieldAlert,
 } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
-import { formatRelativeTime } from "@/lib/utils/date";
+import { RelativeTime } from "@/components/ui/relative-time";
 import type { PullRequest, ChecksSummary, CheckRun, PRReview } from "@/lib/types/github";
 
 interface PRMergeSectionProps {
@@ -271,7 +271,7 @@ function MergeStatusSection({ pr }: { pr: PullRequest }) {
                 <span>merged</span>
               </>
             )}
-            {pr.mergedAt && <span>{formatRelativeTime(pr.mergedAt)}</span>}
+            {pr.mergedAt && <RelativeTime date={pr.mergedAt} />}
           </div>
         </div>
       </div>

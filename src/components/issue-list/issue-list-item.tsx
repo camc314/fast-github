@@ -4,7 +4,7 @@ import { CircleDot, CheckCircle2, MessageSquare } from "lucide-react";
 import type { Issue } from "@/lib/types/github";
 import { Label } from "@/components/ui/label";
 import { Avatar } from "@/components/ui/avatar";
-import { formatRelativeTime } from "@/lib/utils/date";
+import { RelativeTime } from "@/components/ui/relative-time";
 
 interface IssueListItemProps {
   issue: Issue;
@@ -66,7 +66,7 @@ export const IssueListItem = memo(function IssueListItem({
             <p className="text-xs text-fg-muted mt-0.5">
               #{issue.number}
               <span className="mx-1">·</span>
-              {formatRelativeTime(issue.createdAt)} by {issue.user.login}
+              <RelativeTime date={issue.createdAt} /> by {issue.user.login}
             </p>
           </div>
         </div>

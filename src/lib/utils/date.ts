@@ -28,3 +28,18 @@ export function formatRelativeTime(dateString: string): string {
   if (diffDays < 365) return `${Math.floor(diffDays / 30)}mo ago`;
   return `${Math.floor(diffDays / 365)}y ago`;
 }
+
+/**
+ * Formats a date string into an absolute, human-readable format.
+ * Example: "Jan 15, 2024, 3:45 PM"
+ */
+export function formatAbsoluteTime(dateString: string): string {
+  const date = new Date(dateString);
+  return date.toLocaleString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}

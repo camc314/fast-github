@@ -2,7 +2,7 @@ import { memo } from "react";
 import type { PRReviewComment } from "@/lib/types/github";
 import { Avatar } from "@/components/ui/avatar";
 import { MarkdownViewer } from "@/components/ui/markdown-viewer";
-import { formatRelativeTime } from "@/lib/utils/date";
+import { RelativeTime } from "@/components/ui/relative-time";
 
 interface DiffCommentThreadProps {
   comments: PRReviewComment[];
@@ -15,7 +15,7 @@ function SingleComment({ comment }: { comment: PRReviewComment }) {
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">
           <span className="font-medium text-sm text-fg">{comment.user.login}</span>
-          <span className="text-xs text-fg-muted">{formatRelativeTime(comment.createdAt)}</span>
+          <RelativeTime date={comment.createdAt} className="text-xs text-fg-muted" />
         </div>
         <div className="text-sm text-fg-secondary">
           <MarkdownViewer content={comment.body} />

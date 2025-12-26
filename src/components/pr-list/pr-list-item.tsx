@@ -4,7 +4,7 @@ import { GitPullRequest, GitMerge, MessageSquare, Check, X, Clock } from "lucide
 import type { PullRequest, CheckStatus } from "@/lib/types/github";
 import { Label } from "@/components/ui/label";
 import { Avatar } from "@/components/ui/avatar";
-import { formatRelativeTime } from "@/lib/utils/date";
+import { RelativeTime } from "@/components/ui/relative-time";
 
 interface PRListItemProps {
   pr: PullRequest;
@@ -89,7 +89,7 @@ export const PRListItem = memo(function PRListItem({ pr, owner, repo, style }: P
               #{pr.number}
               {pr.draft && <span className="ml-1 text-fg-muted">(draft)</span>}
               <span className="mx-1">·</span>
-              {formatRelativeTime(pr.createdAt)} by {pr.user.login}
+              <RelativeTime date={pr.createdAt} /> by {pr.user.login}
             </p>
           </div>
         </div>

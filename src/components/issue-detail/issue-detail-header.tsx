@@ -1,7 +1,7 @@
 import { CircleDot, CheckCircle2 } from "lucide-react";
 import type { Issue } from "@/lib/types/github";
 import { Avatar } from "@/components/ui/avatar";
-import { formatRelativeTime } from "@/lib/utils/date";
+import { RelativeTime } from "@/components/ui/relative-time";
 
 interface IssueDetailHeaderProps {
   issue: Issue;
@@ -46,7 +46,7 @@ export function IssueDetailHeader({ issue }: IssueDetailHeaderProps) {
         <span>
           <span className="font-medium text-fg">{issue.user.login}</span>
           {" opened "}
-          {formatRelativeTime(issue.createdAt)}
+          <RelativeTime date={issue.createdAt} />
         </span>
       </div>
     </div>

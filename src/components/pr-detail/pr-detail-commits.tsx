@@ -3,7 +3,7 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 import { GitCommit } from "lucide-react";
 import type { PRCommit } from "@/lib/types/github";
 import { Avatar } from "@/components/ui/avatar";
-import { formatRelativeTime } from "@/lib/utils/date";
+import { RelativeTime } from "@/components/ui/relative-time";
 
 interface PRDetailCommitsProps {
   commits: PRCommit[];
@@ -42,7 +42,7 @@ const CommitRow = memo(function CommitRow({
         <p className="text-sm font-medium text-fg truncate">{getFirstLine(commit.message)}</p>
         <p className="text-xs text-fg-muted mt-0.5">
           {commit.user?.login ?? commit.author.name} committed{" "}
-          {formatRelativeTime(commit.author.date)}
+          <RelativeTime date={commit.author.date} />
         </p>
       </div>
 

@@ -1,7 +1,7 @@
 import { GitPullRequest, GitMerge } from "lucide-react";
 import type { PullRequest, PRFile } from "@/lib/types/github";
 import { Avatar } from "@/components/ui/avatar";
-import { formatRelativeTime } from "@/lib/utils/date";
+import { RelativeTime } from "@/components/ui/relative-time";
 
 interface PRDetailHeaderProps {
   pr: PullRequest;
@@ -96,7 +96,7 @@ export function PRDetailHeader({ pr, files }: PRDetailHeaderProps) {
           <span>
             <span className="font-medium text-fg">{pr.user.login}</span>
             {" opened "}
-            {formatRelativeTime(pr.createdAt)}
+            <RelativeTime date={pr.createdAt} />
           </span>
         </div>
         <DiffStats files={files} />
