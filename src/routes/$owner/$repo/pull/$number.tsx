@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
+import { useCallback } from "react";
 import { ArrowLeft } from "lucide-react";
 
 import { RepoHeader } from "@/components/repo/repo-header";
@@ -19,6 +20,7 @@ import {
   fetchPRReviews,
   fetchPRChecks,
   fetchPRReviewComments,
+  createPRReviewComment,
 } from "@/lib/api/github";
 
 type SearchParams = {
@@ -78,7 +80,7 @@ function PullRequestDetailPage() {
     enabled: !!pr?.headSha,
   });
 
-  const { data: _reviewComments = [], isLoading: reviewCommentsLoading } = useQuery({
+  const { data: reviewComments = [], isLoading: reviewCommentsLoading } = useQuery({
     queryKey: ["pull-request-review-comments", owner, repo, prNumber],
     queryFn: () => fetchPRReviewComments(owner, repo, prNumber),
   });
@@ -92,6 +94,32 @@ function PullRequestDetailPage() {
     checksLoading ||
     reviewCommentsLoading;
 
+  // Mutation for adding review comments
+  const addCommentMutation = useMutation({
+    mutationFn: (params: { path: string; line: number; side: "LEFT" | "RIGHT"; body: string }) =>
+      createPRReviewComment(owner, repo, prNumber, {
+        body: params.body,
+        path: params.path,
+        line: params.line,
+        side: params.side,
+        commitId: pr?.headSha ?? "",
+      }),
+    onSuccess: () => {
+      // Invalidate and refetch review comments
+      queryClient.invalidateQueries({
+        queryKey: ["pull-request-review-comments", owner, repo, prNumber],
+      });
+    },
+  });
+
+  // Handler for adding a comment to a file
+  const handleAddComment = useCallback(
+    async (path: string, line: number, side: "LEFT" | "RIGHT", body: string) => {
+      await addCommentMutation.mutateAsync({ path, line, side, body });
+    },
+    [addCommentMutation],
+  );
+
   function renderTabContent(activeTab: PRTab) {
     if (!pr) return null;
 
@@ -99,7 +127,13 @@ function PullRequestDetailPage() {
       case "overview":
         return <PRDetailOverview pr={pr} comments={comments} />;
       case "files":
-        return <PRDetailFiles files={files} />;
+        return (
+          <PRDetailFiles
+            files={files}
+            reviewComments={reviewComments}
+            onAddComment={handleAddComment}
+          />
+        );
       case "commits":
         return <PRDetailCommits commits={commits} />;
       default:

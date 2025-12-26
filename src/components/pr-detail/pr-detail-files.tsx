@@ -11,12 +11,14 @@ import {
   Columns,
   Rows,
 } from "lucide-react";
-import type { PRFile, PRFileStatus } from "@/lib/types/github";
+import type { PRFile, PRFileStatus, PRReviewComment } from "@/lib/types/github";
 import { DiffViewer, type DiffViewMode } from "@/components/diff/diff-viewer";
 import { usePreferences } from "@/lib/hooks/use-preferences";
 
 interface PRDetailFilesProps {
   files: PRFile[];
+  reviewComments: PRReviewComment[];
+  onAddComment?: (path: string, line: number, side: "LEFT" | "RIGHT", body: string) => Promise<void>;
 }
 
 function getFileIcon(status: PRFileStatus) {
@@ -60,13 +62,22 @@ interface FileAccordionItemProps {
   isExpanded: boolean;
   onToggle: () => void;
   viewMode: DiffViewMode;
+  comments?: PRReviewComment[];
+  onAddComment?: (line: number, side: "LEFT" | "RIGHT", body: string) => Promise<void>;
 }
 
 /**
  * Single file accordion item - memoized to prevent re-renders when other files change
  */
 const FileAccordionItem = memo(
-  function FileAccordionItem({ file, isExpanded, onToggle, viewMode }: FileAccordionItemProps) {
+  function FileAccordionItem({
+    file,
+    isExpanded,
+    onToggle,
+    viewMode,
+    comments,
+    onAddComment,
+  }: FileAccordionItemProps) {
     return (
       <div className="border-b border-neutral-200 last:border-b-0">
         {/* File header - clickable */}
@@ -102,7 +113,14 @@ const FileAccordionItem = memo(
 
         {/* Diff viewer - only rendered when expanded */}
         {isExpanded && (
-          <DiffViewer patch={file.patch} filename={file.filename} viewMode={viewMode} />
+          <DiffViewer
+            patch={file.patch}
+            filename={file.filename}
+            viewMode={viewMode}
+            status={file.status}
+            comments={comments}
+            onAddComment={onAddComment}
+          />
         )}
       </div>
     );
@@ -116,7 +134,8 @@ const FileAccordionItem = memo(
       prevProps.file.patch === nextProps.file.patch &&
       prevProps.file.additions === nextProps.file.additions &&
       prevProps.file.deletions === nextProps.file.deletions &&
-      prevProps.file.status === nextProps.file.status
+      prevProps.file.status === nextProps.file.status &&
+      prevProps.comments === nextProps.comments
     );
   },
 );
@@ -159,7 +178,7 @@ function ViewModeToggle({ viewMode, onChange }: ViewModeToggleProps) {
   );
 }
 
-export function PRDetailFiles({ files }: PRDetailFilesProps) {
+export function PRDetailFiles({ files, reviewComments, onAddComment }: PRDetailFilesProps) {
   // Track which files are collapsed (default: all expanded)
   const [collapsedFiles, setCollapsedFiles] = useState<Set<string>>(new Set());
   // Get view mode from persisted preferences
@@ -220,6 +239,12 @@ export function PRDetailFiles({ files }: PRDetailFilesProps) {
             isExpanded={!collapsedFiles.has(file.filename)}
             onToggle={createToggleHandler(file.filename)}
             viewMode={viewMode}
+            comments={reviewComments.filter((c) => c.path === file.filename)}
+            onAddComment={
+              onAddComment
+                ? (line, side, body) => onAddComment(file.filename, line, side, body)
+                : undefined
+            }
           />
         ))}
       </div>

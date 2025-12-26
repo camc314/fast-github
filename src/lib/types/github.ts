@@ -252,43 +252,33 @@ export interface ChecksSummary {
   checks: CheckRun[];
 }
 
-// Diff types
-export type DiffLineType = "addition" | "deletion" | "context" | "header";
+// Repository types
+export interface Repository {
+  id: number;
+  name: string;
+  fullName: string;
+  description: string | null;
+  stars: number;
+  forks: number;
+  watchers: number;
+  openIssuesCount: number;
+  topics: string[];
+  language: string | null;
+  license: { name: string; spdxId: string | null } | null;
+  defaultBranch: string;
+  homepage: string | null;
+  createdAt: string;
+  updatedAt: string;
+  pushedAt: string;
+  isPrivate: boolean;
+  isFork: boolean;
+  owner: User;
+}
 
-export interface DiffLine {
-  type: DiffLineType;
+export interface RepositoryReadme {
   content: string;
-  oldLineNumber: number | null;
-  newLineNumber: number | null;
+  name: string;
+  path: string;
 }
 
-export interface DiffHunk {
-  header: string;
-  oldStart: number;
-  oldCount: number;
-  newStart: number;
-  newCount: number;
-  lines: DiffLine[];
-}
-
-export interface ParsedDiff {
-  hunks: DiffHunk[];
-  totalAdditions: number;
-  totalDeletions: number;
-}
-
-// Split diff types (side-by-side view)
-export type SplitLineType = "addition" | "deletion" | "context" | "empty";
-
-export interface SplitDiffSide {
-  type: SplitLineType;
-  content: string;
-  lineNumber: number | null;
-}
-
-export interface SplitDiffRow {
-  left: SplitDiffSide;
-  right: SplitDiffSide;
-  isHeader?: boolean;
-  headerContent?: string;
-}
+export type LanguageBreakdown = Record<string, number>;

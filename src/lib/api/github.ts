@@ -31,6 +31,9 @@ import type {
   InfinitePRListResponse,
   InfiniteIssueListResponse,
   PaginationInfo,
+  Repository,
+  RepositoryReadme,
+  LanguageBreakdown,
 } from "../types/github";
 
 const GITHUB_API = "https://api.github.com";
@@ -625,6 +628,84 @@ export async function fetchPRReviewComments(
   return Array.from(commentsMap.values());
 }
 
+/**
+ * Create a new review comment on a PR diff line.
+ * Requires authentication.
+ */
+export async function createPRReviewComment(
+  owner: string,
+  repo: string,
+  pullNumber: number,
+  params: {
+    body: string;
+    path: string;
+    line: number;
+    side: "LEFT" | "RIGHT";
+    commitId: string;
+  },
+): Promise<PRReviewComment> {
+  const response = await fetch(
+    `${GITHUB_API}/repos/${owner}/${repo}/pulls/${pullNumber}/comments`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/vnd.github.v3+json",
+      },
+      body: JSON.stringify({
+        body: params.body,
+        path: params.path,
+        line: params.line,
+        side: params.side,
+        commit_id: params.commitId,
+      }),
+    },
+  );
+
+  if (!response.ok) {
+    let errorMessage = "";
+    try {
+      const errorData = await response.json();
+      errorMessage = errorData.message || "";
+    } catch {
+      // Ignore JSON parse errors
+    }
+
+    if (response.status === 401) {
+      throw new Error("Authentication required. Please sign in to comment.");
+    }
+    if (response.status === 403) {
+      throw new Error(errorMessage || "You do not have permission to comment on this pull request");
+    }
+    if (response.status === 404) {
+      throw new Error("Pull request not found");
+    }
+    if (response.status === 422) {
+      throw new Error(errorMessage || "Invalid comment. The line may not exist in the diff.");
+    }
+    throw new Error(errorMessage || `Failed to create comment: ${response.statusText}`);
+  }
+
+  const data: GitHubPRReviewComment = await response.json();
+
+  return {
+    id: data.id,
+    body: data.body,
+    user: {
+      login: data.user?.login ?? "unknown",
+      avatarUrl: data.user?.avatar_url ?? "",
+    },
+    path: data.path,
+    line: data.line,
+    originalLine: data.original_line,
+    side: data.side,
+    createdAt: data.created_at,
+    updatedAt: data.updated_at,
+    inReplyToId: null,
+    replies: [],
+  };
+}
+
 // ============================================================================
 // Infinite Scroll / Search API Functions
 // ============================================================================
@@ -881,8 +962,11 @@ export async function searchIssues(
 // Fetch repository labels
 export async function fetchRepoLabels(owner: string, repo: string): Promise<Label[]> {
   const url = `${GITHUB_API}/repos/${owner}/${repo}/labels?per_page=100`;
-  const data = await githubFetch<Array<{ id: number; name: string; color: string; description?: string }>>(url);
-  
+  const data =
+    await githubFetch<Array<{ id: number; name: string; color: string; description?: string }>>(
+      url,
+    );
+
   return data.map((label) => ({
     id: label.id,
     name: label.name,
@@ -894,7 +978,7 @@ export async function fetchRepoLabels(owner: string, repo: string): Promise<Labe
 // Fetch repository contributors (for author/assignee filters)
 export async function fetchRepoContributors(owner: string, repo: string): Promise<User[]> {
   const url = `${GITHUB_API}/repos/${owner}/${repo}/contributors?per_page=50`;
-  
+
   try {
     const data = await githubFetch<Array<{ login: string; avatar_url: string }>>(url);
     return data.map((user) => ({
@@ -904,5 +988,108 @@ export async function fetchRepoContributors(owner: string, repo: string): Promis
   } catch {
     // Contributors endpoint might fail for some repos, return empty array
     return [];
+  }
+}
+
+// ============================================================================
+// Repository Home Page API Functions
+// ============================================================================
+
+interface GitHubRepository {
+  id: number;
+  name: string;
+  full_name: string;
+  description: string | null;
+  stargazers_count: number;
+  forks_count: number;
+  watchers_count: number;
+  open_issues_count: number;
+  topics: string[];
+  language: string | null;
+  license: { name: string; spdx_id: string | null } | null;
+  default_branch: string;
+  homepage: string | null;
+  created_at: string;
+  updated_at: string;
+  pushed_at: string;
+  private: boolean;
+  fork: boolean;
+  owner: { login: string; avatar_url: string };
+}
+
+export async function fetchRepository(owner: string, repo: string): Promise<Repository> {
+  const url = `${GITHUB_API}/repos/${owner}/${repo}`;
+  const data = await githubFetch<GitHubRepository>(url);
+
+  return {
+    id: data.id,
+    name: data.name,
+    fullName: data.full_name,
+    description: data.description,
+    stars: data.stargazers_count,
+    forks: data.forks_count,
+    watchers: data.watchers_count,
+    openIssuesCount: data.open_issues_count,
+    topics: data.topics ?? [],
+    language: data.language,
+    license: data.license ? { name: data.license.name, spdxId: data.license.spdx_id } : null,
+    defaultBranch: data.default_branch,
+    homepage: data.homepage,
+    createdAt: data.created_at,
+    updatedAt: data.updated_at,
+    pushedAt: data.pushed_at,
+    isPrivate: data.private,
+    isFork: data.fork,
+    owner: {
+      login: data.owner.login,
+      avatarUrl: data.owner.avatar_url,
+    },
+  };
+}
+
+interface GitHubReadmeResponse {
+  content: string;
+  encoding: string;
+  name: string;
+  path: string;
+}
+
+export async function fetchReadme(owner: string, repo: string): Promise<RepositoryReadme | null> {
+  const url = `${GITHUB_API}/repos/${owner}/${repo}/readme`;
+
+  try {
+    const data = await githubFetch<GitHubReadmeResponse>(url);
+
+    // Decode base64 content (handle UTF-8 properly)
+    const base64 = data.content.replace(/\n/g, "");
+    const binaryString = atob(base64);
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+    const content = new TextDecoder("utf-8").decode(bytes);
+
+    return {
+      content,
+      name: data.name,
+      path: data.path,
+    };
+  } catch (error) {
+    // README might not exist
+    if (error instanceof GitHubError && error.isNotFound) {
+      return null;
+    }
+    throw error;
+  }
+}
+
+export async function fetchLanguages(owner: string, repo: string): Promise<LanguageBreakdown> {
+  const url = `${GITHUB_API}/repos/${owner}/${repo}/languages`;
+
+  try {
+    const data = await githubFetch<Record<string, number>>(url);
+    return data;
+  } catch {
+    return {};
   }
 }
