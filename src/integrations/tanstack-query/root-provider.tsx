@@ -18,6 +18,8 @@ export function getContext() {
         },
         // Stale time of 1 minute for GitHub data
         staleTime: 60 * 1000,
+        // Disable refetch on window focus
+        refetchOnWindowFocus: false,
       },
     },
   });
