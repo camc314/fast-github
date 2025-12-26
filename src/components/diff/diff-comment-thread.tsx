@@ -10,7 +10,7 @@ interface DiffCommentThreadProps {
 
 function SingleComment({ comment }: { comment: PRReviewComment }) {
   return (
-    <div className="flex items-start gap-3 p-3">
+    <div className="flex items-start gap-3 p-3 font-sans">
       <Avatar src={comment.user.avatarUrl} alt={comment.user.login} size={28} />
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">
@@ -39,20 +39,9 @@ export const DiffCommentThread = memo(function DiffCommentThread({
       {comments.map((comment, index) => (
         <div key={comment.id} className={index > 0 ? "border-t border-comment-border" : undefined}>
           <SingleComment comment={comment} />
-
-          {/* Nested replies for this comment */}
-          {comment.replies && comment.replies.length > 0 && (
-            <div className="border-t border-comment-border-light ml-10">
-              {comment.replies.map((reply) => (
-                <div
-                  key={reply.id}
-                  className="border-b border-comment-border-light last:border-b-0"
-                >
-                  <SingleComment comment={reply} />
-                </div>
-              ))}
-            </div>
-          )}
+          {comment.replies?.map((reply) => (
+            <SingleComment comment={reply} key={reply.id} />
+          ))}
         </div>
       ))}
     </div>
