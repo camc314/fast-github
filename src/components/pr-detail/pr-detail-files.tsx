@@ -18,7 +18,12 @@ import { usePreferences } from "@/lib/hooks/use-preferences";
 interface PRDetailFilesProps {
   files: PRFile[];
   reviewComments: PRReviewComment[];
-  onAddComment?: (path: string, line: number, side: "LEFT" | "RIGHT", body: string) => Promise<void>;
+  onAddComment?: (
+    path: string,
+    line: number,
+    side: "LEFT" | "RIGHT",
+    body: string,
+  ) => Promise<void>;
 }
 
 function getFileIcon(status: PRFileStatus) {
