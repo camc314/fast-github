@@ -18,15 +18,15 @@ export function ErrorMessage({ error, onRetry }: ErrorMessageProps) {
   // Choose icon and colors based on error type
   let Icon = AlertCircle;
   let iconColor = "text-red-500";
-  let bgColor = "bg-red-50";
-  let borderColor = "border-red-200";
+  let bgColor = "bg-red-500/10";
+  let borderColor = "border-red-500/20";
   let title = "Something went wrong";
 
   if (isRateLimit) {
     Icon = Clock;
     iconColor = "text-amber-500";
-    bgColor = "bg-amber-50";
-    borderColor = "border-amber-200";
+    bgColor = "bg-amber-500/10";
+    borderColor = "border-amber-500/20";
     title = "Rate limit exceeded";
   } else if (isNotFound) {
     Icon = FileQuestion;

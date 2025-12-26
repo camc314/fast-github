@@ -261,6 +261,8 @@ export const DiffViewer = memo(function DiffViewer({
     );
   }
 
+  console.log("onAddComment", onAddComment);
+
   return (
     <div className="border-t border-border overflow-hidden">
       <FileDiff
