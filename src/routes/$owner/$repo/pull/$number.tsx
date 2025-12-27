@@ -15,7 +15,10 @@ import { PRDetailCommits } from "@/components/pr-detail/pr-detail-commits";
 import { PRDetailSidebar } from "@/components/pr-detail/pr-detail-sidebar";
 import { PRMergeSection } from "@/components/pr-detail/pr-merge-section";
 import { MobileSidebar } from "@/components/ui/mobile-sidebar";
+import { CommentForm } from "@/components/ui/comment-form";
 import { useDocumentTitle } from "@/lib/hooks/use-document-title";
+import { useAuth } from "@/lib/auth/auth-context";
+import type { PRComment } from "@/lib/types/github";
 import {
   fetchPullRequest,
   fetchPRFiles,
@@ -26,6 +29,7 @@ import {
   fetchPRReviewComments,
   fetchIssueTimeline,
   createPRReviewComment,
+  createIssueComment,
 } from "@/lib/api/github";
 
 type SearchParams = {
@@ -106,8 +110,10 @@ function PullRequestDetailPage() {
     checksLoading ||
     reviewCommentsLoading;
 
-  // Mutation for adding review comments
-  const addCommentMutation = useMutation({
+  const { user } = useAuth();
+
+  // Mutation for adding review comments (inline/diff comments)
+  const addReviewCommentMutation = useMutation({
     mutationFn: (params: { path: string; line: number; side: "LEFT" | "RIGHT"; body: string }) =>
       createPRReviewComment(owner, repo, prNumber, {
         body: params.body,
@@ -128,12 +134,79 @@ function PullRequestDetailPage() {
     },
   });
 
-  // Handler for adding a comment to a file
+  // Mutation for adding general PR comments (on Overview tab)
+  const createCommentMutation = useMutation({
+    mutationFn: (body: string) => createIssueComment(owner, repo, prNumber, body),
+    onMutate: async (body) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({
+        queryKey: ["pull-request-comments", owner, repo, prNumber],
+      });
+
+      // Snapshot the previous value
+      const previousComments = queryClient.getQueryData<PRComment[]>([
+        "pull-request-comments",
+        owner,
+        repo,
+        prNumber,
+      ]);
+
+      // Optimistically add the new comment
+      const optimisticComment: PRComment = {
+        id: Date.now(),
+        body,
+        user: {
+          login: user?.login ?? "You",
+          avatarUrl: user?.avatarUrl ?? "",
+        },
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      queryClient.setQueryData<PRComment[]>(
+        ["pull-request-comments", owner, repo, prNumber],
+        (old) => (old ? [...old, optimisticComment] : [optimisticComment]),
+      );
+
+      return { previousComments, optimisticComment };
+    },
+    onError: (err, _body, context) => {
+      // Revert to previous comments on error
+      if (context?.previousComments) {
+        queryClient.setQueryData(
+          ["pull-request-comments", owner, repo, prNumber],
+          context.previousComments,
+        );
+      }
+      toast.error(
+        "Failed to add comment",
+        err instanceof Error ? err.message : "Please try again",
+      );
+    },
+    onSuccess: () => {
+      toast.success("Comment added", "Your comment was posted successfully");
+    },
+    onSettled: () => {
+      // Always refetch after error or success
+      queryClient.invalidateQueries({
+        queryKey: ["pull-request-comments", owner, repo, prNumber],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["pull-request-timeline", owner, repo, prNumber],
+      });
+    },
+  });
+
+  const handleCommentSubmit = async (body: string) => {
+    await createCommentMutation.mutateAsync(body);
+  };
+
+  // Handler for adding a comment to a file (inline/diff comments)
   const handleAddComment = useCallback(
     async (path: string, line: number, side: "LEFT" | "RIGHT", body: string) => {
-      await addCommentMutation.mutateAsync({ path, line, side, body });
+      await addReviewCommentMutation.mutateAsync({ path, line, side, body });
     },
-    [addCommentMutation],
+    [addReviewCommentMutation],
   );
 
   const checksData = checks ?? { total: 0, success: 0, failure: 0, pending: 0, skipped: 0, checks: [] };
@@ -147,6 +220,11 @@ function PullRequestDetailPage() {
           <div className="space-y-6">
             <PRDetailOverview pr={pr} comments={comments} timelineEvents={timelineEvents} />
             <PRMergeSection pr={pr} checks={checksData} reviews={reviews} />
+            <CommentForm
+              onSubmit={handleCommentSubmit}
+              placeholder="Leave a comment..."
+              disabled={createCommentMutation.isPending}
+            />
           </div>
         );
       case "files":
@@ -164,6 +242,11 @@ function PullRequestDetailPage() {
           <div className="space-y-6">
             <PRDetailOverview pr={pr} comments={comments} timelineEvents={timelineEvents} />
             <PRMergeSection pr={pr} checks={checksData} reviews={reviews} />
+            <CommentForm
+              onSubmit={handleCommentSubmit}
+              placeholder="Leave a comment..."
+              disabled={createCommentMutation.isPending}
+            />
           </div>
         );
     }
