@@ -1,7 +1,7 @@
 import { Users, Tag } from "lucide-react";
-import { Label } from "@/components/ui/label";
 import { AssigneePicker } from "@/components/ui/assignee-picker";
-import type { Issue, Label as LabelType } from "@/lib/types/github";
+import { LabelPicker } from "@/components/ui/label-picker";
+import type { Issue } from "@/lib/types/github";
 
 interface IssueDetailSidebarProps {
   owner: string;
@@ -29,20 +29,6 @@ function SidebarSection({
   );
 }
 
-function LabelsSection({ labels }: { labels: LabelType[] }) {
-  if (labels.length === 0) {
-    return <p className="text-sm text-fg-muted">No labels</p>;
-  }
-
-  return (
-    <div className="flex flex-wrap gap-1.5">
-      {labels.map((label) => (
-        <Label key={label.id} label={label} />
-      ))}
-    </div>
-  );
-}
-
 export function IssueDetailSidebar({ owner, repo, issue }: IssueDetailSidebarProps) {
   return (
     <aside className="w-full lg:w-64 shrink-0">
@@ -58,7 +44,13 @@ export function IssueDetailSidebar({ owner, repo, issue }: IssueDetailSidebarPro
         </SidebarSection>
 
         <SidebarSection title="Labels" icon={Tag}>
-          <LabelsSection labels={issue.labels} />
+          <LabelPicker
+            owner={owner}
+            repo={repo}
+            issueNumber={issue.number}
+            currentLabels={issue.labels}
+            queryKeyPrefix="issue"
+          />
         </SidebarSection>
       </div>
     </aside>

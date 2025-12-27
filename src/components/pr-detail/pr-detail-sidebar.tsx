@@ -15,8 +15,8 @@ import {
   Loader2,
 } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
-import { Label } from "@/components/ui/label";
 import { AssigneePicker } from "@/components/ui/assignee-picker";
+import { LabelPicker } from "@/components/ui/label-picker";
 import type { PullRequest, PRReview, ChecksSummary, CheckRun, User } from "@/lib/types/github";
 
 interface PRDetailSidebarProps {
@@ -518,20 +518,6 @@ function ChecksSection({ checks }: { checks: ChecksSummary }) {
   );
 }
 
-function LabelsSection({ labels }: { labels: PullRequest["labels"] }) {
-  if (labels.length === 0) {
-    return <p className="text-sm text-fg-muted">No labels</p>;
-  }
-
-  return (
-    <div className="flex flex-wrap gap-1.5">
-      {labels.map((label) => (
-        <Label key={label.id} label={label} />
-      ))}
-    </div>
-  );
-}
-
 export function PRDetailSidebar({ owner, repo, pr, reviews, checks }: PRDetailSidebarProps) {
   return (
     <aside className="w-full lg:w-64 shrink-0">
@@ -551,7 +537,13 @@ export function PRDetailSidebar({ owner, repo, pr, reviews, checks }: PRDetailSi
         </SidebarSection>
 
         <SidebarSection title="Labels" icon={Tag}>
-          <LabelsSection labels={pr.labels} />
+          <LabelPicker
+            owner={owner}
+            repo={repo}
+            issueNumber={pr.number}
+            currentLabels={pr.labels}
+            queryKeyPrefix="pull-request"
+          />
         </SidebarSection>
 
         <SidebarSection title="Checks" icon={AlertCircle}>

@@ -1411,3 +1411,82 @@ export async function removeAssignees(
     throw new Error(`Failed to remove assignees: ${response.statusText}`);
   }
 }
+
+// ============================================================================
+// Labels API Functions
+// ============================================================================
+
+/**
+ * Add labels to an issue or PR.
+ * Requires push access to the repository.
+ */
+export async function addLabels(
+  owner: string,
+  repo: string,
+  issueNumber: number,
+  labels: string[],
+): Promise<void> {
+  const response = await fetch(
+    `${GITHUB_API}/repos/${owner}/${repo}/issues/${issueNumber}/labels`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/vnd.github.v3+json",
+        ...getAuthHeaders(),
+      },
+      body: JSON.stringify({ labels }),
+    },
+  );
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error("Authentication required. Please sign in.");
+    }
+    if (response.status === 403) {
+      throw new Error("You don't have permission to add labels.");
+    }
+    if (response.status === 404) {
+      throw new Error("Issue or label not found.");
+    }
+    if (response.status === 422) {
+      throw new Error("Validation failed. The label may not exist.");
+    }
+    throw new Error(`Failed to add labels: ${response.statusText}`);
+  }
+}
+
+/**
+ * Remove a label from an issue or PR.
+ * Requires push access to the repository.
+ */
+export async function removeLabel(
+  owner: string,
+  repo: string,
+  issueNumber: number,
+  labelName: string,
+): Promise<void> {
+  const response = await fetch(
+    `${GITHUB_API}/repos/${owner}/${repo}/issues/${issueNumber}/labels/${encodeURIComponent(labelName)}`,
+    {
+      method: "DELETE",
+      headers: {
+        Accept: "application/vnd.github.v3+json",
+        ...getAuthHeaders(),
+      },
+    },
+  );
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error("Authentication required. Please sign in.");
+    }
+    if (response.status === 403) {
+      throw new Error("You don't have permission to remove labels.");
+    }
+    if (response.status === 404) {
+      throw new Error("Issue or label not found.");
+    }
+    throw new Error(`Failed to remove label: ${response.statusText}`);
+  }
+}
