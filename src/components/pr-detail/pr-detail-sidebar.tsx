@@ -16,9 +16,12 @@ import {
 } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { Label } from "@/components/ui/label";
+import { AssigneePicker } from "@/components/ui/assignee-picker";
 import type { PullRequest, PRReview, ChecksSummary, CheckRun, User } from "@/lib/types/github";
 
 interface PRDetailSidebarProps {
+  owner: string;
+  repo: string;
   pr: PullRequest;
   reviews: PRReview[];
   checks: ChecksSummary;
@@ -40,23 +43,6 @@ function SidebarSection({
         {title}
       </div>
       {children}
-    </div>
-  );
-}
-
-function UserList({ users, emptyText }: { users: User[]; emptyText: string }) {
-  if (users.length === 0) {
-    return <p className="text-sm text-fg-muted">{emptyText}</p>;
-  }
-
-  return (
-    <div className="flex flex-wrap gap-2">
-      {users.map((user) => (
-        <div key={user.login} className="flex items-center gap-1.5">
-          <Avatar src={user.avatarUrl} alt={user.login} size={20} />
-          <span className="text-sm text-fg-secondary">{user.login}</span>
-        </div>
-      ))}
     </div>
   );
 }
@@ -291,9 +277,7 @@ function CheckItem({ check }: { check: CheckRun }) {
             className="text-fg-muted opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
           />
         </div>
-        {duration && (
-          <span className="text-[10px] text-fg-muted">{duration}</span>
-        )}
+        {duration && <span className="text-[10px] text-fg-muted">{duration}</span>}
       </div>
       <span className={`text-[10px] ${colorClass} shrink-0`}>{label}</span>
     </a>
@@ -415,18 +399,10 @@ function ChecksSection({ checks }: { checks: ChecksSummary }) {
 
   // Sort groups: failures first, then pending, then success
   const sortedGroups = Array.from(groupedChecks.entries()).sort(([, a], [, b]) => {
-    const aHasFailure = a.some(
-      (c) => c.conclusion === "failure" || c.conclusion === "timed_out",
-    );
-    const bHasFailure = b.some(
-      (c) => c.conclusion === "failure" || c.conclusion === "timed_out",
-    );
-    const aHasPending = a.some(
-      (c) => c.status === "queued" || c.status === "in_progress",
-    );
-    const bHasPending = b.some(
-      (c) => c.status === "queued" || c.status === "in_progress",
-    );
+    const aHasFailure = a.some((c) => c.conclusion === "failure" || c.conclusion === "timed_out");
+    const bHasFailure = b.some((c) => c.conclusion === "failure" || c.conclusion === "timed_out");
+    const aHasPending = a.some((c) => c.status === "queued" || c.status === "in_progress");
+    const bHasPending = b.some((c) => c.status === "queued" || c.status === "in_progress");
 
     if (aHasFailure && !bHasFailure) return -1;
     if (!aHasFailure && bHasFailure) return 1;
@@ -556,12 +532,18 @@ function LabelsSection({ labels }: { labels: PullRequest["labels"] }) {
   );
 }
 
-export function PRDetailSidebar({ pr, reviews, checks }: PRDetailSidebarProps) {
+export function PRDetailSidebar({ owner, repo, pr, reviews, checks }: PRDetailSidebarProps) {
   return (
     <aside className="w-full lg:w-64 shrink-0">
       <div className="bg-bg-secondary rounded-xl border border-border shadow-sm p-4">
         <SidebarSection title="Assignees" icon={Users}>
-          <UserList users={pr.assignees} emptyText="No assignees" />
+          <AssigneePicker
+            owner={owner}
+            repo={repo}
+            issueNumber={pr.number}
+            currentAssignees={pr.assignees}
+            queryKeyPrefix="pull-request"
+          />
         </SidebarSection>
 
         <SidebarSection title="Reviewers" icon={UserCheck}>

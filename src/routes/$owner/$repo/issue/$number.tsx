@@ -11,7 +11,12 @@ import { CommentForm } from "@/components/ui/comment-form";
 import { MobileSidebar } from "@/components/ui/mobile-sidebar";
 import { useToastActions } from "@/components/ui/toast";
 import { useDocumentTitle } from "@/lib/hooks/use-document-title";
-import { fetchIssue, fetchIssueComments, fetchIssueTimeline, createIssueComment } from "@/lib/api/github";
+import {
+  fetchIssue,
+  fetchIssueComments,
+  fetchIssueTimeline,
+  createIssueComment,
+} from "@/lib/api/github";
 import type { PRComment } from "@/lib/types/github";
 
 export const Route = createFileRoute("/$owner/$repo/issue/$number")({
@@ -122,7 +127,11 @@ function IssueDetailPage() {
             <div className="flex flex-col lg:flex-row gap-6">
               {/* Main content */}
               <div className="flex-1 min-w-0">
-                <IssueDetailOverview body={issue.body} comments={comments} timelineEvents={timelineEvents} />
+                <IssueDetailOverview
+                  body={issue.body}
+                  comments={comments}
+                  timelineEvents={timelineEvents}
+                />
                 <CommentForm
                   onSubmit={handleCommentSubmit}
                   disabled={createCommentMutation.isPending}
@@ -131,7 +140,7 @@ function IssueDetailPage() {
 
               {/* Sidebar - collapsible on mobile */}
               <MobileSidebar title="Issue Details">
-                <IssueDetailSidebar issue={issue} />
+                <IssueDetailSidebar owner={owner} repo={repo} issue={issue} />
               </MobileSidebar>
             </div>
           </>

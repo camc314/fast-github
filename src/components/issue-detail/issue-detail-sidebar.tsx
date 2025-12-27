@@ -1,9 +1,11 @@
 import { Users, Tag } from "lucide-react";
-import { Avatar } from "@/components/ui/avatar";
 import { Label } from "@/components/ui/label";
-import type { Issue, User, Label as LabelType } from "@/lib/types/github";
+import { AssigneePicker } from "@/components/ui/assignee-picker";
+import type { Issue, Label as LabelType } from "@/lib/types/github";
 
 interface IssueDetailSidebarProps {
+  owner: string;
+  repo: string;
   issue: Issue;
 }
 
@@ -27,23 +29,6 @@ function SidebarSection({
   );
 }
 
-function UserList({ users, emptyText }: { users: User[]; emptyText: string }) {
-  if (users.length === 0) {
-    return <p className="text-sm text-fg-muted">{emptyText}</p>;
-  }
-
-  return (
-    <div className="flex flex-wrap gap-2">
-      {users.map((user) => (
-        <div key={user.login} className="flex items-center gap-1.5">
-          <Avatar src={user.avatarUrl} alt={user.login} size={20} />
-          <span className="text-sm text-fg-secondary">{user.login}</span>
-        </div>
-      ))}
-    </div>
-  );
-}
-
 function LabelsSection({ labels }: { labels: LabelType[] }) {
   if (labels.length === 0) {
     return <p className="text-sm text-fg-muted">No labels</p>;
@@ -58,12 +43,18 @@ function LabelsSection({ labels }: { labels: LabelType[] }) {
   );
 }
 
-export function IssueDetailSidebar({ issue }: IssueDetailSidebarProps) {
+export function IssueDetailSidebar({ owner, repo, issue }: IssueDetailSidebarProps) {
   return (
     <aside className="w-full lg:w-64 shrink-0">
       <div className="bg-bg-secondary rounded-xl border border-border shadow-sm p-4">
         <SidebarSection title="Assignees" icon={Users}>
-          <UserList users={issue.assignees} emptyText="No assignees" />
+          <AssigneePicker
+            owner={owner}
+            repo={repo}
+            issueNumber={issue.number}
+            currentAssignees={issue.assignees}
+            queryKeyPrefix="issue"
+          />
         </SidebarSection>
 
         <SidebarSection title="Labels" icon={Tag}>

@@ -130,7 +130,10 @@ function PullRequestDetailPage() {
       });
     },
     onError: (error) => {
-      toast.error("Failed to add comment", error instanceof Error ? error.message : "Please try again");
+      toast.error(
+        "Failed to add comment",
+        error instanceof Error ? error.message : "Please try again",
+      );
     },
   });
 
@@ -178,10 +181,7 @@ function PullRequestDetailPage() {
           context.previousComments,
         );
       }
-      toast.error(
-        "Failed to add comment",
-        err instanceof Error ? err.message : "Please try again",
-      );
+      toast.error("Failed to add comment", err instanceof Error ? err.message : "Please try again");
     },
     onSuccess: () => {
       toast.success("Comment added", "Your comment was posted successfully");
@@ -209,7 +209,14 @@ function PullRequestDetailPage() {
     [addReviewCommentMutation],
   );
 
-  const checksData = checks ?? { total: 0, success: 0, failure: 0, pending: 0, skipped: 0, checks: [] };
+  const checksData = checks ?? {
+    total: 0,
+    success: 0,
+    failure: 0,
+    pending: 0,
+    skipped: 0,
+    checks: [],
+  };
 
   function renderTabContent(activeTab: PRTab) {
     if (!pr) return null;
@@ -298,6 +305,8 @@ function PullRequestDetailPage() {
               {tab === "overview" && (
                 <MobileSidebar title="PR Details">
                   <PRDetailSidebar
+                    owner={owner}
+                    repo={repo}
                     pr={pr}
                     reviews={reviews}
                     checks={checksData}

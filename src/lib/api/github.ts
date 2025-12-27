@@ -38,8 +38,18 @@ import type {
   TimelineEvent,
   TimelineEventType,
 } from "../types/github";
+import { getGitHubToken } from "../auth/github";
 
 const GITHUB_API = "https://api.github.com";
+
+// Helper to get auth headers if token exists
+function getAuthHeaders(): HeadersInit {
+  const token = getGitHubToken();
+  if (token) {
+    return { Authorization: `Bearer ${token}` };
+  }
+  return {};
+}
 
 // Custom error class for GitHub API errors
 export class GitHubError extends Error {
@@ -209,6 +219,7 @@ async function githubFetch<T>(url: string, options?: RequestInit): Promise<T> {
     ...options,
     headers: {
       Accept: "application/vnd.github.v3+json",
+      ...getAuthHeaders(),
       ...options?.headers,
     },
   });
@@ -246,10 +257,10 @@ async function fetchCounts(
   try {
     const [openRes, closedRes] = await Promise.all([
       fetch(`${GITHUB_API}/search/issues?q=${baseQuery}+state:open&per_page=1`, {
-        headers: { Accept: "application/vnd.github.v3+json" },
+        headers: { Accept: "application/vnd.github.v3+json", ...getAuthHeaders() },
       }),
       fetch(`${GITHUB_API}/search/issues?q=${baseQuery}+state:closed&per_page=1`, {
-        headers: { Accept: "application/vnd.github.v3+json" },
+        headers: { Accept: "application/vnd.github.v3+json", ...getAuthHeaders() },
       }),
     ]);
 
@@ -423,34 +434,39 @@ export async function fetchIssueTimeline(
         ];
         return supportedEvents.includes(event.event);
       })
-      .map((event): TimelineEvent => ({
-        id: event.id ?? event.node_id ?? `${event.event}-${event.created_at}`,
-        type: event.event as TimelineEventType,
-        createdAt: event.created_at,
-        actor: event.actor
-          ? { login: event.actor.login, avatarUrl: event.actor.avatar_url }
-          : null,
-        label: event.label
-          ? { id: 0, name: event.label.name, color: event.label.color }
-          : undefined,
-        assignee: event.assignee
-          ? { login: event.assignee.login, avatarUrl: event.assignee.avatar_url }
-          : undefined,
-        requestedReviewer: event.requested_reviewer
-          ? { login: event.requested_reviewer.login, avatarUrl: event.requested_reviewer.avatar_url }
-          : undefined,
-        reviewState: event.state as ReviewState | undefined,
-        reviewBody: event.body,
-        rename: event.rename,
-        source: event.source?.issue
-          ? {
-              type: event.source.type === "pull_request" ? "pr" : "issue",
-              number: event.source.issue.number,
-              title: event.source.issue.title,
-            }
-          : undefined,
-        milestone: event.milestone ? { title: event.milestone.title } : undefined,
-      }));
+      .map(
+        (event): TimelineEvent => ({
+          id: event.id ?? event.node_id ?? `${event.event}-${event.created_at}`,
+          type: event.event as TimelineEventType,
+          createdAt: event.created_at,
+          actor: event.actor
+            ? { login: event.actor.login, avatarUrl: event.actor.avatar_url }
+            : null,
+          label: event.label
+            ? { id: 0, name: event.label.name, color: event.label.color }
+            : undefined,
+          assignee: event.assignee
+            ? { login: event.assignee.login, avatarUrl: event.assignee.avatar_url }
+            : undefined,
+          requestedReviewer: event.requested_reviewer
+            ? {
+                login: event.requested_reviewer.login,
+                avatarUrl: event.requested_reviewer.avatar_url,
+              }
+            : undefined,
+          reviewState: event.state as ReviewState | undefined,
+          reviewBody: event.body,
+          rename: event.rename,
+          source: event.source?.issue
+            ? {
+                type: event.source.type === "pull_request" ? "pr" : "issue",
+                number: event.source.issue.number,
+                title: event.source.issue.title,
+              }
+            : undefined,
+          milestone: event.milestone ? { title: event.milestone.title } : undefined,
+        }),
+      );
   } catch {
     // Timeline API may not be available for all repos/issues
     return [];
@@ -463,7 +479,6 @@ export async function createIssueComment(
   issueNumber: number,
   body: string,
 ): Promise<PRComment> {
-  // TODO: Add authentication header when implementing auth
   const response = await fetch(
     `${GITHUB_API}/repos/${owner}/${repo}/issues/${issueNumber}/comments`,
     {
@@ -471,6 +486,7 @@ export async function createIssueComment(
       headers: {
         "Content-Type": "application/json",
         Accept: "application/vnd.github.v3+json",
+        ...getAuthHeaders(),
       },
       body: JSON.stringify({ body }),
     },
@@ -783,6 +799,7 @@ export async function createPRReviewComment(
       headers: {
         "Content-Type": "application/json",
         Accept: "application/vnd.github.v3+json",
+        ...getAuthHeaders(),
       },
       body: JSON.stringify({
         body: params.body,
@@ -856,6 +873,7 @@ export async function replyToPRReviewComment(
       headers: {
         "Content-Type": "application/json",
         Accept: "application/vnd.github.v3+json",
+        ...getAuthHeaders(),
       },
       body: JSON.stringify({ body }),
     },
@@ -926,6 +944,7 @@ async function githubFetchWithPagination<T>(
   const response = await fetch(url, {
     headers: {
       Accept: "application/vnd.github.v3+json",
+      ...getAuthHeaders(),
     },
   });
 
@@ -1293,5 +1312,102 @@ export async function fetchLanguages(owner: string, repo: string): Promise<Langu
     return data;
   } catch {
     return {};
+  }
+}
+
+// ============================================================================
+// Assignees API Functions
+// ============================================================================
+
+/**
+ * Fetch users who can be assigned to issues/PRs in this repo.
+ * Requires push access to see all assignees.
+ */
+export async function fetchRepoAssignees(owner: string, repo: string): Promise<User[]> {
+  const url = `${GITHUB_API}/repos/${owner}/${repo}/assignees?per_page=100`;
+
+  try {
+    const data = await githubFetch<Array<{ login: string; avatar_url: string }>>(url);
+    return data.map((user) => ({
+      login: user.login,
+      avatarUrl: user.avatar_url,
+    }));
+  } catch {
+    // Fall back to contributors if assignees endpoint fails (permissions)
+    return fetchRepoContributors(owner, repo);
+  }
+}
+
+/**
+ * Add assignees to an issue or PR.
+ * Requires push access to the repository.
+ */
+export async function addAssignees(
+  owner: string,
+  repo: string,
+  issueNumber: number,
+  assignees: string[],
+): Promise<void> {
+  const response = await fetch(
+    `${GITHUB_API}/repos/${owner}/${repo}/issues/${issueNumber}/assignees`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/vnd.github.v3+json",
+        ...getAuthHeaders(),
+      },
+      body: JSON.stringify({ assignees }),
+    },
+  );
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error("Authentication required. Please sign in.");
+    }
+    if (response.status === 403) {
+      throw new Error("You don't have permission to assign users.");
+    }
+    if (response.status === 404) {
+      throw new Error("Issue or user not found.");
+    }
+    throw new Error(`Failed to add assignees: ${response.statusText}`);
+  }
+}
+
+/**
+ * Remove assignees from an issue or PR.
+ * Requires push access to the repository.
+ */
+export async function removeAssignees(
+  owner: string,
+  repo: string,
+  issueNumber: number,
+  assignees: string[],
+): Promise<void> {
+  const response = await fetch(
+    `${GITHUB_API}/repos/${owner}/${repo}/issues/${issueNumber}/assignees`,
+    {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/vnd.github.v3+json",
+        ...getAuthHeaders(),
+      },
+      body: JSON.stringify({ assignees }),
+    },
+  );
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error("Authentication required. Please sign in.");
+    }
+    if (response.status === 403) {
+      throw new Error("You don't have permission to remove assignees.");
+    }
+    if (response.status === 404) {
+      throw new Error("Issue or user not found.");
+    }
+    throw new Error(`Failed to remove assignees: ${response.statusText}`);
   }
 }
