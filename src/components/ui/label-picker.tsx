@@ -1,4 +1,4 @@
-import { useState, useRef, memo } from "react";
+import { useState, useRef, memo, useEffect, useReducer } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Plus, X, Check, Loader2 } from "lucide-react";
 import { useAuth } from "@/lib/auth/auth-context";
@@ -6,6 +6,15 @@ import { useDropdownClose } from "@/lib/hooks/use-dropdown-close";
 import { useToastActions } from "./toast";
 import { fetchRepoLabels, addLabels, removeLabel } from "@/lib/api/github";
 import type { Label as LabelType } from "@/lib/types/github";
+
+// Debounce delay for batching label additions
+const BATCH_DELAY_MS = 300;
+
+// Simple hook to force re-render
+function useForceUpdate() {
+  const [, forceUpdate] = useReducer((x: number) => x + 1, 0);
+  return forceUpdate;
+}
 
 interface LabelPickerProps {
   owner: string;
@@ -69,7 +78,10 @@ export function LabelPicker({
   const { isAuthenticated } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const forceUpdate = useForceUpdate();
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const batchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingLabelsRef = useRef<Set<string>>(new Set());
   const queryClient = useQueryClient();
   const toast = useToastActions();
 
@@ -83,18 +95,28 @@ export function LabelPicker({
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
-  // Add label mutation
+  // Batched add labels mutation
   const addMutation = useMutation({
-    mutationFn: (labelName: string) => addLabels(owner, repo, issueNumber, [labelName]),
-    onSuccess: () => {
-      toast.success("Label added", "Label has been added successfully");
+    mutationFn: (labelNames: string[]) => addLabels(owner, repo, issueNumber, labelNames),
+    onSuccess: (_data, labelNames) => {
+      const count = labelNames.length;
+      toast.success(
+        count === 1 ? "Label added" : "Labels added",
+        count === 1
+          ? "Label has been added successfully"
+          : `${count} labels have been added successfully`,
+      );
       queryClient.invalidateQueries({ queryKey: [queryKeyPrefix, owner, repo, issueNumber] });
     },
     onError: (error) => {
       toast.error(
-        "Failed to add label",
+        "Failed to add labels",
         error instanceof Error ? error.message : "Please try again",
       );
+    },
+    onSettled: () => {
+      pendingLabelsRef.current = new Set();
+      forceUpdate();
     },
   });
 
@@ -114,17 +136,45 @@ export function LabelPicker({
   });
 
   const isPending = addMutation.isPending || removeMutation.isPending;
+  const pendingLabels = pendingLabelsRef.current;
 
-  // Filter labels based on search
+  // Filter labels based on search and exclude already selected + pending
   const filteredLabels = availableLabels.filter(
     (label) =>
       label.name.toLowerCase().includes(search.toLowerCase()) &&
-      !currentLabels.some((l) => l.name === label.name),
+      !currentLabels.some((l) => l.name === label.name) &&
+      !pendingLabels.has(label.name),
   );
 
+  // Handle adding a label with batching
   const handleAddLabel = (label: LabelType) => {
-    addMutation.mutate(label.name);
+    // Add to pending set
+    pendingLabelsRef.current.add(label.name);
+    forceUpdate();
+
+    // Clear existing timeout
+    if (batchTimeoutRef.current) {
+      clearTimeout(batchTimeoutRef.current);
+    }
+
+    // Set new timeout to flush
+    batchTimeoutRef.current = setTimeout(() => {
+      const labels = Array.from(pendingLabelsRef.current);
+      if (labels.length > 0) {
+        addMutation.mutate(labels);
+      }
+      batchTimeoutRef.current = null;
+    }, BATCH_DELAY_MS);
   };
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (batchTimeoutRef.current) {
+        clearTimeout(batchTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleRemoveLabel = (labelName: string) => {
     removeMutation.mutate(labelName);
@@ -197,8 +247,29 @@ export function LabelPicker({
                 </p>
               ) : (
                 <div className="py-1">
+                  {/* Show pending labels at the top with a check mark */}
+                  {Array.from(pendingLabels).map((labelName) => {
+                    const label = availableLabels.find((l) => l.name === labelName);
+                    if (!label) return null;
+                    const bgColor = `#${label.color}`;
+
+                    return (
+                      <div
+                        key={label.id}
+                        className="w-full flex items-center gap-2 px-3 py-2 text-left bg-bg-hover opacity-75"
+                      >
+                        <span
+                          className="w-3 h-3 rounded-full shrink-0"
+                          style={{ backgroundColor: bgColor }}
+                        />
+                        <div className="flex-1 min-w-0">
+                          <span className="text-sm text-fg block truncate">{label.name}</span>
+                        </div>
+                        <Check size={14} className="text-accent shrink-0" />
+                      </div>
+                    );
+                  })}
                   {filteredLabels.map((label) => {
-                    const isApplied = currentLabels.some((l) => l.name === label.name);
                     const bgColor = `#${label.color}`;
 
                     return (
@@ -221,7 +292,6 @@ export function LabelPicker({
                             </span>
                           )}
                         </div>
-                        {isApplied && <Check size={14} className="text-accent shrink-0" />}
                       </button>
                     );
                   })}

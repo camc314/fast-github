@@ -1435,7 +1435,8 @@ export async function addLabels(
         Accept: "application/vnd.github.v3+json",
         ...getAuthHeaders(),
       },
-      body: JSON.stringify({ labels }),
+      // GitHub API accepts either { labels: [...] } or just [...]
+      body: JSON.stringify(labels),
     },
   );
 
