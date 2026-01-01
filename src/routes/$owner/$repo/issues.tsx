@@ -79,7 +79,11 @@ function IssuesPage() {
 
   // Trigger fetch when scrolling near end
   useEffect(() => {
-    if (lastItemIndex >= issues.length - INFINITE_SCROLL_THRESHOLD && hasNextPage && !isFetchingNextPage) {
+    if (
+      lastItemIndex >= issues.length - INFINITE_SCROLL_THRESHOLD &&
+      hasNextPage &&
+      !isFetchingNextPage
+    ) {
       fetchNextPage();
     }
   }, [lastItemIndex, hasNextPage, isFetchingNextPage, issues.length, fetchNextPage]);

@@ -17,7 +17,11 @@ function Description({ body }: { body: string }) {
   );
 }
 
-export function IssueDetailOverview({ body, comments, timelineEvents = [] }: IssueDetailOverviewProps) {
+export function IssueDetailOverview({
+  body,
+  comments,
+  timelineEvents = [],
+}: IssueDetailOverviewProps) {
   return (
     <div>
       <Description body={body} />

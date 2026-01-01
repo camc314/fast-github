@@ -244,9 +244,7 @@ export function PRDetailFiles({
             <span className="font-medium text-red-500">-{totalDeletions.toLocaleString()}</span>
           </div>
           {/* Hide view mode toggle on small screens (forced to unified) */}
-          {!isSmallScreen && (
-            <ViewModeToggle viewMode={viewMode} onChange={setDiffViewMode} />
-          )}
+          {!isSmallScreen && <ViewModeToggle viewMode={viewMode} onChange={setDiffViewMode} />}
         </div>
       </div>
 

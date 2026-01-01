@@ -44,8 +44,7 @@ export function useToastActions() {
       addToast({ type: "error", title, description, duration: 6000 }),
     warning: (title: string, description?: string) =>
       addToast({ type: "warning", title, description }),
-    info: (title: string, description?: string) =>
-      addToast({ type: "info", title, description }),
+    info: (title: string, description?: string) => addToast({ type: "info", title, description }),
   };
 }
 
@@ -120,7 +119,13 @@ function ToastItem({ toast, onRemove }: { toast: Toast; onRemove: () => void }) 
 /**
  * Toast container that renders all active toasts
  */
-function ToastContainer({ toasts, removeToast }: { toasts: Toast[]; removeToast: (id: string) => void }) {
+function ToastContainer({
+  toasts,
+  removeToast,
+}: {
+  toasts: Toast[];
+  removeToast: (id: string) => void;
+}) {
   if (toasts.length === 0) return null;
 
   return (

@@ -1183,10 +1183,9 @@ export async function searchIssues(
 // Fetch repository labels
 export async function fetchRepoLabels(owner: string, repo: string): Promise<Label[]> {
   const url = `${GITHUB_API}/repos/${owner}/${repo}/labels?per_page=100`;
-  const data =
-    await githubFetch<Array<{ id: number; name: string; color: string; description?: string }>>(
-      url,
-    );
+  const data = await githubFetch<
+    Array<{ id: number; name: string; color: string; description?: string }>
+  >(url);
 
   return data.map((label) => ({
     id: label.id,

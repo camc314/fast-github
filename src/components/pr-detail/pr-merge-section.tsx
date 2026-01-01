@@ -240,7 +240,9 @@ function ReviewsSummarySection({ reviews, pr }: { reviews: PRReview[]; pr: PullR
             </span>
           )}
           {hasPendingReviews && (
-            <span>{pendingReviewers.length} pending review{pendingReviewers.length > 1 ? "s" : ""}</span>
+            <span>
+              {pendingReviewers.length} pending review{pendingReviewers.length > 1 ? "s" : ""}
+            </span>
           )}
         </div>
       </div>
@@ -351,9 +353,7 @@ function MergeStatusSection({ pr }: { pr: PullRequest }) {
  * Main merge section component
  */
 export function PRMergeSection({ pr, checks, reviews }: PRMergeSectionProps) {
-  const [checksExpanded, setChecksExpanded] = useState(
-    checks.failure > 0 || checks.pending > 0,
-  );
+  const [checksExpanded, setChecksExpanded] = useState(checks.failure > 0 || checks.pending > 0);
 
   const isOpen = pr.state === "open";
   const canMerge =

@@ -12,7 +12,7 @@ export function useMediaQuery(query: string): boolean {
 
   useEffect(() => {
     const mediaQuery = window.matchMedia(query);
-    
+
     // Update state initially
     setMatches(mediaQuery.matches);
 

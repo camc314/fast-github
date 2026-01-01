@@ -42,12 +42,12 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       }
 
       return (
-        <div className="min-h-[400px] flex items-center justify-center p-8">
+        <div className="min-h-100 flex items-center justify-center p-8">
           <div className="max-w-md w-full text-center">
             <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-red-500/10 flex items-center justify-center">
               <AlertTriangle size={32} className="text-red-500" />
             </div>
-            
+
             <h2 className="text-xl font-semibold text-fg mb-2">Something went wrong</h2>
             <p className="text-sm text-fg-secondary mb-6">
               An unexpected error occurred. Please try again or return to the home page.
