@@ -17,7 +17,6 @@ import { PRMergeSection } from "@/components/pr-detail/pr-merge-section";
 import { MobileSidebar } from "@/components/ui/mobile-sidebar";
 import { CommentForm } from "@/components/ui/comment-form";
 import { useDocumentTitle } from "@/lib/hooks/use-document-title";
-import { useAuth } from "@/lib/auth/auth-context";
 import type { PRComment } from "@/lib/types/github";
 import {
   fetchPullRequest,
@@ -110,8 +109,6 @@ function PullRequestDetailPage() {
     checksLoading ||
     reviewCommentsLoading;
 
-  const { user } = useAuth();
-
   // Mutation for adding review comments (inline/diff comments)
   const addReviewCommentMutation = useMutation({
     mutationFn: (params: { path: string; line: number; side: "LEFT" | "RIGHT"; body: string }) =>
@@ -158,10 +155,11 @@ function PullRequestDetailPage() {
       const optimisticComment: PRComment = {
         id: Date.now(),
         body,
-        user: {
-          login: user?.login ?? "You",
-          avatarUrl: user?.avatarUrl ?? "",
-        },
+        user: {} as any,
+        // user: {
+        //   login: user?.login ?? "You",
+        //   avatarUrl: user?.avatarUrl ?? "",
+        // },
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
